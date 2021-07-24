@@ -23,7 +23,7 @@
  * I.e. 200 word stack size => 200*32bit = 800 Bytes
  * This will be the same stack in the call-back methods
  */
-#define CAN_STACK_SIZE 200
+#define CAN_STACK_SIZE 2000
 
 typedef enum
 {
