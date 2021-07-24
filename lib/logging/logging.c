@@ -29,7 +29,7 @@ Logging_Status_T logPrint(const Logging_T* logData, const char* message, const s
   (void)len;
 
   if (logData->enableLogToDebug) {
-    printf(message);
+    printf("%s", message);
   }
 
   if (logData->enableLogToSerial && NULL != logData->handleSerial) {
