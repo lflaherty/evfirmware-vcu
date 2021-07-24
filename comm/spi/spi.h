@@ -15,6 +15,8 @@
 #include "FreeRTOS.h"
 #include "semphr.h"  /* FreeRTOS mutex */
 
+#include "lib/logging/logging.h"
+
 #define SPI_QUEUE_LENGTH  10       /* 10 SPI messages */
 #define SPI_NUM_CALLBACKS 5        /* Max number of SPI callbacks on any bus */
 
@@ -61,8 +63,9 @@ typedef struct {
 
 /**
  * @brief Initialize SPI driver interface
+ * @param logger Pointer to logging settings
  */
-SPI_Status_T SPI_Init(void);
+SPI_Status_T SPI_Init(Logging_T* logger);
 
 
 /**

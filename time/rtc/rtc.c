@@ -10,14 +10,21 @@
 
 #include <stdio.h>
 
+#include "lib/logging/logging.h"
 
-RTC_Status_T RTC_Init(void)
+// ------------------- Private data -------------------
+static Logging_T* log;
+
+
+// ------------------- Public methods -------------------
+RTC_Status_T RTC_Init(Logging_T* logger)
 {
-  printf("RTC_Init begin\n");
+  log = logger;
+  logPrintS(log, "RTC_Init begin\n", LOGGING_DEFAULT_BUFF_LEN);
 
   // Nothing to do here
 
-  printf("RTC_Init complete\n");
+  logPrintS(log, "RTC_Init complete\n", LOGGING_DEFAULT_BUFF_LEN);
   return RTC_STATUS_OK;
 }
 

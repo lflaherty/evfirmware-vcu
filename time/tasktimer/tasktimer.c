@@ -14,7 +14,11 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
+#include "lib/logging/logging.h"
+
 // ------------------- Static data ----------------------
+static Logging_T* log;
+
 typedef struct {
   bool isSet;                  // Only true when used
   TaskHandle_t* taskHandle;    // Handle for notification
@@ -31,9 +35,10 @@ static TIM_HandleTypeDef* timHandle;
 
 
 // ------------------- Public methods -------------------
-TaskTimer_Status_T TaskTimer_Init(TIM_HandleTypeDef* htim)
+TaskTimer_Status_T TaskTimer_Init(Logging_T* logger, TIM_HandleTypeDef* htim)
 {
-  printf("TaskTimer_Init begin\n");
+  log = logger;
+  logPrintS(log, "TaskTimer_Init begin\n", LOGGING_DEFAULT_BUFF_LEN);
 
   // Init data
   memset(&taskData, 0, sizeof(taskData));
@@ -44,7 +49,7 @@ TaskTimer_Status_T TaskTimer_Init(TIM_HandleTypeDef* htim)
     return TASKTIMER_STATUS_ERROR_TIMER;
   }
 
-  printf("TaskTimer_Init complete\n");
+  logPrintS(log, "TaskTimer_Init complete\n", LOGGING_DEFAULT_BUFF_LEN);
   return TASKTIMER_STATUS_OK;
 }
 

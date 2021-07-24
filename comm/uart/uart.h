@@ -11,6 +11,8 @@
 #include "stm32f7xx_hal.h"
 #include <stdint.h>
 
+#include "lib/logging/logging.h"
+
 #define UART_QUEUE_LENGTH 128     /* 128 bytes */
 #define UART_NUM_CALLBACKS 16     /* Max number of UART callbacks on any device */
 
@@ -26,8 +28,9 @@
 typedef enum
 {
   UART_STATUS_OK        = 0x00U,
-  UART_STATUS_ERROR_TX  = 0x01U,
-  UART_STATUS_ERROR_CALLBACK_FULL = 0x02U
+  UART_STATUS_NOT_READY = 0x01U,
+  UART_STATUS_ERROR_TX  = 0x02U,
+  UART_STATUS_ERROR_CALLBACK_FULL = 0x03U
 } UART_Status_T;
 
 typedef struct {
@@ -44,8 +47,9 @@ typedef void (*UART_Callback_Method)(const USART_Data_T*);
 
 /**
  * @brief Initialize UART driver interface
+ * @param logger Pointer to logging settings
  */
-UART_Status_T UART_Init(void);
+UART_Status_T UART_Init(Logging_T* logger);
 
 /**
  * @brief Configure UART bus

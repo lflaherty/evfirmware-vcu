@@ -11,6 +11,8 @@
 #include "stm32f7xx_hal.h"
 #include <stdint.h>
 
+#include "lib/logging/logging.h"
+
 #define CAN_QUEUE_LENGTH  50       /* 50 messages */
 #define CAN_NUM_CALLBACKS 16       /* Max number of CAN callbacks on any bus */
 
@@ -54,7 +56,7 @@ typedef void (*CAN_Callback_Method)(const CAN_DataFrame_T*);
 /**
  * @brief Initialize CAN driver interface
  */
-CAN_Status_T CAN_Init(void);
+CAN_Status_T CAN_Init(Logging_T* logger);
 
 /**
  * @brief Configure CAN bus

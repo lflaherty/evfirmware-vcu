@@ -10,6 +10,8 @@
 
 #include "stm32f7xx_hal.h"
 
+#include "lib/logging/logging.h"
+
 typedef enum
 {
   RTC_STATUS_OK     = 0x00U,
@@ -24,8 +26,9 @@ typedef struct
 
 /**
  * Initialize RTC
+ * @param logger Pointer to logging settings
  */
-RTC_Status_T RTC_Init(void);
+RTC_Status_T RTC_Init(Logging_T* logger);
 
 /**
  * Update the internal date & time

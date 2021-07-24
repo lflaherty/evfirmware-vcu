@@ -15,6 +15,8 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
+#include "lib/logging/logging.h"
+
 /*
  * The base tick rate. This can be divided for individual tasks.
  * Note that this is configured in main with the TIM_HandleTypeDef Prescaler and Period.
@@ -37,9 +39,10 @@ typedef enum {
 
 /*
  * Starts the timer function
+ * @param logger Pointer to logging settings
  * @param htim Handle for the timer to be used.
  */
-TaskTimer_Status_T TaskTimer_Init(TIM_HandleTypeDef* htim);
+TaskTimer_Status_T TaskTimer_Init(Logging_T* logger, TIM_HandleTypeDef* htim);
 
 /*
  * Registers a task for real-time notifications.

@@ -11,14 +11,17 @@
 
 #include "stm32f7xx_hal.h"
 
-//GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin
+#include "lib/logging/logging.h"
+
+static Logging_T* log;
 
 static GPIO_TypeDef* gpioBank;
 static uint16_t gpioPin;
 
-ExternalWatchdog_Status_T ExternalWatchdog_Init(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
+ExternalWatchdog_Status_T ExternalWatchdog_Init(Logging_T* logger, GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
 {
-  printf("ExternalWatchdog_Init begin\n");
+  log = logger;
+  logPrintS(log, "ExternalWatchdog_Init begin\n", LOGGING_DEFAULT_BUFF_LEN);
 
   gpioBank = GPIOx;
   gpioPin = GPIO_Pin;
@@ -26,7 +29,7 @@ ExternalWatchdog_Status_T ExternalWatchdog_Init(GPIO_TypeDef* GPIOx, uint16_t GP
   // set pin state
   HAL_GPIO_WritePin(gpioBank, gpioPin, GPIO_PIN_RESET);
 
-  printf("ExternalWatchdog_Init complete\n");
+  logPrintS(log, "ExternalWatchdog_Init complete\n", LOGGING_DEFAULT_BUFF_LEN);
   return EXTWATCHDOG_STATUS_OK;
 }
 

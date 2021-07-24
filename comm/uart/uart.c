@@ -9,11 +9,16 @@
 
 #include <string.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
 
 // ------------------- Private data -------------------
+static Logging_T* log;
+
+static bool isReady;
+
 typedef struct {
   USART_TypeDef* uartInstance;
   UART_Callback_Method callback;
@@ -147,9 +152,11 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 
 
 // ------------------- Public methods -------------------
-UART_Status_T UART_Init(void)
+UART_Status_T UART_Init(Logging_T* logger)
 {
-  printf("UART_Init begin\n");
+  log = logger;
+  logPrintS(log, "UART_Init begin\n", LOGGING_DEFAULT_BUFF_LEN);
+  isReady = false;
 
   // Initialize mem to 0
   memset(&uartInfo, 0, sizeof(uartInfo));
@@ -171,19 +178,21 @@ UART_Status_T UART_Init(void)
       uartRxTask.xTask,
       &uartRxTask.xTaskBuffer);
 
-  printf("UART_Init complete\n");
+  isReady = true;
+
+  logPrintS(log, "UART_Init complete\n", LOGGING_DEFAULT_BUFF_LEN);
   return UART_STATUS_OK;
 }
 
 //------------------------------------------------------------------------------
 UART_Status_T UART_Config(UART_HandleTypeDef* handle)
 {
-  printf("UART_Config begin\n");
+  logPrintS(log, "UART_Config begin\n", LOGGING_DEFAULT_BUFF_LEN);
 
   HAL_UART_Receive_DMA(handle, uartDmaData, 2);
   // TODO is this needed?
 
-  printf("UART_Config complete\n");
+  logPrintS(log, "UART_Config complete\n", LOGGING_DEFAULT_BUFF_LEN);
   return UART_STATUS_OK;
 }
 
@@ -192,6 +201,10 @@ UART_Status_T UART_RegisterCallback(
     const UART_HandleTypeDef* handle,
     const UART_Callback_Method method)
 {
+  if (!isReady) {
+    return UART_STATUS_NOT_READY;
+  }
+
   // Store callback
   if (UART_NUM_CALLBACKS == uartInfo.numCallbacks) {
     // the callback array is already full
@@ -209,6 +222,10 @@ UART_Status_T UART_RegisterCallback(
 //------------------------------------------------------------------------------
 UART_Status_T UART_SendMessage(UART_HandleTypeDef* handle, uint8_t* data, size_t len)
 {
+  if (!isReady) {
+    return UART_STATUS_NOT_READY;
+  }
+
   HAL_StatusTypeDef ret = HAL_UART_Transmit_DMA(handle, data, len);
   if (HAL_OK != ret) {
     return UART_STATUS_ERROR_TX;

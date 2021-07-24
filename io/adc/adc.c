@@ -14,6 +14,11 @@
 #include <stdbool.h>
 #include <math.h>
 
+#include "lib/logging/logging.h"
+
+
+static Logging_T* logging;
+
 /**
  * Used by DMA to store data
  */
@@ -50,9 +55,11 @@ static bool adcInitialized = false;
 
 
 // ------------------- Public methods -------------------
-ADC_Status_T ADC_Init(const uint16_t numSampleAvg)
+ADC_Status_T ADC_Init(Logging_T* logger, const uint16_t numSampleAvg)
 {
-  printf("ADC_Init begin\n");
+  logging = logger;
+  logPrintS(logging, "ADC_Init begin\n", LOGGING_DEFAULT_BUFF_LEN);
+
   // Initialize buffers to 0 (can't use memset due to volatile)
   for (size_t i = 0; i < ADC_NUM_CHANNELS; ++i) {
     adcDMABuf[i] = 0;
@@ -66,14 +73,14 @@ ADC_Status_T ADC_Init(const uint16_t numSampleAvg)
 
   adcInitialized = true;
 
-  printf("ADC_Init complete\n");
+  logPrintS(logging, "ADC_Init complete\n", LOGGING_DEFAULT_BUFF_LEN);
   return ADC_STATUS_OK;
 }
 
 //------------------------------------------------------------------------------
 ADC_Status_T ADC_Config(ADC_HandleTypeDef* handle)
 {
-  printf("ADC_Config begin\n");
+  logPrintS(logging, "ADC_Config begin\n", LOGGING_DEFAULT_BUFF_LEN);
   // TODO: this only works for ADC1 (with multiple channels), expand to ADCx
 
   // just need to start DMA
@@ -81,7 +88,7 @@ ADC_Status_T ADC_Config(ADC_HandleTypeDef* handle)
     return ADC_STATUS_ERROR_DMA;
   }
 
-  printf("ADC_Config complete\n");
+  logPrintS(logging, "ADC_Config complete\n", LOGGING_DEFAULT_BUFF_LEN);
   return ADC_STATUS_OK;
 }
 

@@ -18,6 +18,8 @@
 #include "semphr.h"
 
 // ------------------- Private data -------------------
+static Logging_T* log;
+
 
 /* ========= SPI devices definitions ========= */
 // Array of callbacks
@@ -109,7 +111,7 @@ static SPI_Index_T getSPIBusIndex(SPI_TypeDef* spiBus) {
  */
 static void SPI_RxTask(void* pvParameters)
 {
-  printf("SPI_RxTask begin\n");
+  logPrintS(log, "SPI_RxTask begin\n", LOGGING_DEFAULT_BUFF_LEN);
 
   const TickType_t blockTime = 500 / portTICK_PERIOD_MS; // 500ms
   uint32_t notifiedValue;
@@ -192,9 +194,10 @@ void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
 
 
 // ------------------- Public methods -------------------
-SPI_Status_T SPI_Init(void)
+SPI_Status_T SPI_Init(Logging_T* logger)
 {
-  printf("SPI_Init begin\n");
+  log = logger;
+  logPrintS(log, "SPI_Init begin\n", LOGGING_DEFAULT_BUFF_LEN);
 
   // Initialize spiDevices
   for (uint8_t i = 0; i < SPI_NUM_BUSSES; ++i) {
@@ -248,7 +251,7 @@ SPI_Status_T SPI_Init(void)
       spiBusTask.xTask,
       &spiBusTask.xTaskBuffer);
 
-  printf("SPI_Init complete\n");
+  logPrintS(log, "SPI_Init complete\n", LOGGING_DEFAULT_BUFF_LEN);
   return SPI_STATUS_OK;
 }
 
