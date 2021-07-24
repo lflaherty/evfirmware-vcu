@@ -39,8 +39,8 @@ typedef enum
 typedef struct {
   SPI_Device_T* device;
 
-  SemaphoreHandle_t mutex;      // Used to protect device while access is attempted
-  StaticSemaphore_t mutexBuffer; // Buffer for static mutex
+  SemaphoreHandle_t sem;      // Used to protect device while access is attempted
+  StaticSemaphore_t semBuffer; // Buffer for static sem
 } SPI_Device_Internal_T;
 
 // Stores the SPI device/CS pin/callback info for currently in use devices
@@ -78,15 +78,7 @@ static struct {
   // mutex for locking SPI_TransmitReceiveBlocking
   SemaphoreHandle_t spiBusyMutex;
   StaticSemaphore_t spiBusyMutexBuffer;
-
-  // binary semaphore for signaling from the SPI callback to SPI_TransmitReceiveBlocking
-  SemaphoreHandle_t signalSem;
-  StaticSemaphore_t signalSemBuffer;
-
-  uint8_t rxData[SPI_SYNC_MAX_DATA_LENGTH]; // TODO should this be volatile?
-  uint8_t txData[SPI_SYNC_MAX_DATA_LENGTH];
 } spiSync;
-
 
 
 
@@ -142,7 +134,7 @@ static void SPI_RxTask(void* pvParameters)
         }
 
         // pend semaphore (signal that the device is ready again)
-        xSemaphoreGive(spiDevices[spiDevIndex].mutex);
+        xSemaphoreGive(spiDevices[spiDevIndex].sem);
 
         notifiedValue--; // one less notification to process
       } else {
@@ -151,15 +143,6 @@ static void SPI_RxTask(void* pvParameters)
 
     }
   }
-}
-
-/**
- * Method to synchronize the synchronous TX call SPI_TransmitReceiveBlocking
- */
-static void SPI_TransmitReceiveBlocking_Callback(void)
-{
-  // Give semaphore to SPI_TransmitReceiveBlocking
-  xSemaphoreGive(spiSync.signalSem);
 }
 
 //------------------------------------------------------------------------------
@@ -201,18 +184,15 @@ SPI_Status_T SPI_Init(Logging_T* logger)
 
   // Initialize spiDevices
   for (uint8_t i = 0; i < SPI_NUM_BUSSES; ++i) {
-    // invalidate device and create mutex
+    // invalidate device and create sem
     spiDevices[i].device = NULL;
-    spiDevices[i].mutex = xSemaphoreCreateBinaryStatic(&spiDevices[i].mutexBuffer);
-//    spiDevices[i].mutex =
-//        xSemaphoreCreateMutexStatic(&spiDevices[i].mutexBuffer);
+    spiDevices[i].sem = xSemaphoreCreateBinaryStatic(&spiDevices[i].semBuffer);
 
     // start semaphore as available
-    xSemaphoreGive(spiDevices[i].mutex);
-    // TODO rename mutex to sem
+    xSemaphoreGive(spiDevices[i].sem);
 
-    if(spiDevices[i].mutex == NULL) {
-      // error in creating mutex semaphore
+    if(spiDevices[i].sem == NULL) {
+      // error in creating semaphore
       // created static, so not expected, but still check...
       return SPI_STATUS_ERROR_SEM;
     }
@@ -221,16 +201,6 @@ SPI_Status_T SPI_Init(Logging_T* logger)
   // Create mutex for SPI_TransmitReceiveBlocking
   spiSync.spiBusyMutex = xSemaphoreCreateMutexStatic(&spiSync.spiBusyMutexBuffer);
   if (NULL == spiSync.spiBusyMutex) {
-    return SPI_STATUS_ERROR_SEM;
-  }
-
-  // Create semaphore for SPI_TransmitReceiveBlocking synchronization
-  spiSync.signalSem = xSemaphoreCreateBinaryStatic(&spiSync.signalSemBuffer);
-  if (NULL == spiSync.signalSem) {
-    return SPI_STATUS_ERROR_SEM;
-  }
-  // initialize semaphore to available
-  if (pdTRUE != xSemaphoreGive(spiSync.signalSem)) {
     return SPI_STATUS_ERROR_SEM;
   }
 
@@ -268,9 +238,8 @@ SPI_Status_T SPI_TransmitReceive(
     return SPI_STATUS_ERROR_INVALID_BUS;
   }
 
-  // Acquire mutex
-  // TODO timeout
-  if (xSemaphoreTake(spiDevices[spiDevIndex].mutex, (TickType_t)10) != pdTRUE) {
+  // Acquire sem
+  if (xSemaphoreTake(spiDevices[spiDevIndex].sem, (TickType_t)10) != pdTRUE) {
     // could not obtain the semaphore and cannot access resource
     return SPI_STATUS_ERROR_BUSY;
   }
@@ -281,10 +250,7 @@ SPI_Status_T SPI_TransmitReceive(
   // Pull CS pin low to begin transfer
   HAL_GPIO_WritePin(device->csPinBank, device->csPin, GPIO_PIN_RESET);
 
-  // TODO move from IT to DMA
-//  HAL_StatusTypeDef ret = HAL_SPI_TransmitReceive_DMA(
-//      device->spiHandle, txData, rxData, dataLen);
-  HAL_StatusTypeDef ret = HAL_SPI_TransmitReceive_IT(
+  HAL_StatusTypeDef ret = HAL_SPI_TransmitReceive_DMA(
       device->spiHandle, txData, rxData, dataLen);
   if (HAL_OK != ret) {
     // failed transfer
@@ -309,48 +275,29 @@ SPI_Status_T SPI_TransmitReceiveBlocking(
     return SPI_STATUS_ERROR_TOO_MUCH_DATA;
   }
 
+  // grab the mutex
+  if (pdTRUE != xSemaphoreTake(spiSync.spiBusyMutex, 10U)) {
+    return SPI_STATUS_ERROR_SEM;
+  }
+
   // Pull CS pin low to begin transfer
   HAL_GPIO_WritePin(device->csPinBank, device->csPin, GPIO_PIN_RESET);
 
-  HAL_StatusTypeDef x = HAL_SPI_TransmitReceive(device->spiHandle, txData, rxData, dataLen, 10U);
+  HAL_StatusTypeDef ret = HAL_SPI_TransmitReceive(device->spiHandle, txData, rxData, dataLen, 10U);
 
-  // Pull CS pin back up
+  // Pull CS pin back up to end
   HAL_GPIO_WritePin(device->csPinBank, device->csPin, GPIO_PIN_SET);
 
-  if (HAL_OK != x) {
-    return SPI_STATUS_ERROR_TX;
+  if (HAL_OK != ret) {
+    // release the semaphore
+    xSemaphoreGive(spiSync.spiBusyMutex);
+
+    // error
+    return ret;
   }
 
-//  // grab the mutex
-//  if (pdTRUE != xSemaphoreTake(spiSync.spiBusyMutex, 10U)) {
-//    return SPI_STATUS_ERROR_SEM;
-//  }
-//
-//  device->callback = SPI_TransmitReceiveBlocking_Callback;
-//  SPI_Status_T ret = SPI_TransmitReceive(device, spiSync.txData, spiSync.rxData, dataLen);
-//  if (SPI_STATUS_OK != ret) {
-//    // release the semaphore
-//    xSemaphoreGive(spiSync.spiBusyMutex);
-//
-//    // error
-//    return ret;
-//  }
-//
-//  // wait for the synchronizing semaphore
-//  if (pdTRUE != xSemaphoreTake(spiSync.signalSem, 10U)) {
-//    // release the semaphore
-//    xSemaphoreGive(spiSync.spiBusyMutex);
-//
-//    return SPI_STATUS_ERROR_SEM;
-//  }
-//
-//  // copy data from volatile arrays into output
-//  // TODO uint16_ts?
-//  memcpy(txData, spiSync.txData, sizeof(uint8_t)*dataLen);
-//  memcpy(rxData, spiSync.rxData, sizeof(uint8_t)*dataLen);
-//
-//  // now release data mutex
-//  xSemaphoreGive(spiSync.spiBusyMutex);
+  // now release data mutex
+  xSemaphoreGive(spiSync.spiBusyMutex);
 
   return SPI_STATUS_OK;
 }

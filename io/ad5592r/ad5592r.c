@@ -5,6 +5,16 @@
  *      Author: Liam Flaherty
  */
 
+/*
+ * ################################################################
+ * #                                                              #
+ * #                                                              #
+ * #                          DEPRECATED                          #
+ * #                                                              #
+ * #                                                              #
+ * ################################################################
+ */
+
 #include "ad5592r.h"
 
 #include <string.h>
@@ -69,7 +79,6 @@ static struct {
 static SPI_Device_T spiDevice;
 
 // Controls what the SPI bus is currently doing with the device
-// TODO refactor, this doesn't make sense any more
 static struct {
   bool isConfigStale; // if true, a flush of the config registers is needed
   bool isResetStale;  // if true, a reset is needed
@@ -189,7 +198,7 @@ static AD5592R_Status_T AD5592R_AINReadAll(void)
   AD5592R_MessageADCSequenceReg_T readAdc = {0};
   readAdc.fields.registerAddress = REG_ADC_SEQ;
   readAdc.fields.rep = 0U;  // no repetition
-  readAdc.fields.temp = 0U; // don't include temperature reading TODO: actually want this
+  readAdc.fields.temp = 0U; // don't include temperature reading
   readAdc.fields.adc = dataRegisters.enAdc;
 
   SPI_TransmitReceiveBlocking(&spiDevice, (uint8_t*)&readAdc.raw, (uint8_t*)&rxData, 2);
@@ -249,7 +258,6 @@ static AD5592R_Status_T AD5592R_AOUTWriteAll(void)
   // release mutex
   xSemaphoreGive(currentOperation.dataLock);
 
-  // TODO get an accurate return status
   return AD5592R_STATUS_OK;
 }
 
@@ -412,7 +420,7 @@ static void AD5592R_PeriodicTask(void* pvParameters)
 
           if (AD5592R_STATUS_OK == statusFlush) {
             currentOperation.isConfigStale = false;
-          } // TODO, and if statusFlush isn't OK?
+          }
         }
 
         // release mutex
@@ -420,12 +428,12 @@ static void AD5592R_PeriodicTask(void* pvParameters)
       }
 
       // read inputs
-  //    AD5592R_AINReadAll();
-  //    AD5592R_DINReadAll();
+      AD5592R_AINReadAll();
+      AD5592R_DINReadAll();
 
       // write outputs
       AD5592R_AOUTWriteAll();
-  //    AD5592R_DOUTWriteAll();
+      AD5592R_DOUTWriteAll();
 
     }
   }
