@@ -22,18 +22,23 @@ static Logging_T* logging;
 /**
  * Used by DMA to store data
  */
-static volatile uint16_t adcDMABuf[ADC_NUM_CHANNELS];
+static volatile uint16_t adcDMABuf[ADC_MAX_NUM_CHANNELS];
 
 /**
  * Used to store intermediate ADC counting values.
  * (The sum value before averaging)
  */
-static volatile uint16_t adcDataCounting[ADC_NUM_CHANNELS];
+static volatile uint16_t adcDataCounting[ADC_MAX_NUM_CHANNELS];
 
 /**
  * Used to store final ADC results
  */
-static volatile uint16_t adcData[ADC_NUM_CHANNELS];
+static volatile uint16_t adcData[ADC_MAX_NUM_CHANNELS];
+
+/**
+ * Number of channels in use
+ */
+static uint16_t numChannels;
 
 /**
  * Number of samples to average over
@@ -55,18 +60,23 @@ static bool adcInitialized = false;
 
 
 // ------------------- Public methods -------------------
-ADC_Status_T ADC_Init(Logging_T* logger, const uint16_t numSampleAvg)
+ADC_Status_T ADC_Init(Logging_T* logger, const uint16_t numChannelsUsed, const uint16_t numSampleAvg)
 {
   logging = logger;
   logPrintS(logging, "ADC_Init begin\n", LOGGING_DEFAULT_BUFF_LEN);
 
+  if (numChannelsUsed > ADC_MAX_NUM_CHANNELS) {
+    return ADC_STATUS_ERROR_CHANNEL_COUNT;
+  }
+
   // Initialize buffers to 0 (can't use memset due to volatile)
-  for (size_t i = 0; i < ADC_NUM_CHANNELS; ++i) {
+  for (size_t i = 0; i < ADC_MAX_NUM_CHANNELS; ++i) {
     adcDMABuf[i] = 0;
     adcData[i] = 0;
     adcDataCounting[i] = 0;
   }
 
+  numChannels = numChannelsUsed;
   numSamples = numSampleAvg;
   averagingShift = log(numSamples) / log(2);
   currentSampleCount = 0;
@@ -84,7 +94,7 @@ ADC_Status_T ADC_Config(ADC_HandleTypeDef* handle)
   // TODO: this only works for ADC1 (with multiple channels), expand to ADCx
 
   // just need to start DMA
-  if (HAL_ADC_Start_DMA(handle, (uint32_t*)adcDMABuf, ADC_NUM_CHANNELS) != HAL_OK) {
+  if (HAL_ADC_Start_DMA(handle, (uint32_t*)adcDMABuf, numChannels) != HAL_OK) {
     return ADC_STATUS_ERROR_DMA;
   }
 
@@ -95,7 +105,11 @@ ADC_Status_T ADC_Config(ADC_HandleTypeDef* handle)
 //------------------------------------------------------------------------------
 uint16_t ADC_Get(const ADC_Channel_T channel)
 {
-  return adcData[channel];
+  if (channel <= numChannels) {
+    return adcData[channel];
+  } else {
+    return ADC_INVALID;
+  }
 }
 
 
@@ -119,7 +133,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 
     if (currentSampleCount == numSamples) {
       // copy results into final buffer
-      for (size_t i = 0; i < ADC_NUM_CHANNELS; ++i) {
+      for (size_t i = 0; i < numChannels; ++i) {
         adcData[i] = adcDataCounting[i] >> averagingShift; // use right shift as a cheap divide
         adcDataCounting[i] = 0;
       }
@@ -128,7 +142,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
       currentSampleCount = 0;
     } else {
       // copy results into averaging buffer
-      for (size_t i = 0; i < ADC_NUM_CHANNELS; ++i) {
+      for (size_t i = 0; i < numChannels; ++i) {
         adcDataCounting[i] += adcDMABuf[i] & 0xFFF;  // 12 bit, it should be this anyway, but make sure
       }
     }

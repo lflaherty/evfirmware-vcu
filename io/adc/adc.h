@@ -13,33 +13,30 @@
 
 #include "lib/logging/logging.h"
 
-#define ADC_NUM_CHANNELS 5  /* Number of channels used */
+#define ADC_MAX_NUM_CHANNELS 16
 
 typedef enum
 {
-  ADC_STATUS_OK         = 0x00U,
-  ADC_STATUS_ERROR_DMA  = 0x01U
+  ADC_STATUS_OK                   = 0x00U,
+  ADC_STATUS_ERROR_DMA            = 0x01U,
+  ADC_STATUS_ERROR_CHANNEL_COUNT  = 0x02U
 } ADC_Status_T;
 
-typedef enum
-{
-  ADC1_CHANNEL0   = 0x00U,
-  ADC1_CHANNEL1   = 0x01U,
-  ADC1_CHANNEL2   = 0x02U,
-  ADC1_CHANNEL3   = 0x03U,
-  ADC1_CHANNEL4   = 0x04U,
-} ADC_Channel_T;
+typedef uint16_t ADC_Channel_T;
+
+#define ADC_INVALID ((uint16_t)0xFFFFU)
 
 /**
  * @brief Initialize ADC driver interface
  *
  * @param logger Pointer to logging settings
+ * @param numChannelsUsed Number of channels in use
  * @param numSampleAvg Number of samples to average over.
  * For efficient averaging, this MUST be divisible by 2.
  *
  * @return Return status. ADC_STATUS_OK for success. See ADC_Status_T for more.
  */
-ADC_Status_T ADC_Init(Logging_T* logger, const uint16_t numSampleAvg);
+ADC_Status_T ADC_Init(Logging_T* logger, const uint16_t numChannelsUsed, const uint16_t numSampleAvg);
 
 /**
  * @brief Configure ADC device
@@ -53,7 +50,7 @@ ADC_Status_T ADC_Config(ADC_HandleTypeDef* handle);
 /**
  * @brief Gets the latest reading from the given ADC channel
  *
- * @returns Raw ADC reading (12-bit)
+ * @returns Raw ADC reading (12-bit). ADC_INVALID (0xFFFF) if the channel is out of range.
  */
 uint16_t ADC_Get(const ADC_Channel_T channel);
 
