@@ -16,6 +16,8 @@
 #define UART_QUEUE_LENGTH 128     /* 128 bytes */
 #define UART_NUM_CALLBACKS 16     /* Max number of UART callbacks on any device */
 
+#define UART_CALLBACK_PRIORITY 3
+
 /**
  * Stack size for UART Rx callback thread.
  * Note the units of this: words

@@ -16,6 +16,8 @@
 #define CAN_QUEUE_LENGTH  50       /* 50 messages */
 #define CAN_NUM_CALLBACKS 16       /* Max number of CAN callbacks on any bus */
 
+#define CAN_CALLBACK_PRIORITY 4
+
 /**
  * Stack size for CAN Rx callback thread.
  * Note the units of this: words

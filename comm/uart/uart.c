@@ -174,7 +174,7 @@ UART_Status_T UART_Init(Logging_T* logger)
       "UART_RXCallback",
       UART_STACK_SIZE,
       NULL,                 // Parameters to pass to the task
-      tskIDLE_PRIORITY,     // TODO update priority
+      UART_CALLBACK_PRIORITY,
       uartRxTask.xTask,
       &uartRxTask.xTaskBuffer);
 

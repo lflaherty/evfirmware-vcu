@@ -157,7 +157,7 @@ CAN_Status_T CAN_Init(Logging_T* logger)
       "CAN_RxCallback",
       CAN_STACK_SIZE,
       NULL,               // Parameter passed into the task (none in this case)
-      tskIDLE_PRIORITY,  // TODO: priority?
+      CAN_CALLBACK_PRIORITY,
       canBusTask.xTask,
       &canBusTask.xTaskBuffer);
 
