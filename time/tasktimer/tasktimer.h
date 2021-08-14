@@ -52,7 +52,7 @@ TaskTimer_Status_T TaskTimer_Init(Logging_T* logger, TIM_HandleTypeDef* htim);
  * @param divider Notify every n timer ticks. Set as 1 to notify for every tick.
  * E.g. if divider=5 for a 1ms clock, only run once every 5 ticks (i.e. 5ms)
  */
-TaskTimer_Status_T TaskTimer_RegisterTask(TaskHandle_t* task, uint16_t divider);
+TaskTimer_Status_T TaskTimer_RegisterTask(TaskHandle_t* task, uint32_t divider);
 
 /*
  * Handler for the timer period elapsed callback.

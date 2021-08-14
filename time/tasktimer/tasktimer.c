@@ -22,8 +22,8 @@ static Logging_T* log;
 typedef struct {
   bool isSet;                  // Only true when used
   TaskHandle_t* taskHandle;    // Handle for notification
-  uint16_t divider;            // Timer divider. How many timer ticks to count.
-  uint16_t timerCounter;       // Current count of timer ticks.
+  uint32_t divider;            // Timer divider. How many timer ticks to count.
+  uint32_t timerCounter;       // Current count of timer ticks.
 } TimedTask_T;
 
 static struct {
@@ -54,7 +54,7 @@ TaskTimer_Status_T TaskTimer_Init(Logging_T* logger, TIM_HandleTypeDef* htim)
 }
 
 //------------------------------------------------------------------------------
-TaskTimer_Status_T TaskTimer_RegisterTask(TaskHandle_t* task, uint16_t divider)
+TaskTimer_Status_T TaskTimer_RegisterTask(TaskHandle_t* task, uint32_t divider)
 {
   // Check size of task list
   if (TASKTIMER_MAX_TASKS == taskData.numTasks) {
