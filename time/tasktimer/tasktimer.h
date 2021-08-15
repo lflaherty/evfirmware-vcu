@@ -23,7 +23,8 @@
  * Duplicated here in units of MS.
  * Change this if the Prescaler and Period are updated.
  */
-#define TASKTIMER_BASE_PERIOD_MS 1U
+#define TASKTIMER_BASE_PERIOD_MS 10U
+#define TASKTIMER_BASE_PERIOD_100US 1U
 
 /*
  * Max number of tasks allowed to be registered
