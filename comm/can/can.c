@@ -115,6 +115,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 {
   CAN_RxHeaderTypeDef rxHeader;
   CAN_DataFrame_T canData;
+  BaseType_t higherPriorityTaskWoken = pdFALSE;
 
   /* Get RX message */
   if (HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &rxHeader, canData.data) != HAL_OK) {
@@ -127,12 +128,15 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
   canData.dlc = rxHeader.DLC;
   // (canData.data directly assigned from HAL_CAN_GetRxMessage)
 
-  BaseType_t status = xQueueSendToBackFromISR(canBusQueue.canDataQueue, &canData, NULL);
+  BaseType_t status = xQueueSendToBackFromISR(canBusQueue.canDataQueue, &canData, &higherPriorityTaskWoken);
+  portYIELD_FROM_ISR(higherPriorityTaskWoken);
 
   // only notify if adding to the queue worked
   if (status == pdPASS) {
     // Notify waiting thread
-    vTaskNotifyGiveFromISR(canBusTask.canTaskHandle, NULL);
+    higherPriorityTaskWoken = pdFALSE;
+    vTaskNotifyGiveFromISR(canBusTask.canTaskHandle, &higherPriorityTaskWoken);
+    portYIELD_FROM_ISR(higherPriorityTaskWoken);
   }
 }
 

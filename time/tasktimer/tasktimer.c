@@ -83,7 +83,6 @@ void TaskTimer_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
 {
   // Check that this is the right timer
   if (htim->Instance == timHandle->Instance) {
-
     // Determine what notifications to send
     size_t i;
     for (i = 0; i < taskData.numTasks; ++i) {
@@ -93,7 +92,10 @@ void TaskTimer_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
         // Check timer divider
         if (taskData.tasks[i].divider == taskData.tasks[i].timerCounter) {
           // Ready for notification
-          vTaskNotifyGiveFromISR(*taskData.tasks[i].taskHandle, NULL);
+          BaseType_t higherPriorityTaskWoken = pdFALSE;
+
+          vTaskNotifyGiveFromISR(*taskData.tasks[i].taskHandle, &higherPriorityTaskWoken);
+          portYIELD_FROM_ISR(higherPriorityTaskWoken);
 
           // Reset counter
           taskData.tasks[i].timerCounter = 1;

@@ -114,9 +114,14 @@ void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef* huart)
   uartData.data = uartDmaData[0];
 
   // add to queue and notify
-  BaseType_t status = xQueueSendToBackFromISR(uartQueue.uartDataQueue, &uartData, NULL);
+  BaseType_t higherPriorityTaskWoken = pdFALSE;
+  BaseType_t status = xQueueSendToBackFromISR(uartQueue.uartDataQueue, &uartData, &higherPriorityTaskWoken);
+  portYIELD_FROM_ISR(higherPriorityTaskWoken);
+
   if (pdPASS == status) {
-    vTaskNotifyGiveFromISR(uartRxTask.uartTaskHandle, NULL);
+    higherPriorityTaskWoken = pdFALSE;
+    vTaskNotifyGiveFromISR(uartRxTask.uartTaskHandle, &higherPriorityTaskWoken);
+    portYIELD_FROM_ISR(higherPriorityTaskWoken);
   }
 }
 
@@ -134,9 +139,14 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart)
   uartData.data = uartDmaData[1];
 
   // add to queue and notify
-  BaseType_t status = xQueueSendToBackFromISR(uartQueue.uartDataQueue, &uartData, NULL);
+  BaseType_t higherPriorityTaskWoken = pdFALSE;
+  BaseType_t status = xQueueSendToBackFromISR(uartQueue.uartDataQueue, &uartData, &higherPriorityTaskWoken);
+  portYIELD_FROM_ISR(higherPriorityTaskWoken);
+
   if (pdPASS == status) {
-    vTaskNotifyGiveFromISR(uartRxTask.uartTaskHandle, NULL);
+    higherPriorityTaskWoken = pdFALSE;
+    vTaskNotifyGiveFromISR(uartRxTask.uartTaskHandle, &higherPriorityTaskWoken);
+    portYIELD_FROM_ISR(higherPriorityTaskWoken);
   }
 
   // start the next DMA transfer
