@@ -12,7 +12,7 @@
 
 char mockLogBuffer[MOCK_LOG_BUFFER_LEN];
 
-Logging_Status_T logPrint(const Logging_T* logData, const char* message, const size_t len)
+Logging_Status_T mockLogPrint(const Logging_T* logData, const char* message, const size_t len)
 {
 	(void)logData;
 	(void)message;
@@ -20,7 +20,7 @@ Logging_Status_T logPrint(const Logging_T* logData, const char* message, const s
 	return LOGGING_STATUS_OK;
 }
 
-Logging_Status_T logPrintS(const Logging_T* logData, const char* message, const size_t bufferLen)
+Logging_Status_T mockLogPrintS(const Logging_T* logData, const char* message, const size_t bufferLen)
 {
 	(void)logData;
 

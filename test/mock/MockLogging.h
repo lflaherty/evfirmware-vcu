@@ -5,30 +5,24 @@
  *      Author: Liam Flaherty
  */
 
-// Mock must be defined first in a test case
-#ifdef LIB_LOGGING_LOGGING_H_
-#error "Header already defined - cannot mock"
-#else
-#define LIB_LOGGING_LOGGING_H_
-
-#define LIB_LOGGING_LOGGING_H_
+#ifndef _MOCK_MOCKLOGGING_H_
+#define _MOCK_MOCKLOGGING_H_
 
 #include <stdio.h>
 
+// Bring in header to be mocked 
+#include "lib/logging/logging.h"
+
+// Data for mock interface
 #define MOCK_LOG_BUFFER_LEN 256
 extern char mockLogBuffer[MOCK_LOG_BUFFER_LEN]; // stores the last entry that was printed
 
-typedef enum
-{
-	LOGGING_STATUS_OK = 0x00U,
-	LOGGING_STATUS_LOG_ERROR = 0x01U
-} Logging_Status_T;
+// Mock out logPrint method
+#define logPrint mockLogPrint
+Logging_Status_T mockLogPrint(const Logging_T* logData, const char* message, const size_t len);
 
-typedef struct {
-} Logging_T; // Not used in mock
-
-Logging_Status_T logPrint(const Logging_T* logData, const char* message, const size_t len);
-
-Logging_Status_T logPrintS(const Logging_T* logData, const char* message, const size_t bufferLen);
+// Mock out logPrintS method
+#define logPrintS mockLogPrintS
+Logging_Status_T mockLogPrintS(const Logging_T* logData, const char* message, const size_t bufferLen);
 
 #endif

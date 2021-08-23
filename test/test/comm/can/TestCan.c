@@ -2,6 +2,7 @@
 #include "unity_fixture.h"
 
 #include "MockLogging.h"
+#include "lib/logging/logging.h"
 
 // #include "comm/can/can.h"
 
