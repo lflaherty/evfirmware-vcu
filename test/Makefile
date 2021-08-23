@@ -21,11 +21,12 @@ TARGET=all_tests
 SRC_FILES=\
 	  $(UNITY_ROOT)/src/unity.c \
 	  $(UNITY_ROOT)/extras/fixture/src/unity_fixture.c \
+	  mock/MockLogging.c \
 	  test/comm/can/TestCan.c \
 	  test/comm/can/TestCanRunner.c \
 	  test/all_tests.c
 
-INC_DIRS=-Isrc -I$(UNITY_ROOT)/src -I$(UNITY_ROOT)/extras/fixture/src
+INC_DIRS=-I../src -Itest -Imock -I$(UNITY_ROOT)/src -I$(UNITY_ROOT)/extras/fixture/src
 SYMBOLS=-DUNITY_FIXTURE_NO_EXTRAS
 
 all: clean default
