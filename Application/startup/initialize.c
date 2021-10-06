@@ -64,21 +64,15 @@ static ECU_Init_Status_T ECU_Init_System1(void)
   log.handleSerial = NULL;
 
   logPrintS(&log, "###### ECU_Init_System1 ######\n", LOGGING_DEFAULT_BUFF_LEN);
-  char logBuffer[LOGGING_DEFAULT_BUFF_LEN];
 
   // UART
-  UART_Status_T statusUart;
-  statusUart = UART_Init(&log);
-  if (UART_STATUS_OK != statusUart) {
-    snprintf(logBuffer, LOGGING_DEFAULT_BUFF_LEN, "UART Initialization error %u\n", UART_STATUS_OK);
-    logPrintS(&log, logBuffer, LOGGING_DEFAULT_BUFF_LEN);
+  if (UART_Init(&log) != UART_STATUS_OK) {
+    logPrintS(&log, "UART initialization error\n", LOGGING_DEFAULT_BUFF_LEN);
     return ECU_INIT_ERROR;
   }
 
-  statusUart = UART_Config(Mapping_GetUART1());
-  if (UART_STATUS_OK != statusUart) {
-    snprintf(logBuffer, LOGGING_DEFAULT_BUFF_LEN, "UART config error %u\n", statusUart);
-    logPrintS(&log, logBuffer, LOGGING_DEFAULT_BUFF_LEN);
+  if (UART_Config(Mapping_GetUART1()) != UART_STATUS_OK) {
+    logPrintS(&log, "UART config error\n", LOGGING_DEFAULT_BUFF_LEN);
     return ECU_INIT_ERROR;
   }
 
@@ -93,35 +87,25 @@ static ECU_Init_Status_T ECU_Init_System1(void)
 static ECU_Init_Status_T ECU_Init_System2(void)
 {
   logPrintS(&log, "###### ECU_Init_System2 ######\n", LOGGING_DEFAULT_BUFF_LEN);
-  char logBuffer[LOGGING_DEFAULT_BUFF_LEN];
 
   // CAN bus
-  CAN_Status_T statusCan;
-  statusCan = CAN_Init(&log);
-  if (CAN_STATUS_OK != statusCan) {
-    snprintf(logBuffer, LOGGING_DEFAULT_BUFF_LEN, "CAN initialization error %u", statusCan);
-    logPrintS(&log, logBuffer, LOGGING_DEFAULT_BUFF_LEN);
+  if (CAN_Init(&log) != CAN_STATUS_OK) {
+    logPrintS(&log, "CAN initialization error\n", LOGGING_DEFAULT_BUFF_LEN);
     return ECU_INIT_ERROR;
   }
 
-  statusCan = CAN_Config(Mapping_GetCAN1());
-  if (CAN_STATUS_OK != statusCan) {
-    snprintf(logBuffer, LOGGING_DEFAULT_BUFF_LEN, "CAN1 config error %u\n", statusCan);
-    logPrintS(&log, logBuffer, LOGGING_DEFAULT_BUFF_LEN);
+  if (CAN_Config(Mapping_GetCAN1()) != CAN_STATUS_OK) {
+    logPrintS(&log, "CAN1 config error\n", LOGGING_DEFAULT_BUFF_LEN);
     return ECU_INIT_ERROR;
   }
 
-  statusCan = CAN_Config(Mapping_GetCAN2());
-  if (CAN_STATUS_OK != statusCan) {
-    snprintf(logBuffer, LOGGING_DEFAULT_BUFF_LEN, "CAN2 config error %u\n", statusCan);
-    logPrintS(&log, logBuffer, LOGGING_DEFAULT_BUFF_LEN);
+  if (CAN_Config(Mapping_GetCAN2()) != CAN_STATUS_OK) {
+    logPrintS(&log, "CAN2 config error\n", LOGGING_DEFAULT_BUFF_LEN);
     return ECU_INIT_ERROR;
   }
 
-  statusCan = CAN_Config(Mapping_GetCAN3());
-  if (CAN_STATUS_OK != statusCan) {
-    snprintf(logBuffer, LOGGING_DEFAULT_BUFF_LEN, "CAN3 config error %u\n", statusCan);
-    logPrintS(&log, logBuffer, LOGGING_DEFAULT_BUFF_LEN);
+  if (CAN_Config(Mapping_GetCAN3()) != CAN_STATUS_OK) {
+    logPrintS(&log, "CAN3 config error\n", LOGGING_DEFAULT_BUFF_LEN);
     return ECU_INIT_ERROR;
   }
 
