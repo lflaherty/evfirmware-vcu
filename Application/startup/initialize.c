@@ -25,8 +25,8 @@ static Logging_T log;
 
 // ------------------- Private prototypes -------------------
 static ECU_Init_Status_T ECU_Init_System1(void);  // Init basics for logging
-static ECU_Init_Status_T ECU_Init_System2(void);  // Init remaining internal devices
-static ECU_Init_Status_T ECU_Init_System3(void);  // Init external devices
+static ECU_Init_Status_T ECU_Init_System2(void);  // Init remaining internal peripherals
+static ECU_Init_Status_T ECU_Init_System3(void);  // Init external peripherals
 static ECU_Init_Status_T ECU_Init_App1(void);     // Init application devices
 static ECU_Init_Status_T ECU_Init_App2(void);     // Init application vehicle interface
 static ECU_Init_Status_T ECU_Init_App3(void);     // Init application processes
@@ -93,6 +93,37 @@ static ECU_Init_Status_T ECU_Init_System1(void)
 static ECU_Init_Status_T ECU_Init_System2(void)
 {
   logPrintS(&log, "###### ECU_Init_System2 ######\n", LOGGING_DEFAULT_BUFF_LEN);
+  char logBuffer[LOGGING_DEFAULT_BUFF_LEN];
+
+  // CAN bus
+  CAN_Status_T statusCan;
+  statusCan = CAN_Init(&log);
+  if (CAN_STATUS_OK != statusCan) {
+    snprintf(logBuffer, LOGGING_DEFAULT_BUFF_LEN, "CAN initialization error %u", statusCan);
+    logPrintS(&log, logBuffer, LOGGING_DEFAULT_BUFF_LEN);
+    return ECU_INIT_ERROR;
+  }
+
+  statusCan = CAN_Config(Mapping_GetCAN1());
+  if (CAN_STATUS_OK != statusCan) {
+    snprintf(logBuffer, LOGGING_DEFAULT_BUFF_LEN, "CAN1 config error %u\n", statusCan);
+    logPrintS(&log, logBuffer, LOGGING_DEFAULT_BUFF_LEN);
+    return ECU_INIT_ERROR;
+  }
+
+  statusCan = CAN_Config(Mapping_GetCAN2());
+  if (CAN_STATUS_OK != statusCan) {
+    snprintf(logBuffer, LOGGING_DEFAULT_BUFF_LEN, "CAN2 config error %u\n", statusCan);
+    logPrintS(&log, logBuffer, LOGGING_DEFAULT_BUFF_LEN);
+    return ECU_INIT_ERROR;
+  }
+
+  statusCan = CAN_Config(Mapping_GetCAN3());
+  if (CAN_STATUS_OK != statusCan) {
+    snprintf(logBuffer, LOGGING_DEFAULT_BUFF_LEN, "CAN3 config error %u\n", statusCan);
+    logPrintS(&log, logBuffer, LOGGING_DEFAULT_BUFF_LEN);
+    return ECU_INIT_ERROR;
+  }
 
   return ECU_INIT_OK;
 }
