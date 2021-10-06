@@ -26,9 +26,12 @@
 /*
  * Getters for device handles
  */
-
+// TODO inlining?
 TIM_HandleTypeDef* Mapping_GetTaskTimer(void);
 UART_HandleTypeDef* Mapping_GetUART1(void);
 RTC_HandleTypeDef* Mapping_GetRTC(void);
+CAN_HandleTypeDef* Mapping_GetCAN1(void);
+CAN_HandleTypeDef* Mapping_GetCAN2(void);
+CAN_HandleTypeDef* Mapping_GetCAN3(void);
 
 #endif /* VEHICLEINTERFACE_DEVICEMAPPING_DEVICEMAPPING_H_ */
