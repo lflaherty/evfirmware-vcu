@@ -9,6 +9,7 @@
 
 #include <stdio.h>
 #include <stdbool.h>
+#include <string.h>  // for memset
 
 #include "lib/logging/logging.h"
 #include "comm/can/can.h"
@@ -19,12 +20,14 @@
 #include "time/rtc/rtc.h"
 
 #include "vehicleInterface/deviceMapping/deviceMapping.h"
+#include "device/inverter/cInverter.h"
 
 // ------------------- Private data -------------------
 static Logging_T mLog;
 
 // ------------------- Module structures -------------------
 static ExternalWatchdog_T mWdg;
+static CInverter_T mInverter;
 
 // ------------------- Private prototypes -------------------
 static ECU_Init_Status_T ECU_Init_System1(void);  // Init basics for logging
@@ -144,6 +147,7 @@ static ECU_Init_Status_T ECU_Init_System3(void)
   logPrintS(&mLog, "###### ECU_Init_System3 ######\n", LOGGING_DEFAULT_BUFF_LEN);
 
   // External watchdog
+  memset(&mWdg, 0, sizeof(mWdg));
   mWdg.gpioBank = External_WDG_Trigger_GPIO_Port;
   mWdg.gpioPin = External_WDG_Trigger_Pin;
   if (ExternalWatchdog_Init(&mLog, &mWdg) != EXTWATCHDOG_STATUS_OK) {
@@ -158,6 +162,15 @@ static ECU_Init_Status_T ECU_Init_System3(void)
 static ECU_Init_Status_T ECU_Init_App1(void)
 {
   logPrintS(&mLog, "###### ECU_Init_App1 ######\n", LOGGING_DEFAULT_BUFF_LEN);
+
+  // Inverter
+  memset(&mInverter, 0, sizeof(mInverter));
+  mInverter.hcan = Mapping_GetCAN1();
+  mInverter.canIdBase = 0;
+  if (CInverter_Init(&mLog, &mInverter) != CINVERTER_STATUS_OK) {
+    logPrintS(&mLog, "Inverter initialization error\n", LOGGING_DEFAULT_BUFF_LEN);
+    return ECU_INIT_ERROR;
+  }
 
   return ECU_INIT_OK;
 }
