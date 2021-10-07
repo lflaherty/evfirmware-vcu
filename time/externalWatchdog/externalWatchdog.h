@@ -26,14 +26,14 @@ typedef enum
 /**
  * @brief Initialize the external Watchdog Timer.
  * @param logger Pointer to logging settings
- * @param GPIOx GPIO bank for ext WDG trigger
- * @param GPIO_Pin GPIO pin for ext WDG trigger
+ * @param wdg Watchdog settings
  */
 ExternalWatchdog_Status_T ExternalWatchdog_Init(Logging_T* logger, ExternalWatchdog_T* wdg);
 
 /**
  * @brief Trigger the external watchdog timer to avoid reset.
  * Call this periodically.
+ * @param wdg Watchdog settings
  */
 ExternalWatchdog_Status_T ExternalWatchdog_Trigger(ExternalWatchdog_T* wdg);
 
