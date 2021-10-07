@@ -109,6 +109,17 @@ static ECU_Init_Status_T ECU_Init_System2(void)
     return ECU_INIT_ERROR;
   }
 
+  // ADC
+  if (ADC_Init(&log, MAPPING_ADC_NUM_CHANNELS, 16) != ADC_STATUS_OK) {
+    logPrintS(&log, "ADC initialization error\n", LOGGING_DEFAULT_BUFF_LEN);
+    return ECU_INIT_ERROR;
+  }
+
+  if (ADC_Config(Mapping_GetADC()) != ADC_STATUS_OK) {
+    logPrintS(&log, "ADC config error\n", LOGGING_DEFAULT_BUFF_LEN);
+    return ECU_INIT_ERROR;
+  }
+
   return ECU_INIT_OK;
 }
 

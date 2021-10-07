@@ -46,6 +46,11 @@ RTC_HandleTypeDef* Mapping_GetRTC(void)
   return &hrtc;
 }
 
+ADC_HandleTypeDef* Mapping_GetADC(void)
+{
+  return &hadc1;
+}
+
 CAN_HandleTypeDef* Mapping_GetCAN1(void)
 {
   return &hcan1;
