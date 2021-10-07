@@ -120,6 +120,18 @@ static ECU_Init_Status_T ECU_Init_System2(void)
     return ECU_INIT_ERROR;
   }
 
+  // Timers
+  if (TaskTimer_Init(&log, Mapping_GetTaskTimer()) != TASKTIMER_STATUS_OK) {
+    logPrintS(&log, "Task Timer initialization error\n", LOGGING_DEFAULT_BUFF_LEN);
+    return ECU_INIT_ERROR;
+  }
+
+  // RTC
+  if (RTC_Init(&log) != RTC_STATUS_OK) {
+    logPrintS(&log, "RTC initialization error\n", LOGGING_DEFAULT_BUFF_LEN);
+    return ECU_INIT_ERROR;
+  }
+
   return ECU_INIT_OK;
 }
 
