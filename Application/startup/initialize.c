@@ -140,6 +140,12 @@ static ECU_Init_Status_T ECU_Init_System3(void)
 {
   logPrintS(&log, "###### ECU_Init_System3 ######\n", LOGGING_DEFAULT_BUFF_LEN);
 
+  // External watchdog
+  if (ExternalWatchdog_Init(&log, External_WDG_Trigger_GPIO_Port, External_WDG_Trigger_Pin) != EXTWATCHDOG_STATUS_OK) {
+    logPrintS(&log, "ExternalWatchdog initialization error\n", LOGGING_DEFAULT_BUFF_LEN);
+    return ECU_INIT_ERROR;
+  }
+
   return ECU_INIT_OK;
 }
 
