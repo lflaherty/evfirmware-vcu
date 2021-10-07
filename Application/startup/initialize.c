@@ -21,7 +21,10 @@
 #include "vehicleInterface/deviceMapping/deviceMapping.h"
 
 // ------------------- Private data -------------------
-static Logging_T log;
+static Logging_T mLog;
+
+// ------------------- Module structures -------------------
+static ExternalWatchdog_T mWdg;
 
 // ------------------- Private prototypes -------------------
 static ECU_Init_Status_T ECU_Init_System1(void);  // Init basics for logging
@@ -45,11 +48,11 @@ ECU_Init_Status_T ECU_Init(void)
   ret |= ECU_Init_App3();
 
   if (ret != ECU_INIT_OK) {
-    logPrintS(&log, "Failed to initialize\n", LOGGING_DEFAULT_BUFF_LEN);
+    logPrintS(&mLog, "Failed to initialize\n", LOGGING_DEFAULT_BUFF_LEN);
     return ret;
   }
 
-  logPrintS(&log, "ECU_Init complete\n", LOGGING_DEFAULT_BUFF_LEN);
+  logPrintS(&mLog, "ECU_Init complete\n", LOGGING_DEFAULT_BUFF_LEN);
 
   return ECU_INIT_OK;
 }
@@ -58,27 +61,27 @@ ECU_Init_Status_T ECU_Init(void)
 static ECU_Init_Status_T ECU_Init_System1(void)
 {
   // Set up logging
-  log.enableLogToDebug = true;
-  log.enableLogToSerial = false;
-  log.enableLogToLogFile = false;
-  log.handleSerial = NULL;
+  mLog.enableLogToDebug = true;
+  mLog.enableLogToSerial = false;
+  mLog.enableLogToLogFile = false;
+  mLog.handleSerial = NULL;
 
-  logPrintS(&log, "###### ECU_Init_System1 ######\n", LOGGING_DEFAULT_BUFF_LEN);
+  logPrintS(&mLog, "###### ECU_Init_System1 ######\n", LOGGING_DEFAULT_BUFF_LEN);
 
   // UART
-  if (UART_Init(&log) != UART_STATUS_OK) {
-    logPrintS(&log, "UART initialization error\n", LOGGING_DEFAULT_BUFF_LEN);
+  if (UART_Init(&mLog) != UART_STATUS_OK) {
+    logPrintS(&mLog, "UART initialization error\n", LOGGING_DEFAULT_BUFF_LEN);
     return ECU_INIT_ERROR;
   }
 
   if (UART_Config(Mapping_GetUART1()) != UART_STATUS_OK) {
-    logPrintS(&log, "UART config error\n", LOGGING_DEFAULT_BUFF_LEN);
+    logPrintS(&mLog, "UART config error\n", LOGGING_DEFAULT_BUFF_LEN);
     return ECU_INIT_ERROR;
   }
 
   // enable serial logging
-  log.enableLogToSerial = true;
-  log.handleSerial = Mapping_GetUART1();
+  mLog.enableLogToSerial = true;
+  mLog.handleSerial = Mapping_GetUART1();
 
   return ECU_INIT_OK;
 }
@@ -86,49 +89,49 @@ static ECU_Init_Status_T ECU_Init_System1(void)
 //------------------------------------------------------------------------------
 static ECU_Init_Status_T ECU_Init_System2(void)
 {
-  logPrintS(&log, "###### ECU_Init_System2 ######\n", LOGGING_DEFAULT_BUFF_LEN);
+  logPrintS(&mLog, "###### ECU_Init_System2 ######\n", LOGGING_DEFAULT_BUFF_LEN);
 
   // CAN bus
-  if (CAN_Init(&log) != CAN_STATUS_OK) {
-    logPrintS(&log, "CAN initialization error\n", LOGGING_DEFAULT_BUFF_LEN);
+  if (CAN_Init(&mLog) != CAN_STATUS_OK) {
+    logPrintS(&mLog, "CAN initialization error\n", LOGGING_DEFAULT_BUFF_LEN);
     return ECU_INIT_ERROR;
   }
 
   if (CAN_Config(Mapping_GetCAN1()) != CAN_STATUS_OK) {
-    logPrintS(&log, "CAN1 config error\n", LOGGING_DEFAULT_BUFF_LEN);
+    logPrintS(&mLog, "CAN1 config error\n", LOGGING_DEFAULT_BUFF_LEN);
     return ECU_INIT_ERROR;
   }
 
   if (CAN_Config(Mapping_GetCAN2()) != CAN_STATUS_OK) {
-    logPrintS(&log, "CAN2 config error\n", LOGGING_DEFAULT_BUFF_LEN);
+    logPrintS(&mLog, "CAN2 config error\n", LOGGING_DEFAULT_BUFF_LEN);
     return ECU_INIT_ERROR;
   }
 
   if (CAN_Config(Mapping_GetCAN3()) != CAN_STATUS_OK) {
-    logPrintS(&log, "CAN3 config error\n", LOGGING_DEFAULT_BUFF_LEN);
+    logPrintS(&mLog, "CAN3 config error\n", LOGGING_DEFAULT_BUFF_LEN);
     return ECU_INIT_ERROR;
   }
 
   // ADC
-  if (ADC_Init(&log, MAPPING_ADC_NUM_CHANNELS, 16) != ADC_STATUS_OK) {
-    logPrintS(&log, "ADC initialization error\n", LOGGING_DEFAULT_BUFF_LEN);
+  if (ADC_Init(&mLog, MAPPING_ADC_NUM_CHANNELS, 16) != ADC_STATUS_OK) {
+    logPrintS(&mLog, "ADC initialization error\n", LOGGING_DEFAULT_BUFF_LEN);
     return ECU_INIT_ERROR;
   }
 
   if (ADC_Config(Mapping_GetADC()) != ADC_STATUS_OK) {
-    logPrintS(&log, "ADC config error\n", LOGGING_DEFAULT_BUFF_LEN);
+    logPrintS(&mLog, "ADC config error\n", LOGGING_DEFAULT_BUFF_LEN);
     return ECU_INIT_ERROR;
   }
 
   // Timers
-  if (TaskTimer_Init(&log, Mapping_GetTaskTimer()) != TASKTIMER_STATUS_OK) {
-    logPrintS(&log, "Task Timer initialization error\n", LOGGING_DEFAULT_BUFF_LEN);
+  if (TaskTimer_Init(&mLog, Mapping_GetTaskTimer()) != TASKTIMER_STATUS_OK) {
+    logPrintS(&mLog, "Task Timer initialization error\n", LOGGING_DEFAULT_BUFF_LEN);
     return ECU_INIT_ERROR;
   }
 
   // RTC
-  if (RTC_Init(&log) != RTC_STATUS_OK) {
-    logPrintS(&log, "RTC initialization error\n", LOGGING_DEFAULT_BUFF_LEN);
+  if (RTC_Init(&mLog) != RTC_STATUS_OK) {
+    logPrintS(&mLog, "RTC initialization error\n", LOGGING_DEFAULT_BUFF_LEN);
     return ECU_INIT_ERROR;
   }
 
@@ -138,11 +141,13 @@ static ECU_Init_Status_T ECU_Init_System2(void)
 //------------------------------------------------------------------------------
 static ECU_Init_Status_T ECU_Init_System3(void)
 {
-  logPrintS(&log, "###### ECU_Init_System3 ######\n", LOGGING_DEFAULT_BUFF_LEN);
+  logPrintS(&mLog, "###### ECU_Init_System3 ######\n", LOGGING_DEFAULT_BUFF_LEN);
 
   // External watchdog
-  if (ExternalWatchdog_Init(&log, External_WDG_Trigger_GPIO_Port, External_WDG_Trigger_Pin) != EXTWATCHDOG_STATUS_OK) {
-    logPrintS(&log, "ExternalWatchdog initialization error\n", LOGGING_DEFAULT_BUFF_LEN);
+  mWdg.gpioBank = External_WDG_Trigger_GPIO_Port;
+  mWdg.gpioPin = External_WDG_Trigger_Pin;
+  if (ExternalWatchdog_Init(&mLog, &mWdg) != EXTWATCHDOG_STATUS_OK) {
+    logPrintS(&mLog, "ExternalWatchdog initialization error\n", LOGGING_DEFAULT_BUFF_LEN);
     return ECU_INIT_ERROR;
   }
 
@@ -152,7 +157,7 @@ static ECU_Init_Status_T ECU_Init_System3(void)
 //------------------------------------------------------------------------------
 static ECU_Init_Status_T ECU_Init_App1(void)
 {
-  logPrintS(&log, "###### ECU_Init_App1 ######\n", LOGGING_DEFAULT_BUFF_LEN);
+  logPrintS(&mLog, "###### ECU_Init_App1 ######\n", LOGGING_DEFAULT_BUFF_LEN);
 
   return ECU_INIT_OK;
 }
@@ -160,7 +165,7 @@ static ECU_Init_Status_T ECU_Init_App1(void)
 //------------------------------------------------------------------------------
 static ECU_Init_Status_T ECU_Init_App2(void)
 {
-  logPrintS(&log, "###### ECU_Init_App2 ######\n", LOGGING_DEFAULT_BUFF_LEN);
+  logPrintS(&mLog, "###### ECU_Init_App2 ######\n", LOGGING_DEFAULT_BUFF_LEN);
 
   return ECU_INIT_OK;
 }
@@ -168,7 +173,7 @@ static ECU_Init_Status_T ECU_Init_App2(void)
 //------------------------------------------------------------------------------
 static ECU_Init_Status_T ECU_Init_App3(void)
 {
-  logPrintS(&log, "###### ECU_Init_App3 ######\n", LOGGING_DEFAULT_BUFF_LEN);
+  logPrintS(&mLog, "###### ECU_Init_App3 ######\n", LOGGING_DEFAULT_BUFF_LEN);
 
   return ECU_INIT_OK;
 }
