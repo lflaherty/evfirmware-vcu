@@ -20,6 +20,7 @@ typedef struct
   // ******* Setup *******
   CAN_HandleTypeDef* hcan;    // CAN device connected to inverter
   uint16_t canIdBase;         // CAN ID to offset all packet IDs from
+  // TODO add pointer to vehicle state data
 
   // ******* Internal use *******
   // Empty
@@ -37,6 +38,8 @@ typedef enum
  * @param
  */
 CInverter_Status_T CInverter_Init(Logging_T* logger, CInverter_T* inv);
+
+// TODO add inverter control
 
 
 #endif /* DEVICE_INVERTER_CINVERTER_H_ */
