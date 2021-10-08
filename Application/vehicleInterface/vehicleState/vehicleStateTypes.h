@@ -37,7 +37,7 @@ typedef struct
   float phaseACurrent; // amps
   float phaseBCurrent; // amps
   float phaseCCurrent; // amps
-  float calcaultedTorque; // Nm
+  float calculatedTorque; // Nm
 } VehicleState_Motor_T;
 
 typedef enum
