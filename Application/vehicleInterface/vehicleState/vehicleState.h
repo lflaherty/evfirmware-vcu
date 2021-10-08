@@ -47,7 +47,7 @@ typedef struct
 
 #define VEHCILESTATE_STACK_SIZE 2000
 #define VEHICLESTATE_TASK_PRIORITY 3
-#define VEHICLESTATE_QUEUE_LENGTH 128
+#define VEHICLESTATE_QUEUE_LENGTH 256
 #define VEHICLESTATE_QUEUE_DATA_SIZE sizeof(VehicleState_QueuedData_T)
 
 typedef struct
