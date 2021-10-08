@@ -1,8 +1,8 @@
 /*
  * dataConversions.h
  *
- *  Created on: Oct 7, 2021
- *      Author: Acer
+ *  Created on: Oct 7 2021
+ *      Author: Liam Flaherty
  */
 
 #ifndef DEVICE_INVERTER_DATACONVERSIONS_H_
