@@ -19,8 +19,9 @@
 #include "time/externalWatchdog/externalWatchdog.h"
 #include "time/rtc/rtc.h"
 
-#include "vehicleInterface/deviceMapping/deviceMapping.h"
 #include "device/inverter/cInverter.h"
+#include "vehicleInterface/deviceMapping/deviceMapping.h"
+#include "vehicleInterface/vehicleState/vehicleState.h"
 
 // ------------------- Private data -------------------
 static Logging_T mLog;
@@ -28,13 +29,14 @@ static Logging_T mLog;
 // ------------------- Module structures -------------------
 static ExternalWatchdog_T mWdg;
 static CInverter_T mInverter;
+static VehicleState_T mVehicleState;
 
 // ------------------- Private prototypes -------------------
 static ECU_Init_Status_T ECU_Init_System1(void);  // Init basics for logging
 static ECU_Init_Status_T ECU_Init_System2(void);  // Init remaining internal peripherals
 static ECU_Init_Status_T ECU_Init_System3(void);  // Init external peripherals
-static ECU_Init_Status_T ECU_Init_App1(void);     // Init application devices
-static ECU_Init_Status_T ECU_Init_App2(void);     // Init application vehicle interface
+static ECU_Init_Status_T ECU_Init_App1(void);     // Init application vehicle interface (devices depends on this to push data)
+static ECU_Init_Status_T ECU_Init_App2(void);     // Init application devices
 static ECU_Init_Status_T ECU_Init_App3(void);     // Init application processes
 
 //------------------------------------------------------------------------------
@@ -161,6 +163,20 @@ static ECU_Init_Status_T ECU_Init_System3(void)
 //------------------------------------------------------------------------------
 static ECU_Init_Status_T ECU_Init_App1(void)
 {
+  logPrintS(&mLog, "###### ECU_Init_App2 ######\n", LOGGING_DEFAULT_BUFF_LEN);
+
+  memset(&mVehicleState, 0, sizeof(mVehicleState));
+  if (VehicleState_Init(&mLog, &mVehicleState) != VEHICLESTATE_STATUS_OK) {
+    logPrintS(&mLog, "VehicleState initialization error\n", LOGGING_DEFAULT_BUFF_LEN);
+    return ECU_INIT_ERROR;
+  }
+
+  return ECU_INIT_OK;
+}
+
+//------------------------------------------------------------------------------
+static ECU_Init_Status_T ECU_Init_App2(void)
+{
   logPrintS(&mLog, "###### ECU_Init_App1 ######\n", LOGGING_DEFAULT_BUFF_LEN);
 
   // Inverter
@@ -171,14 +187,6 @@ static ECU_Init_Status_T ECU_Init_App1(void)
     logPrintS(&mLog, "Inverter initialization error\n", LOGGING_DEFAULT_BUFF_LEN);
     return ECU_INIT_ERROR;
   }
-
-  return ECU_INIT_OK;
-}
-
-//------------------------------------------------------------------------------
-static ECU_Init_Status_T ECU_Init_App2(void)
-{
-  logPrintS(&mLog, "###### ECU_Init_App2 ######\n", LOGGING_DEFAULT_BUFF_LEN);
 
   return ECU_INIT_OK;
 }
