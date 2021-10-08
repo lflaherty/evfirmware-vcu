@@ -183,6 +183,7 @@ static ECU_Init_Status_T ECU_Init_App2(void)
   memset(&mInverter, 0, sizeof(mInverter));
   mInverter.hcan = Mapping_GetCAN1();
   mInverter.canIdBase = 0;
+  mInverter.vehicleState = &mVehicleState;
   if (CInverter_Init(&mLog, &mInverter) != CINVERTER_STATUS_OK) {
     logPrintS(&mLog, "Inverter initialization error\n", LOGGING_DEFAULT_BUFF_LEN);
     return ECU_INIT_ERROR;

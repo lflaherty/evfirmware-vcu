@@ -37,11 +37,12 @@ static void CInverter_Callback_Temperatures1(const CAN_DataFrame_T* data, const 
   float moduleCTemp = msgToTemperature(dataView.fields.moduleCTemp);
   float gateDriverTemp = msgToTemperature(dataView.fields.gateDriverTemp);
 
-  // TODO send to vehicle state
-  (void)moduleATemp;
-  (void)moduleBTemp;
-  (void)moduleCTemp;
-  (void)gateDriverTemp;
+  // send to vehicle state
+  VehicleState_T* state = ((CInverter_T*)param)->vehicleState;
+  VehicleState_PushFieldf(state, &state->data.inverter.moduleATemperature, moduleATemp);
+  VehicleState_PushFieldf(state, &state->data.inverter.moduleBTemperature, moduleBTemp);
+  VehicleState_PushFieldf(state, &state->data.inverter.moduleCTemperature, moduleCTemp);
+  VehicleState_PushFieldf(state, &state->data.inverter.gateDriverTemp, gateDriverTemp);
 }
 
 static void CInverter_Callback_Temperatures2(const CAN_DataFrame_T* data, const void* param)
@@ -55,8 +56,9 @@ static void CInverter_Callback_Temperatures2(const CAN_DataFrame_T* data, const 
 
   float controlBoardTemp = msgToTemperature(dataView.fields.controlBoardTemp);
 
-  // TODO send to vehicle state
-  (void)controlBoardTemp;
+  // send to vehicle state
+  VehicleState_T* state = ((CInverter_T*)param)->vehicleState;
+  VehicleState_PushFieldf(state, &state->data.inverter.controlBoardTemp, controlBoardTemp);
 }
 
 static void CInverter_Callback_Temperatures3(const CAN_DataFrame_T* data, const void* param)
@@ -70,8 +72,9 @@ static void CInverter_Callback_Temperatures3(const CAN_DataFrame_T* data, const 
 
   float motorTemp = msgToTemperature(dataView.fields.motorTemp);
 
-  // TODO send to vehicle state
-  (void)motorTemp;
+  // send to vehicle state
+  VehicleState_T* state = ((CInverter_T*)param)->vehicleState;
+  VehicleState_PushFieldf(state, &state->data.motor.temperature, motorTemp);
 }
 
 static void CInverter_Callback_MotorPosInfo(const CAN_DataFrame_T* data, const void* param)
@@ -87,10 +90,11 @@ static void CInverter_Callback_MotorPosInfo(const CAN_DataFrame_T* data, const v
   int16_t motorSpeed = msgToAngularVelocity(dataView.fields.motorSpeed);
   float electricalOutFreq = msgToFrequency(dataView.fields.electricalOutFreq);
 
-  // TODO send to vehicle state
-  (void)motorAngle;
-  (void)motorSpeed;
-  (void)electricalOutFreq;
+  // send to vehicle state
+  VehicleState_T* state = ((CInverter_T*)param)->vehicleState;
+  VehicleState_PushFieldf(state, &state->data.motor.angle, motorAngle);
+  VehicleState_PushFieldf(state, &state->data.motor.speed, motorSpeed);
+  VehicleState_PushFieldf(state, &state->data.inverter.outputFrequency, electricalOutFreq);
 }
 
 static void CInverter_Callback_CurrentInfo(const CAN_DataFrame_T* data, const void* param)
@@ -107,11 +111,12 @@ static void CInverter_Callback_CurrentInfo(const CAN_DataFrame_T* data, const vo
   float phaseCCurrent = msgToCurrent(dataView.fields.phaseCCurrent);
   float dcBusCurrent = msgToCurrent(dataView.fields.dcBusCurrent);
 
-  // TODO send to vehicle state
-  (void)phaseACurrent;
-  (void)phaseBCurrent;
-  (void)phaseCCurrent;
-  (void)dcBusCurrent;
+  // send to vehicle state
+  VehicleState_T* state = ((CInverter_T*)param)->vehicleState;
+  VehicleState_PushFieldf(state, &state->data.motor.phaseACurrent, phaseACurrent);
+  VehicleState_PushFieldf(state, &state->data.motor.phaseBCurrent, phaseBCurrent);
+  VehicleState_PushFieldf(state, &state->data.motor.phaseCCurrent, phaseCCurrent);
+  VehicleState_PushFieldf(state, &state->data.inverter.dcBusCurrent, dcBusCurrent);
 }
 
 static void CInverter_Callback_VoltageInfo(const CAN_DataFrame_T* data, const void* param)
@@ -128,11 +133,12 @@ static void CInverter_Callback_VoltageInfo(const CAN_DataFrame_T* data, const vo
   float vd = msgToVoltageHigh(dataView.fields.vd);
   float vq = msgToVoltageHigh(dataView.fields.vq);
 
-  // TODO send to vehicle state
-  (void)dcBusVoltage;
-  (void)outputVoltage;
-  (void)vd;
-  (void)vq;
+  // send to vehicle state
+  VehicleState_T* state = ((CInverter_T*)param)->vehicleState;
+  VehicleState_PushFieldf(state, &state->data.inverter.dcBusVoltage, dcBusVoltage);
+  VehicleState_PushFieldf(state, &state->data.inverter.outputVoltage, outputVoltage);
+  VehicleState_PushFieldf(state, &state->data.inverter.vd, vd);
+  VehicleState_PushFieldf(state, &state->data.inverter.vq, vq);
 }
 
 static void CInverter_Callback_FluxInfo(const CAN_DataFrame_T* data, const void* param)
@@ -149,11 +155,12 @@ static void CInverter_Callback_FluxInfo(const CAN_DataFrame_T* data, const void*
   float idFeedback = msgToCurrent(dataView.fields.idFeedback);
   float iqFeedback = msgToCurrent(dataView.fields.iqFeedback);
 
-  // TODO send to vehicle state
-  (void)fluxCommand;
-  (void)fluxFeedback;
-  (void)idFeedback;
-  (void)iqFeedback;
+  // send to vehicle state
+  VehicleState_T* state = ((CInverter_T*)param)->vehicleState;
+  VehicleState_PushFieldf(state, &state->data.inverter.fluxCommand, fluxCommand);
+  VehicleState_PushFieldf(state, &state->data.inverter.fluxFeedback, fluxFeedback);
+  VehicleState_PushFieldf(state, &state->data.inverter.idFeedback, idFeedback);
+  VehicleState_PushFieldf(state, &state->data.inverter.idFeedback, iqFeedback);
 }
 
 static void CInverter_Callback_InternalStates(const CAN_DataFrame_T* data, const void* param)
@@ -203,9 +210,12 @@ static void CInverter_Callback_TorqueTimer(const CAN_DataFrame_T* data, const vo
   uint32_t timerMs = dataView.fields.timer;
 
   // TODO send to vehicle state
-  (void)commandedTorque;
-  (void)feedbackTorque;
   (void)timerMs;
+
+  // send to vehicle state
+  VehicleState_T* state = ((CInverter_T*)param)->vehicleState;
+  VehicleState_PushFieldf(state, &state->data.inverter.commandedTorque, commandedTorque);
+  VehicleState_PushFieldf(state, &state->data.motor.calculatedTorque, feedbackTorque);
 }
 
 static void CInverter_Callback_FluxWeakening(const CAN_DataFrame_T* data, const void* param)
@@ -222,11 +232,12 @@ static void CInverter_Callback_FluxWeakening(const CAN_DataFrame_T* data, const 
   float idCommand = msgToCurrent(dataView.fields.idCommand);
   float iqCommand = msgToCurrent(dataView.fields.iqCommand);
 
-  // TODO send to vehicle state
-  (void)modulationIndex;
-  (void)fluxWeakeningOutput;
-  (void)idCommand;
-  (void)iqCommand;
+  // send to vehicle state
+  VehicleState_T* state = ((CInverter_T*)param)->vehicleState;
+  VehicleState_PushFieldf(state, &state->data.inverter.modulationIndex, modulationIndex);
+  VehicleState_PushFieldf(state, &state->data.inverter.fluxWeakeningOutput, fluxWeakeningOutput);
+  VehicleState_PushFieldf(state, &state->data.inverter.idCommand, idCommand);
+  VehicleState_PushFieldf(state, &state->data.inverter.iqCommand, iqCommand);
 }
 
 // ------------------- Public methods -------------------

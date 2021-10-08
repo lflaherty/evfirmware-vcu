@@ -13,6 +13,8 @@
 #include "stm32f7xx_hal.h"
 #include "FreeRTOS.h"
 
+#include "vehicleInterface/vehicleState/vehicleState.h"
+
 #include "cInverterCAN.h"  /* Defines offset CAN IDs */
 
 typedef struct
@@ -20,7 +22,7 @@ typedef struct
   // ******* Setup *******
   CAN_HandleTypeDef* hcan;    // CAN device connected to inverter
   uint16_t canIdBase;         // CAN ID to offset all packet IDs from
-  // TODO add pointer to vehicle state data
+  VehicleState_T* vehicleState;
 
   // ******* Internal use *******
   // Empty
@@ -35,7 +37,7 @@ typedef enum
 /**
  * @brief Initialize the inverter driver
  * @param logger Pointer to logging settings
- * @param
+ * @param inv inverter data
  */
 CInverter_Status_T CInverter_Init(Logging_T* logger, CInverter_T* inv);
 
