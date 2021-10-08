@@ -22,13 +22,11 @@ typedef enum
 {
   VEHICLESTATE_STATUS_OK          = 0x00U,
   VEHCILESTATE_STATUS_ERROR_INIT  = 0x01U,
-  VEHCILESTATE_STATUS_ERROR_QUEUE = 0x02U
+  VEHCILESTATE_STATUS_ERROR_QUEUE = 0x02U,
+  VEHCILESTATE_STATUS_ERROR_SIZE  = 0x03U
 } VehicleState_Status_T;
 
-typedef enum
-{
-  VEHICLESTATE_TYPE_FLOAT
-} VehicleState_QueuedDataType_T;
+#define VEHICLESTATE_QUEUE_MAX_VALUE_SIZE 4 /* bytes */
 
 /**
  * Used to queue multiple types of data
@@ -36,12 +34,9 @@ typedef enum
  */
 typedef struct
 {
-  union
-  {
-    float dFloat;
-  } data;
+  uint8_t data[VEHICLESTATE_QUEUE_MAX_VALUE_SIZE];
+  size_t dataSize;
   void* dest;
-  VehicleState_QueuedDataType_T dataType;
 } VehicleState_QueuedData_T;
 
 
@@ -81,12 +76,20 @@ typedef struct
 VehicleState_Status_T VehicleState_Init(Logging_T* logger, VehicleState_T* state);
 
 /**
+ * @brief Schedule pushing an arbitrary value into the state
+ * @param state Pointer to VehicleState object
+ * @param dest Pointer to destination (contained within state->data)
+ * @returns Success status. VEHICLESTATE_STATUS_OK if successful.
+ */
+VehicleState_Status_T VehicleState_PushField(VehicleState_T* state, void* dest, void* value, size_t sz);
+
+/**
  * @brief Schedule pushing a float data field into the state
  * @param state Pointer to VehicleState object
  * @param dest Pointer to destination (contained within state->data)
  * @returns Success status. VEHCILESTATE_STATUS_OK if successful.
  */
-VehicleState_Status_T VehicleState_PushFieldf(VehicleState_T* state, void* dest, float value);
+VehicleState_Status_T VehicleState_PushFieldf(VehicleState_T* state, float* dest, float value);
 
 
 #endif /* VEHICLEINTERFACE_VEHICLESTATE_VEHICLESTATE_H_ */

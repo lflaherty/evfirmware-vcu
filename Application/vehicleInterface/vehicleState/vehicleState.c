@@ -34,11 +34,8 @@ static void StateProcessing(void* pvParameters)
         while (pdTRUE == xQueueReceive(obj->dataQueueHandle, &queuedData, 10U)) {
 
           // copy data out
-          switch (queuedData.dataType) {
-            case VEHICLESTATE_TYPE_FLOAT: {
-              *(float*)queuedData.dest = queuedData.data.dFloat;
-              break;
-            }
+          if (queuedData.dest != NULL) {
+            memcpy(queuedData.dest, queuedData.data, queuedData.dataSize);
           }
 
         }
@@ -90,11 +87,31 @@ VehicleState_Status_T VehicleState_Init(Logging_T* logger, VehicleState_T* state
 }
 
 //------------------------------------------------------------------------------
-VehicleState_Status_T VehicleState_PushFieldf(VehicleState_T* state, void* dest, float value)
+VehicleState_Status_T VehicleState_PushField(VehicleState_T* state, void* dest, void* value, size_t sz)
+{
+  if (sz > VEHICLESTATE_QUEUE_MAX_VALUE_SIZE) {
+    return VEHCILESTATE_STATUS_ERROR_SIZE;
+  }
+
+  VehicleState_QueuedData_T queuedData;
+  memcpy(queuedData.data, value, sz);
+  queuedData.dataSize = sz;
+  queuedData.dest = dest;
+
+  BaseType_t status = xQueueSendToBack(state->dataQueueHandle, (void*)&queuedData, (TickType_t)10U);
+  if (pdTRUE != status) {
+    return VEHCILESTATE_STATUS_ERROR_QUEUE;
+  }
+
+  return VEHICLESTATE_STATUS_OK;
+}
+
+//------------------------------------------------------------------------------
+VehicleState_Status_T VehicleState_PushFieldf(VehicleState_T* state, float* dest, float value)
 {
   VehicleState_QueuedData_T queuedData;
-  queuedData.data.dFloat = value;
-  queuedData.dataType = VEHICLESTATE_TYPE_FLOAT;
+  memcpy(queuedData.data, &value, sizeof(float));
+  queuedData.dataSize = sizeof(float);
   queuedData.dest = dest;
 
   BaseType_t status = xQueueSendToBack(state->dataQueueHandle, (void*)&queuedData, (TickType_t)10U);
