@@ -172,16 +172,17 @@ static void CInverter_Callback_InternalStates(const CAN_DataFrame_T* data, const
   CInverter_CAN_InternalStates_T dataView;
   memcpy(dataView.raw, data->data, 8*sizeof(uint8_t));
 
-  uint16_t inverterState = dataView.fields.inverterState; // TODO convert to enum (enum to be defined in vehicle state)
-  uint16_t activeDischargeState = dataView.fields.activeDischargeState; // TODO convert to enum
-  bool inverterEnabled = dataView.fields.inverterEnabled;
-  uint16_t direction = dataView.fields.direction; // TODO convert to enum
+  VehicleState_InverterState_T inverterState = (VehicleState_InverterState_T)dataView.fields.inverterState;
+  VehicleState_InverterDischargeState_T activeDischargeState = (VehicleState_InverterDischargeState_T)dataView.fields.activeDischargeState;
+  VehicleState_InverterEnabled_T inverterEnabled = (VehicleState_InverterEnabled_T)dataView.fields.inverterEnabled;
+  VehicleState_InverterDirection_T direction = (VehicleState_InverterDirection_T)dataView.fields.direction;
 
-  // TODO send to vehicle state
-  (void)inverterState;
-  (void)activeDischargeState;
-  (void)inverterEnabled;
-  (void)direction;
+  // send to vehicle state
+  VehicleState_T* state = ((CInverter_T*)param)->vehicleState;
+  VehicleState_PushField(state, &state->data.inverter.state, &inverterState, sizeof(inverterState));
+  VehicleState_PushField(state, &state->data.inverter.dischargeState, &activeDischargeState, sizeof(activeDischargeState));
+  VehicleState_PushField(state, &state->data.inverter.enabled, &inverterEnabled, sizeof(inverterEnabled));
+  VehicleState_PushField(state, &state->data.inverter.direction, &direction, sizeof(direction));
 }
 
 static void CInverter_Callback_FaultCodes(const CAN_DataFrame_T* data, const void* param)
@@ -193,7 +194,10 @@ static void CInverter_Callback_FaultCodes(const CAN_DataFrame_T* data, const voi
   CInverter_CAN_FaultCodes_T dataView;
   memcpy(dataView.raw, data->data, 8*sizeof(uint8_t));
 
-  // TODO process and send to vehicle state (i.e. check that no errors are present)
+  // send to vehicle state
+  VehicleState_T* state = ((CInverter_T*)param)->vehicleState;
+  VehicleState_PushField(state, &state->data.inverter.postFaults, &dataView.fields.postFault, sizeof(uint32_t));
+  VehicleState_PushField(state, &state->data.inverter.runFaults, &dataView.fields.runFault, sizeof(uint32_t));
 }
 
 static void CInverter_Callback_TorqueTimer(const CAN_DataFrame_T* data, const void* param)
@@ -209,13 +213,11 @@ static void CInverter_Callback_TorqueTimer(const CAN_DataFrame_T* data, const vo
   float feedbackTorque = msgToTorque(dataView.fields.feedbackTorque);
   uint32_t timerMs = dataView.fields.timer;
 
-  // TODO send to vehicle state
-  (void)timerMs;
-
   // send to vehicle state
   VehicleState_T* state = ((CInverter_T*)param)->vehicleState;
   VehicleState_PushFieldf(state, &state->data.inverter.commandedTorque, commandedTorque);
   VehicleState_PushFieldf(state, &state->data.motor.calculatedTorque, feedbackTorque);
+  VehicleState_PushField(state, &state->data.inverter.timer, &timerMs, sizeof(timerMs));
 }
 
 static void CInverter_Callback_FluxWeakening(const CAN_DataFrame_T* data, const void* param)
