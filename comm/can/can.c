@@ -214,7 +214,7 @@ CAN_Status_T CAN_RegisterCallback(
     const CAN_HandleTypeDef* handle,
     const uint32_t msgId,
     const CAN_Callback_Method method,
-    const void* param)
+    void* param)
 {
   // Store callback
   if (canBusInfo.numCallbacks == CAN_NUM_CALLBACKS) {

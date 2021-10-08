@@ -83,7 +83,7 @@ CAN_Status_T CAN_RegisterCallback(
     const CAN_HandleTypeDef* handle,
     const uint32_t msgId,
     const CAN_Callback_Method callback,
-    const void* param);
+    void* param);
 
 /**
  * @brief Send a message on the CAN bus
