@@ -13,9 +13,7 @@
 // Bring in header to be mocked 
 #include "lib/logging/logging.h"
 
-// Data for mock interface
-#define MOCK_LOG_BUFFER_LEN 256
-extern char mockLogBuffer[MOCK_LOG_BUFFER_LEN]; // stores the last entry that was printed
+#define MOCK_LOG_BUFFER_LEN 5000
 
 // Mock out logPrint method
 #define logPrint mockLogPrint
@@ -24,5 +22,20 @@ Logging_Status_T mockLogPrint(const Logging_T* logData, const char* message, con
 // Mock out logPrintS method
 #define logPrintS mockLogPrintS
 Logging_Status_T mockLogPrintS(const Logging_T* logData, const char* message, const size_t bufferLen);
+
+/**
+ * Clear the stored messages
+ */
+void mockLogClear(void);
+
+/**
+ * Print stored messages to stdout
+ */
+void mockLogDisplay(void);
+
+/**
+ * Return a str pointer to the log
+ */
+const char* mockLogGet(void);
 
 #endif
