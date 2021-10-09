@@ -9,9 +9,10 @@
 #include "unity_fixture.h"
 
 #include "MockLogging.h"
-#include "lib/logging/logging.h"
+#include "stm32_hal/MockStm32f7xx_hal.h"
 
-// #include "comm/can/can.h"
+#include "lib/logging/logging.h"
+#include "comm/can/can.h"
 
 TEST_GROUP(COMM_CAN);
 
