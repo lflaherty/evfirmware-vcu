@@ -24,7 +24,6 @@ SRC_FILES=\
 	  mock/MockLogging.c \
 	  test/lib/logging/TestLogMock.c \
 	  test/comm/can/TestCan.c \
-	  test/comm/can/TestCanRunner.c \
 	  test/all_tests.c
 
 INC_DIRS=-I../src -Itest -Imock -I$(UNITY_ROOT)/src -I$(UNITY_ROOT)/extras/fixture/src
