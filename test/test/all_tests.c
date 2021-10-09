@@ -9,6 +9,7 @@
 
 static void RunAllTests(void)
 {
+	RUN_TEST_GROUP(LIB_LOGGING_MOCK);
 	RUN_TEST_GROUP(COMM_CAN);
 }
 

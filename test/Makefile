@@ -22,6 +22,7 @@ SRC_FILES=\
 	  $(UNITY_ROOT)/src/unity.c \
 	  $(UNITY_ROOT)/extras/fixture/src/unity_fixture.c \
 	  mock/MockLogging.c \
+	  test/lib/logging/TestLogMock.c \
 	  test/comm/can/TestCan.c \
 	  test/comm/can/TestCanRunner.c \
 	  test/all_tests.c
