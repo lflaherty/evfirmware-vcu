@@ -9,6 +9,7 @@
 #define LIB_LOGGING_LOGGING_H_
 
 #include "stm32f7xx_hal.h"
+#include <stddef.h>
 #include <stdbool.h>
 
 #define LOGGING_DEFAULT_BUFF_LEN 256
