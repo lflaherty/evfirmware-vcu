@@ -68,6 +68,8 @@ static struct {
  */
 static void CAN_RxTask(void* pvParameters)
 {
+  (void)pvParameters; // ignore param
+
   const TickType_t blockTime = 500 / portTICK_PERIOD_MS; // 500ms
   uint32_t notifiedValue;
 
