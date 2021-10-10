@@ -165,4 +165,6 @@ HAL_StatusTypeDef HAL_CAN_AddTxMessage(CAN_HandleTypeDef *hcan, CAN_TxHeaderType
  */
 void mockSetHALCANRxMessage(void* data, size_t dataSize, CAN_RxHeaderTypeDef* header);
 
+void mockSetHALCANStatus(HAL_StatusTypeDef status);
+
 #endif

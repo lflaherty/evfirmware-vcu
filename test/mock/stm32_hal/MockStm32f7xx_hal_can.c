@@ -9,6 +9,7 @@
 #include <string.h>
 
 // ------------------- Static data -------------------
+static HAL_StatusTypeDef mStatus = HAL_OK;
 static void* mMsgData; // data to use for CAN message
 static size_t mDataSize;
 static CAN_RxHeaderTypeDef mHeaderData;
@@ -22,27 +23,27 @@ HAL_StatusTypeDef HAL_CAN_GetRxMessage(CAN_HandleTypeDef *hcan, uint32_t RxFifo,
     memcpy(aData, mMsgData, mDataSize);
     *pHeader = mHeaderData;
 
-    return HAL_OK;
+    return mStatus;
 }
 
 HAL_StatusTypeDef HAL_CAN_ConfigFilter(CAN_HandleTypeDef *hcan, CAN_FilterTypeDef *sFilterConfig)
 {
     (void)hcan;
     (void)sFilterConfig;
-    return HAL_OK;
+    return mStatus;
 }
 
 HAL_StatusTypeDef HAL_CAN_Start(CAN_HandleTypeDef *hcan)
 {
     (void)hcan;
-    return HAL_OK;
+    return mStatus;
 }
 
 HAL_StatusTypeDef HAL_CAN_ActivateNotification(CAN_HandleTypeDef *hcan, uint32_t ActiveITs)
 {
     (void)hcan;
     (void)ActiveITs;
-    return HAL_OK;
+    return mStatus;
 }
 
 HAL_StatusTypeDef HAL_CAN_AddTxMessage(CAN_HandleTypeDef *hcan, CAN_TxHeaderTypeDef *pHeader, uint8_t aData[], uint32_t *pTxMailbox)
@@ -53,7 +54,7 @@ HAL_StatusTypeDef HAL_CAN_AddTxMessage(CAN_HandleTypeDef *hcan, CAN_TxHeaderType
     mMsgData = aData;
     mDataSize = pHeader->DLC;
 
-    return HAL_OK;
+    return mStatus;
 }
 
 void mockSetHALCANRxMessage(void* data, size_t dataSize, CAN_RxHeaderTypeDef* header)
@@ -61,4 +62,9 @@ void mockSetHALCANRxMessage(void* data, size_t dataSize, CAN_RxHeaderTypeDef* he
     mMsgData = data;
     mDataSize = dataSize;
     mHeaderData = *header;
+}
+
+void mockSetHALCANStatus(HAL_StatusTypeDef status)
+{
+    mStatus = status;
 }
