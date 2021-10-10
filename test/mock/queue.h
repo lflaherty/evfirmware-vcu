@@ -19,6 +19,7 @@
 struct QueueDefinition
 {
     size_t itemSize;
+    // must be kept the same as StaticQueue_t in FreeRTOS.h
 };
 typedef struct QueueDefinition* QueueHandle_t;
 

@@ -10,6 +10,7 @@
 #define INC_FREERTOS_H
 
 #include <stdint.h>
+#include <stddef.h>
 
 // ================== Define types ==================
 typedef struct
@@ -19,7 +20,8 @@ typedef struct
 
 typedef struct xSTATIC_QUEUE
 {
-    // Empty for mock
+    size_t itemSize;
+    // Must be kept the same as QueueDefinition in queue.h
 } StaticQueue_t;
 
 typedef uint32_t StackType_t;

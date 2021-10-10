@@ -19,9 +19,8 @@ QueueHandle_t xQueueCreateStatic(const UBaseType_t uxQueueLength, const UBaseTyp
 {
     (void)uxQueueLength;
     (void)pucQueueStorage;
-    (void)pxStaticQueue;
 
-    QueueHandle_t handle = {0};
+    QueueHandle_t handle = (QueueHandle_t)pxStaticQueue;
     handle->itemSize = uxItemSize;
 
     return handle;

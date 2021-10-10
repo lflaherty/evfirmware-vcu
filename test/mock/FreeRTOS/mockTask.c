@@ -31,7 +31,7 @@ TaskHandle_t xTaskCreateStatic(TaskFunction_t pxTaskCode,
     (void)puxStackBuffer;
     (void)pxTaskBuffer;
 
-    TaskHandle_t handle = {0};
+    TaskHandle_t handle = (TaskHandle_t)pxTaskBuffer;
     return handle;
 }
 
