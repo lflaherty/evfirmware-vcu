@@ -52,8 +52,9 @@ typedef struct {
  * @brief Callback method typedef
  * Params:
  *    CAN data frame
+ *    Param to pass to callback
  */
-typedef void (*CAN_Callback_Method)(const CAN_DataFrame_T*);
+typedef void (*CAN_Callback_Method)(const CAN_DataFrame_T*, const void*);
 
 /**
  * @brief Initialize CAN driver interface
@@ -75,12 +76,14 @@ CAN_Status_T CAN_Config(CAN_HandleTypeDef* handle);
  * @param handle CAN Bus device handle
  * @param msgId message ID
  * @param callback Method to call during callback
+ * @param param Constant parameter to pass to the callback
  * @return Return status. CAN_STATUS_OK for success. See CAN_Status_T for more.
  */
 CAN_Status_T CAN_RegisterCallback(
     const CAN_HandleTypeDef* handle,
     const uint32_t msgId,
-    const CAN_Callback_Method callback);
+    const CAN_Callback_Method callback,
+    void* param);
 
 /**
  * @brief Send a message on the CAN bus

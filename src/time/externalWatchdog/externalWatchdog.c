@@ -15,26 +15,20 @@
 
 static Logging_T* log;
 
-static GPIO_TypeDef* gpioBank;
-static uint16_t gpioPin;
-
-ExternalWatchdog_Status_T ExternalWatchdog_Init(Logging_T* logger, GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
+ExternalWatchdog_Status_T ExternalWatchdog_Init(Logging_T* logger, ExternalWatchdog_T* wdg)
 {
   log = logger;
   logPrintS(log, "ExternalWatchdog_Init begin\n", LOGGING_DEFAULT_BUFF_LEN);
 
-  gpioBank = GPIOx;
-  gpioPin = GPIO_Pin;
-
   // set pin state
-  HAL_GPIO_WritePin(gpioBank, gpioPin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(wdg->gpioBank, wdg->gpioPin, GPIO_PIN_RESET);
 
   logPrintS(log, "ExternalWatchdog_Init complete\n", LOGGING_DEFAULT_BUFF_LEN);
   return EXTWATCHDOG_STATUS_OK;
 }
 
-ExternalWatchdog_Status_T ExternalWatchdog_Trigger(void)
+ExternalWatchdog_Status_T ExternalWatchdog_Trigger(ExternalWatchdog_T* wdg)
 {
-  HAL_GPIO_TogglePin(gpioBank, gpioPin);
+  HAL_GPIO_TogglePin(wdg->gpioBank, wdg->gpioPin);
   return EXTWATCHDOG_STATUS_OK;
 }

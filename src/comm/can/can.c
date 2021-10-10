@@ -23,6 +23,7 @@ typedef struct {
   CAN_TypeDef* busInstance;       // The callback is tied to this CAN Bus instance
   uint32_t msgId;                 // Message ID must match for callback to be invoked
   CAN_Callback_Method callback;   // The method to invoke in the callback
+  void* param;                    // Additional parameter to pass to callback
 } CAN_Callback_T;
 
 /**
@@ -90,12 +91,13 @@ static void CAN_RxTask(void* pvParameters)
         uint8_t numCallbacks = canBusInfo.numCallbacks;
         for (uint8_t i = 0; i < numCallbacks; ++i) {
           // check the CAN bus instance & the message ID
-          if (canBusInfo.callbacks[i].busInstance == canData.busInstance &&
-              canBusInfo.callbacks[i].msgId == canData.msgId) {
+          CAN_Callback_T* iCallback = &canBusInfo.callbacks[i];
+          if (iCallback->busInstance == canData.busInstance &&
+              iCallback->msgId == canData.msgId) {
             // invoke the callback
             // passing the pointer to local variable is ok -
             // it will exist in the local stack frame for the life of the callback
-            canBusInfo.callbacks[i].callback(&canData);
+            iCallback->callback(&canData, iCallback->param);
           }
         }
 
@@ -213,7 +215,8 @@ CAN_Status_T CAN_Config(CAN_HandleTypeDef* handle)
 CAN_Status_T CAN_RegisterCallback(
     const CAN_HandleTypeDef* handle,
     const uint32_t msgId,
-    const CAN_Callback_Method method)
+    const CAN_Callback_Method method,
+    void* param)
 {
   // Store callback
   if (canBusInfo.numCallbacks == CAN_NUM_CALLBACKS) {
@@ -225,6 +228,7 @@ CAN_Status_T CAN_RegisterCallback(
   canBusInfo.callbacks[canBusInfo.numCallbacks].busInstance = handle->Instance;
   canBusInfo.callbacks[canBusInfo.numCallbacks].msgId = msgId;
   canBusInfo.callbacks[canBusInfo.numCallbacks].callback = method;
+  canBusInfo.callbacks[canBusInfo.numCallbacks].param = param;
   canBusInfo.numCallbacks++;
 
   return CAN_STATUS_OK;
