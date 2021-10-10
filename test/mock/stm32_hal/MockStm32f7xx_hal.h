@@ -11,10 +11,8 @@
 #include "stm32_hal/MockStm32f7xx_hal_uart.h"
 #include "stm32_hal/MockStm32f7xx_hal_can.h"
 
-static inline uint32_t ITM_SendChar (uint32_t ch)
-{
-  (void)ch;
-  return 0;
-}
+#include <stdint.h>
+
+uint32_t ITM_SendChar(uint32_t ch);
 
 #endif
