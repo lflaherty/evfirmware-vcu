@@ -8,15 +8,19 @@
 #include "logging.h"
 #include <stdio.h>
 
+#include "stm32f7xx_hal.h"
+
 /**
  * Allows printing to SWO debug console
  */
 int _write(int file, char *ptr, int len)
 {
-  /* Implement your write code here, this is used by puts and printf for example */
+  (void)file; // ignore param
+  
   int i=0;
-  for(i=0 ; i<len ; i++)
+  for(i = 0; i < len; i++) {
     ITM_SendChar((*ptr++));
+  }
   return len;
 }
 //------------------------------------------------------------------------------
