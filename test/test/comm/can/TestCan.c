@@ -44,8 +44,6 @@ TEST(COMM_CAN, TestCanInitOk)
 
     TEST_ASSERT(CAN_STATUS_OK == status);
 
-    mockLogDisplay();
-
     const char* expectedLogging = 
         "CAN_Init begin\n"
         "CAN_Init complete\n";
