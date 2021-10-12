@@ -15,14 +15,6 @@
 
 #define MOCK_LOG_BUFFER_LEN 5000
 
-// Mock out logPrint method
-#define logPrint mockLogPrint
-Logging_Status_T mockLogPrint(const Logging_T* logData, const char* message, const size_t len);
-
-// Mock out logPrintS method
-#define logPrintS mockLogPrintS
-Logging_Status_T mockLogPrintS(const Logging_T* logData, const char* message, const size_t bufferLen);
-
 /**
  * Clear the stored messages
  */

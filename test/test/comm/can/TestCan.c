@@ -52,7 +52,12 @@ TEST(COMM_CAN, TestCanInitOk)
 	TEST_ASSERT_EQUAL_STRING(expectedLogging, mockLogGet());
 }
 
-TEST_GROUP_RUNNER(COMM_CAN)
+static void RunAllTests(void)
 {
-    RUN_TEST_CASE(COMM_CAN, TestCanInitOk);
+	RUN_TEST_CASE(COMM_CAN, TestCanInitOk);
+}
+
+int main(int argc, const char* argv[])
+{
+	return UnityMain(argc, argv, RunAllTests);
 }
