@@ -30,13 +30,13 @@ TEST_SETUP(COMM_CAN)
     mLog.enableLogToLogFile = false;
     mLog.enableLogToSerial = false;
     mockLogClear();
-    mockSetHALCANStatus(HAL_OK);
+    mockSet_HAL_CAN_AllStatus(HAL_OK);
 }
 
 TEST_TEAR_DOWN(COMM_CAN)
 {
     mockLogClear();
-    mockSetHALCANStatus(HAL_OK);
+    mockSet_HAL_CAN_AllStatus(HAL_OK);
 }
 
 TEST(COMM_CAN, TestCanInitOk)
@@ -48,15 +48,69 @@ TEST(COMM_CAN, TestCanInitOk)
     const char* expectedLogging = 
         "CAN_Init begin\n"
         "CAN_Init complete\n";
-	TEST_ASSERT_EQUAL_STRING(expectedLogging, mockLogGet());
+    TEST_ASSERT_EQUAL_STRING(expectedLogging, mockLogGet());
+}
+
+TEST(COMM_CAN, TestCanConfigOk)
+{
+    CAN_HandleTypeDef handle = {0};
+    CAN_Status_T status = CAN_Config(&handle);
+
+    TEST_ASSERT(CAN_STATUS_OK == status);
+
+    const char* expectedLogging = 
+        "CAN_Config begin\n"
+        "CAN_Config complete\n";
+    TEST_ASSERT_EQUAL_STRING(expectedLogging, mockLogGet());
+}
+
+TEST(COMM_CAN, TestCanConfigErrorCfg)
+{
+    CAN_HandleTypeDef handle = {0};
+    mockSet_HAL_CAN_ConfigFilter_Status(HAL_ERROR);
+    CAN_Status_T status = CAN_Config(&handle);
+
+    TEST_ASSERT(CAN_STATUS_ERROR_CFG_FILTER == status);
+
+    const char* expectedLogging = "CAN_Config begin\n";
+    TEST_ASSERT_EQUAL_STRING(expectedLogging, mockLogGet());
+}
+
+TEST(COMM_CAN, TestCanConfigErrorStart)
+{
+    CAN_HandleTypeDef handle = {0};
+    mockSet_HAL_CAN_Start_Status(HAL_ERROR);
+    CAN_Status_T status = CAN_Config(&handle);
+
+    printf("%d\n", status);
+    TEST_ASSERT(CAN_STATUS_ERROR_START == status);
+
+    const char* expectedLogging = "CAN_Config begin\n";
+    TEST_ASSERT_EQUAL_STRING(expectedLogging, mockLogGet());
+}
+
+TEST(COMM_CAN, TestCanConfigErrorActivateNotification)
+{
+    CAN_HandleTypeDef handle = {0};
+    mockSet_HAL_CAN_ActivateNotification_Status(HAL_ERROR);
+    CAN_Status_T status = CAN_Config(&handle);
+
+    TEST_ASSERT(CAN_STATUS_ERROR_START_NOTIFY == status);
+
+    const char* expectedLogging = "CAN_Config begin\n";
+    TEST_ASSERT_EQUAL_STRING(expectedLogging, mockLogGet());
 }
 
 static void RunAllTests(void)
 {
-	RUN_TEST_CASE(COMM_CAN, TestCanInitOk);
+    RUN_TEST_CASE(COMM_CAN, TestCanInitOk);
+    RUN_TEST_CASE(COMM_CAN, TestCanConfigOk);
+    RUN_TEST_CASE(COMM_CAN, TestCanConfigErrorCfg);
+    RUN_TEST_CASE(COMM_CAN, TestCanConfigErrorStart);
+    RUN_TEST_CASE(COMM_CAN, TestCanConfigErrorActivateNotification);
 }
 
 int main(int argc, const char* argv[])
 {
-	return UnityMain(argc, argv, RunAllTests);
+    return UnityMain(argc, argv, RunAllTests);
 }
