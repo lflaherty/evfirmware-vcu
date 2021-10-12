@@ -8,11 +8,12 @@
 #include "unity.h"
 #include "unity_fixture.h"
 
-#include "MockLogging.h"
 #include "stm32_hal/MockStm32f7xx_hal.h"
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
+
+#include "lib/logging/MockLogging.h"
 
 #include "lib/logging/logging.h"
 #include "comm/can/can.h"

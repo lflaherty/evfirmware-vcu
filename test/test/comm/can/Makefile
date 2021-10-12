@@ -3,7 +3,7 @@ SUB_DIR=comm/can
 
 TARGET=TestCan
 
-MOCKS=mock/MockLogging.c
+MOCKS=mock/lib/logging/MockLogging.c
 
 TESTED_SRC=../src/comm/can/can.c
 
