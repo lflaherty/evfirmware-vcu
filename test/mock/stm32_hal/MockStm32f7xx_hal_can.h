@@ -19,7 +19,6 @@ typedef struct
     // Empty for mock
 } CAN_TypeDef;
 
-
 typedef struct 
 {
   CAN_TypeDef* Instance;
@@ -165,6 +164,11 @@ HAL_StatusTypeDef HAL_CAN_AddTxMessage(CAN_HandleTypeDef *hcan, CAN_TxHeaderType
  */
 void mockSetHALCANRxMessage(void* data, size_t dataSize, CAN_RxHeaderTypeDef* header);
 
-void mockSetHALCANStatus(HAL_StatusTypeDef status);
+void mockSet_HAL_CAN_AllStatus(HAL_StatusTypeDef status);
+void mockSet_HAL_CAN_GetRxMessage_Status(HAL_StatusTypeDef status);
+void mockSet_HAL_CAN_ConfigFilter_Status(HAL_StatusTypeDef status);
+void mockSet_HAL_CAN_Start_Status(HAL_StatusTypeDef status);
+void mockSet_HAL_CAN_ActivateNotification_Status(HAL_StatusTypeDef status);
+void mockSet_HAL_CAN_AddTxMessage_Status(HAL_StatusTypeDef status);
 
 #endif
