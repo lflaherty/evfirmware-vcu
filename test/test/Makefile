@@ -1,7 +1,5 @@
-SUB_DIRS=comm
+SUB_DIRS=\
+	comm \
+	io
 
-all: $(SUB_DIRS)
-
-.PHONY:$(SUB_DIRS)
-$(SUB_DIRS):
-	cd $@ && make
+include ../build_dir.mk

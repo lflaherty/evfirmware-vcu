@@ -1,8 +1,4 @@
 SUB_DIRS=\
 	can
 
-all: $(SUB_DIRS)
-
-.PHONY:$(SUB_DIRS)
-$(SUB_DIRS):
-	cd $@ && make
+include ../build_dir.mk
