@@ -10,6 +10,7 @@
 
 #include "stm32_hal/MockStm32f7xx_hal_uart.h"
 #include "stm32_hal/MockStm32f7xx_hal_can.h"
+#include "stm32_hal/MockStm32f7xx_hal_adc.h"
 
 #include <stdint.h>
 
