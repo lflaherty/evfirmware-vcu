@@ -134,6 +134,11 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 
     ++currentSampleCount;
 
+    // copy results into averaging buffer
+    for (size_t i = 0; i < numChannels; ++i) {
+      adcDataCounting[i] += adcDMABuf[i] & 0xFFF;  // 12 bit, it should be this anyway, but make sure
+    }
+
     if (currentSampleCount == numSamples) {
       // copy results into final buffer
       for (size_t i = 0; i < numChannels; ++i) {
@@ -143,12 +148,6 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 
       // reset counter
       currentSampleCount = 0;
-    } else {
-      // copy results into averaging buffer
-      for (size_t i = 0; i < numChannels; ++i) {
-        adcDataCounting[i] += adcDMABuf[i] & 0xFFF;  // 12 bit, it should be this anyway, but make sure
-      }
     }
-
   }
 }
