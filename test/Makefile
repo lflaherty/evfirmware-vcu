@@ -1,5 +1,5 @@
 all:
-	cd test && make
+	cd test && make -j`nproc`
 	./generate_report.sh
 
 clean:
