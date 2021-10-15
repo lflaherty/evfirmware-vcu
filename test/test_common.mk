@@ -9,7 +9,9 @@ $(info required vars not set!)
 endif
 
 GCC=gcc
+# Compile flags
 CFLAGS=-std=c99
+# Warning flags
 CFLAGS += -Wall
 CFLAGS += -Wextra
 CFLAGS += -Wpointer-arith
@@ -24,7 +26,13 @@ CFLAGS += -Wstrict-prototypes
 CFLAGS += -Wundef
 CFLAGS += -Wold-style-definition
 CFLAGS += -Werror
-CFLAGS += -g -fprofile-arcs -ftest-coverage -fprofile-dir=./coverage
+# Profiling flags
+CFLAGS += -g
+CFLAGS += -fprofile-arcs
+CFLAGS += -ftest-coverage
+CFLAGS += -fprofile-dir=./coverage
+# Linker flags
+LFLAGS=-lm
 
 UNITY_ROOT=Unity
 
@@ -34,6 +42,7 @@ COMMON_MOCKS=\
 	mock/FreeRTOS/mockTask.c \
 	mock/stm32_hal/MockStm32f7xx_hal.c \
 	mock/stm32_hal/MockStm32f7xx_hal_can.c \
+	mock/stm32_hal/MockStm32f7xx_hal_adc.c \
 
 SRC_FILES=\
 	$(UNITY_ROOT)/src/unity.c \
@@ -49,5 +58,5 @@ SYMBOLS=-DUNITY_FIXTURE_NO_EXTRAS
 default:
 	@echo Build...
 	mkdir -p $(TEST_ROOT)/coverage
-	cd $(TEST_ROOT) && $(GCC) $(CFLAGS) $(INC_DIRS) $(SYMBOLS) $(SRC_FILES) -o $(TARGET)
-	mv $(TEST_ROOT)/can.gcno $(TEST_ROOT)/coverage
+	cd $(TEST_ROOT) && $(GCC) $(CFLAGS) $(INC_DIRS) $(SYMBOLS) $(SRC_FILES) $(LFLAGS) -o $(TARGET)
+	mv $(patsubst %.c,$(TEST_ROOT)/%.gcno,$(notdir $(TESTED_SRC))) $(TEST_ROOT)/coverage
