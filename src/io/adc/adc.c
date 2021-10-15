@@ -119,6 +119,7 @@ uint16_t ADC_Get(const ADC_Channel_T channel)
  */
 void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef* hadc)
 {
+  (void)hadc;
   // Empty
 }
 
@@ -127,6 +128,8 @@ void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef* hadc)
  */
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 {
+  (void)hadc;
+
   if (adcInitialized) {
 
     ++currentSampleCount;
