@@ -11,24 +11,23 @@
 
 // ------------------- Static data -------------------
 static HAL_StatusTypeDef mStatusStartDMA = HAL_OK;
-static uint32_t mData[MOCK_ADC_MAX_DATA];
+static uint32_t* mDataPtr = NULL;
 static uint32_t mDataLen = 0;
 
 // ------------------- Methods -------------------
 HAL_StatusTypeDef HAL_ADC_Start_DMA(ADC_HandleTypeDef* hadc, uint32_t* pData, uint32_t Length)
 {
     (void)hadc;
-    assert(mDataLen == Length);
 
-    memcpy(pData, mData, mDataLen); // copy data out
+    mDataPtr = pData;
+    mDataLen = Length;
 
     return mStatusStartDMA;
 }
 
 void mockSetADCData(uint32_t* data, size_t dataLength)
 {
-    assert(dataLength <= MOCK_ADC_MAX_DATA);
-    memcpy(mData, data, dataLength);
+    memcpy(mDataPtr, data, dataLength);
     mDataLen = dataLength;
 }
 
