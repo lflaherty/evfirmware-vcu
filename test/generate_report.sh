@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 echo Running tests
 # Run test to generate coverage files
