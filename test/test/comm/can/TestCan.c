@@ -17,8 +17,6 @@
 
 #include "lib/logging/logging.h"
 #include "comm/can/can.h"
-
-#include <stdio.h>
  
 static Logging_T mLog;
 
@@ -82,7 +80,6 @@ TEST(COMM_CAN, TestCanConfigErrorStart)
     mockSet_HAL_CAN_Start_Status(HAL_ERROR);
     CAN_Status_T status = CAN_Config(&handle);
 
-    printf("%d\n", status);
     TEST_ASSERT(CAN_STATUS_ERROR_START == status);
 
     const char* expectedLogging = "CAN_Config begin\n";

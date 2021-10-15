@@ -18,8 +18,6 @@
 #include "lib/logging/logging.h"
 #include "io/adc/adc.h"
 
-#include <stdio.h>
- 
 static Logging_T mLog;
 
 // HAL interrupts:
@@ -172,7 +170,6 @@ TEST(IO_ADC, TestAdcDataSingle)
 
     for (uint16_t i = 0; i < numChannels; ++i) {
         uint16_t adcVal = ADC_Get(i);
-        printf("%u got %u expected %u\n", i, adcVal, dataExpected[i]);
         TEST_ASSERT(dataExpected[i] == adcVal);
     }
 }
