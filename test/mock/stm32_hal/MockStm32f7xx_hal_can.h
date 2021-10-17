@@ -159,10 +159,9 @@ HAL_StatusTypeDef HAL_CAN_AddTxMessage(CAN_HandleTypeDef *hcan, CAN_TxHeaderType
 
 /**
  * @brief Sets the queue to return this data upon next xQueueReceive
- * @param data Pointer to data to use
- * @param dataSize size of data. Note that this will be used to copy the data.
+ * @param data Pointer to data to use. This will be used to control size of data copying
  */
-void mockSetHALCANRxMessage(void* data, size_t dataSize, CAN_RxHeaderTypeDef* header);
+void mockSetHALCANMessage(void* data, CAN_RxHeaderTypeDef* header);
 
 void mockSet_HAL_CAN_AllStatus(HAL_StatusTypeDef status);
 void mockSet_HAL_CAN_GetRxMessage_Status(HAL_StatusTypeDef status);

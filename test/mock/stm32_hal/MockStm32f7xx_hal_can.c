@@ -16,8 +16,8 @@ static HAL_StatusTypeDef mStatusActivateNotification = HAL_OK;
 static HAL_StatusTypeDef mStatusAddTxMessage = HAL_OK;
 
 static void* mMsgData; // data to use for CAN message
-static size_t mDataSize;
-static CAN_RxHeaderTypeDef mHeaderData;
+static CAN_RxHeaderTypeDef mRxHeaderData;
+static CAN_TxHeaderTypeDef mTxHeaderData;
 
 // ------------------- Methods -------------------
 HAL_StatusTypeDef HAL_CAN_GetRxMessage(CAN_HandleTypeDef *hcan, uint32_t RxFifo, CAN_RxHeaderTypeDef *pHeader, uint8_t aData[])
@@ -25,8 +25,8 @@ HAL_StatusTypeDef HAL_CAN_GetRxMessage(CAN_HandleTypeDef *hcan, uint32_t RxFifo,
     (void)hcan;
     (void)RxFifo;
     
-    memcpy(aData, mMsgData, mDataSize);
-    *pHeader = mHeaderData;
+    *pHeader = mRxHeaderData;
+    memcpy(aData, mMsgData, mRxHeaderData.DLC);
 
     return mStatusGetRxMessage;
 }
@@ -57,16 +57,30 @@ HAL_StatusTypeDef HAL_CAN_AddTxMessage(CAN_HandleTypeDef *hcan, CAN_TxHeaderType
     (void)pTxMailbox;
 
     mMsgData = aData;
-    mDataSize = pHeader->DLC;
+    mTxHeaderData = *pHeader;
+
+    mRxHeaderData.StdId = mTxHeaderData.StdId;
+    mRxHeaderData.ExtId = mTxHeaderData.ExtId;
+    mRxHeaderData.IDE = mTxHeaderData.IDE;
+    mRxHeaderData.RTR = mTxHeaderData.RTR;
+    mRxHeaderData.DLC = mTxHeaderData.DLC;
+    mRxHeaderData.Timestamp = 0;
+    mRxHeaderData.FilterMatchIndex = 0;
 
     return mStatusAddTxMessage;
 }
 
-void mockSetHALCANRxMessage(void* data, size_t dataSize, CAN_RxHeaderTypeDef* header)
+void mockSetHALCANMessage(void* data, CAN_RxHeaderTypeDef* header)
 {
     mMsgData = data;
-    mDataSize = dataSize;
-    mHeaderData = *header;
+    mRxHeaderData = *header;
+
+    mTxHeaderData.StdId = mRxHeaderData.StdId;
+    mTxHeaderData.ExtId = mRxHeaderData.ExtId;
+    mTxHeaderData.IDE = mRxHeaderData.IDE;
+    mTxHeaderData.RTR = mRxHeaderData.RTR;
+    mTxHeaderData.DLC = mRxHeaderData.DLC;
+    mTxHeaderData.TransmitGlobalTime = 0;
 }
 
 void mockSet_HAL_CAN_AllStatus(HAL_StatusTypeDef status)
