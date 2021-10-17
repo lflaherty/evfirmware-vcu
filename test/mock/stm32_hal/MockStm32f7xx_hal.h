@@ -11,8 +11,11 @@
 #include "stm32_hal/MockStm32f7xx_hal_uart.h"
 #include "stm32_hal/MockStm32f7xx_hal_can.h"
 #include "stm32_hal/MockStm32f7xx_hal_adc.h"
+#include "stm32_hal/MockStm32f7xx_hal_tim.h"
 
 #include <stdint.h>
+
+#define portMAX_DELAY (TickType_t) 0xffffffffUL
 
 uint32_t ITM_SendChar(uint32_t ch);
 

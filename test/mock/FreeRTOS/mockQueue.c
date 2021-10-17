@@ -35,6 +35,16 @@ BaseType_t xQueueReceive(QueueHandle_t xQueue, void* const pvBuffer, TickType_t 
     return pdPASS;
 }
 
+BaseType_t xQueueSendToBack(QueueHandle_t xQueue, const void* const pvItemToQueue, TickType_t ticksToWait)
+{
+    (void)xQueue;
+    (void)ticksToWait;
+
+    mQueueData = pvItemToQueue;
+
+    return pdPASS;
+}
+
 BaseType_t xQueueSendToBackFromISR(QueueHandle_t xQueue, const void* const pvItemToQueue, BaseType_t* const pxHigherPriorityTaskWoken)
 {
     (void)xQueue;
