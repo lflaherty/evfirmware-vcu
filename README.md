@@ -45,7 +45,7 @@ Sensors will publish their data to the `Vehicle Interface`. `Vehicle Processes` 
 ### System
 
 ![Components](doc/app_components.png)
-![Components](System/doc/components.png)
+![Components](doc/sys_components.png)
 
 ## Tests
 The library is tested via a suite of unit tests contained under `test`. These unit tests leverge the unit testing framework, `Unity`. 
