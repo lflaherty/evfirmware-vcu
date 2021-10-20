@@ -42,7 +42,7 @@ The `Vehicle Processes` package implements high level vehicle logic. The `Vehicl
 
 Sensors will publish their data to the `Vehicle Interface`. `Vehicle Processes` will fetch data from here as required. When `Vehicle Processes` is required to command a change to the vehicle (e.g. sending a torque request to the inverter), this is made via the `Vehicle Interface`, which in turn will command the appropriate device driver.
 
-### System
+### Layout
 
 ![Components](doc/app_components.png)
 ![Components](doc/sys_components.png)
