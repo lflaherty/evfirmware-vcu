@@ -36,6 +36,14 @@ The software is composed of two primary layers:
     A firmware layer which abstracts the microcontroller services (such as CAN networking or analog inputs).
     This is pulled in from `evfirmware-lib` as a Git submodule.
 
+### Application Layer
+
+The `Vehicle Processes` package implements high level vehicle logic. The `Vehicle Interface` provides a common place to store vehicle data (i.e. physical data) and to provide a controlling interface. The `Devices` implement the device drivers for devices external devices in the vehicle connected to the control unit.
+
+Sensors will publish their data to the `Vehicle Interface`. `Vehicle Processes` will fetch data from here as required. When `Vehicle Processes` is required to command a change to the vehicle (e.g. sending a torque request to the inverter), this is made via the `Vehicle Interface`, which in turn will command the appropriate device driver.
+
+### System
+
 ![Components](doc/app_components.png)
 ![Components](System/doc/components.png)
 
