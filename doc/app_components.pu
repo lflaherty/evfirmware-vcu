@@ -1,0 +1,35 @@
+@startuml
+
+package "Application" {
+	package "Vehicle Processes" as VP {
+		component [Vehicle State Manager] as VSM
+		component [Throttle Controller] as ThrottleControl
+		component [Cooling Controller] as CoolingControl
+		component [Data Logging] as DataLogging
+		component [Debug Interface] as Debug
+		component [Manual Watchdog Monitor] as ManualWDG
+	}
+	package "Vehicle Interface" as VI {
+		component [Vehicle Control] as VehicleControl
+		component [Vehicle State] as VehicleState
+		component [Device Handle Mapping] as Mapping
+	}
+	package "Devices" as Dev {
+		component [Inverter] as Inverter
+		component [BMS] as BMS
+		component [Wheel Speed Sensor] as WheelSpeed
+		component [IMD] as IMD
+		component [Pedal Position Sensor] as Pedal
+		component [GPS] as GPS
+		component [Brake Pressure Sensor] as BPS
+		component [Shutdown Circuit] as SDC
+		component [Power Distribution Module] as PDM
+		component [Dashboard] as Dash
+		component [Intertial Measurement Unit] as IMU
+	}
+}
+
+VP <----> VI
+VI <----> Dev
+
+@enduml
