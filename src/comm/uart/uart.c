@@ -15,7 +15,7 @@
 #include "queue.h"
 
 // ------------------- Private data -------------------
-static Logging_T* log;
+static Logging_T* mLog;
 
 static bool isReady;
 
@@ -63,6 +63,8 @@ static struct {
  */
 static void UART_RxTask(void* pvParameters)
 {
+  (void)pvParameters; // Unused parameter
+
   const TickType_t blockTime = 500 / portTICK_PERIOD_MS; // 500ms
   uint32_t notifiedValue;
 
@@ -164,8 +166,8 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 // ------------------- Public methods -------------------
 UART_Status_T UART_Init(Logging_T* logger)
 {
-  log = logger;
-  logPrintS(log, "UART_Init begin\n", LOGGING_DEFAULT_BUFF_LEN);
+  mLog = logger;
+  logPrintS(mLog, "UART_Init begin\n", LOGGING_DEFAULT_BUFF_LEN);
   isReady = false;
 
   // Initialize mem to 0
@@ -190,19 +192,19 @@ UART_Status_T UART_Init(Logging_T* logger)
 
   isReady = true;
 
-  logPrintS(log, "UART_Init complete\n", LOGGING_DEFAULT_BUFF_LEN);
+  logPrintS(mLog, "UART_Init complete\n", LOGGING_DEFAULT_BUFF_LEN);
   return UART_STATUS_OK;
 }
 
 //------------------------------------------------------------------------------
 UART_Status_T UART_Config(UART_HandleTypeDef* handle)
 {
-  logPrintS(log, "UART_Config begin\n", LOGGING_DEFAULT_BUFF_LEN);
+  logPrintS(mLog, "UART_Config begin\n", LOGGING_DEFAULT_BUFF_LEN);
 
   HAL_UART_Receive_DMA(handle, uartDmaData, 2);
   // TODO is this needed?
 
-  logPrintS(log, "UART_Config complete\n", LOGGING_DEFAULT_BUFF_LEN);
+  logPrintS(mLog, "UART_Config complete\n", LOGGING_DEFAULT_BUFF_LEN);
   return UART_STATUS_OK;
 }
 

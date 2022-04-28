@@ -15,7 +15,7 @@ static uint32_t* mDataPtr = NULL;
 static uint32_t mDataLen = 0;
 
 // ------------------- Methods -------------------
-HAL_StatusTypeDef HAL_ADC_Start_DMA(ADC_HandleTypeDef* hadc, uint32_t* pData, uint32_t Length)
+HAL_StatusTypeDef stubHAL_ADC_Start_DMA(ADC_HandleTypeDef* hadc, uint32_t* pData, uint32_t Length)
 {
     (void)hadc;
 

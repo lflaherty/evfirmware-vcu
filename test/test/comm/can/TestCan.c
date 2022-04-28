@@ -9,6 +9,7 @@
 #include "unity_fixture.h"
 #include <string.h>
 
+// Mocks for code under test (replaces stubs)
 #include "stm32_hal/MockStm32f7xx_hal.h"
 #include "FreeRTOS.h"
 #include "task.h"
@@ -16,8 +17,8 @@
 
 #include "lib/logging/MockLogging.h"
 
-#include "lib/logging/logging.h"
-#include "comm/can/can.h"
+// source code under test
+#include "comm/can/can.c"
  
 static Logging_T mLog;
 
@@ -200,7 +201,7 @@ TEST(COMM_CAN, TestCanReceive)
     (void)data;
 }
 
-static void RunAllTests(void)
+TEST_GROUP_RUNNER(COMM_CAN)
 {
     RUN_TEST_CASE(COMM_CAN, TestCanInitOk);
     RUN_TEST_CASE(COMM_CAN, TestCanConfigOk);
@@ -211,9 +212,4 @@ static void RunAllTests(void)
     RUN_TEST_CASE(COMM_CAN, TestCanRegisterCallbackFull);
     RUN_TEST_CASE(COMM_CAN, TestCanSendOk);
     RUN_TEST_CASE(COMM_CAN, TestCanSendError);
-}
-
-int main(int argc, const char* argv[])
-{
-    return UnityMain(argc, argv, RunAllTests);
 }

@@ -20,7 +20,7 @@ static CAN_RxHeaderTypeDef mRxHeaderData;
 static CAN_TxHeaderTypeDef mTxHeaderData;
 
 // ------------------- Methods -------------------
-HAL_StatusTypeDef HAL_CAN_GetRxMessage(CAN_HandleTypeDef *hcan, uint32_t RxFifo, CAN_RxHeaderTypeDef *pHeader, uint8_t aData[])
+HAL_StatusTypeDef stubHAL_CAN_GetRxMessage(CAN_HandleTypeDef *hcan, uint32_t RxFifo, CAN_RxHeaderTypeDef *pHeader, uint8_t aData[])
 {
     (void)hcan;
     (void)RxFifo;
@@ -31,27 +31,27 @@ HAL_StatusTypeDef HAL_CAN_GetRxMessage(CAN_HandleTypeDef *hcan, uint32_t RxFifo,
     return mStatusGetRxMessage;
 }
 
-HAL_StatusTypeDef HAL_CAN_ConfigFilter(CAN_HandleTypeDef *hcan, CAN_FilterTypeDef *sFilterConfig)
+HAL_StatusTypeDef stubHAL_CAN_ConfigFilter(CAN_HandleTypeDef *hcan, CAN_FilterTypeDef *sFilterConfig)
 {
     (void)hcan;
     (void)sFilterConfig;
     return mStatusConfigFilter;
 }
 
-HAL_StatusTypeDef HAL_CAN_Start(CAN_HandleTypeDef *hcan)
+HAL_StatusTypeDef stubHAL_CAN_Start(CAN_HandleTypeDef *hcan)
 {
     (void)hcan;
     return mStatusStart;
 }
 
-HAL_StatusTypeDef HAL_CAN_ActivateNotification(CAN_HandleTypeDef *hcan, uint32_t ActiveITs)
+HAL_StatusTypeDef stubHAL_CAN_ActivateNotification(CAN_HandleTypeDef *hcan, uint32_t ActiveITs)
 {
     (void)hcan;
     (void)ActiveITs;
     return mStatusActivateNotification;
 }
 
-HAL_StatusTypeDef HAL_CAN_AddTxMessage(CAN_HandleTypeDef *hcan, CAN_TxHeaderTypeDef *pHeader, uint8_t aData[], uint32_t *pTxMailbox)
+HAL_StatusTypeDef stubHAL_CAN_AddTxMessage(CAN_HandleTypeDef *hcan, CAN_TxHeaderTypeDef *pHeader, uint8_t aData[], uint32_t *pTxMailbox)
 {
     (void)hcan;
     (void)pTxMailbox;

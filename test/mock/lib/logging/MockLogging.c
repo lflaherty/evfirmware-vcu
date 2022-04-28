@@ -13,7 +13,7 @@
 static char mockLogBuffer[MOCK_LOG_BUFFER_LEN]; // stores the last entry that was printed
 static size_t offset = 0;
 
-Logging_Status_T logPrint(const Logging_T* logData, const char* message, const size_t len)
+Logging_Status_T stubLogPrint(const Logging_T* logData, const char* message, const size_t len)
 {
     (void)logData;
 
@@ -23,7 +23,7 @@ Logging_Status_T logPrint(const Logging_T* logData, const char* message, const s
     return LOGGING_STATUS_OK;
 }
 
-Logging_Status_T logPrintS(const Logging_T* logData, const char* message, const size_t bufferLen)
+Logging_Status_T stubLogPrintS(const Logging_T* logData, const char* message, const size_t bufferLen)
 {
     (void)logData;
 

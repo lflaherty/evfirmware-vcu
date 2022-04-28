@@ -28,8 +28,12 @@ typedef struct
 
 
 // ================== Define methods ==================
-HAL_StatusTypeDef HAL_ADC_Start_DMA(ADC_HandleTypeDef* hadc, uint32_t* pData, uint32_t Length);
+HAL_StatusTypeDef stubHAL_ADC_Start_DMA(ADC_HandleTypeDef* hadc, uint32_t* pData, uint32_t Length);
 
+// Replace real methods with mock stubs
+#define HAL_ADC_Start_DMA stubHAL_ADC_Start_DMA
+
+// ================== Mock control methods ==================
 void mockSetADCData(uint32_t* data, size_t dataLength);
 void mockSet_HAL_ADC_Start_DMA_Status(HAL_StatusTypeDef status);
 

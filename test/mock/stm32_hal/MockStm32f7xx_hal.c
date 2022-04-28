@@ -6,7 +6,7 @@
  */
 #include "MockStm32f7xx_hal.h"
 
-uint32_t ITM_SendChar(uint32_t ch)
+uint32_t stubITM_SendChar(uint32_t ch)
 {
     (void)ch;
     return 0;

@@ -14,7 +14,7 @@
 #include "queue.h"
 
 // ------------------- Private data -------------------
-static Logging_T* log;
+static Logging_T* logging;
 
 
 /* ========= CAN bus definitions ========= */
@@ -147,8 +147,8 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 // ------------------- Public methods -------------------
 CAN_Status_T CAN_Init(Logging_T* logger)
 {
-  log = logger;
-  logPrintS(log, "CAN_Init begin\n", LOGGING_DEFAULT_BUFF_LEN);
+  logging = logger;
+  logPrintS(logging, "CAN_Init begin\n", LOGGING_DEFAULT_BUFF_LEN);
   // Initialize mem to 0
   memset(&canBusInfo, 0, sizeof(canBusInfo));
 
@@ -169,7 +169,7 @@ CAN_Status_T CAN_Init(Logging_T* logger)
       canBusTask.xTask,
       &canBusTask.xTaskBuffer);
 
-  logPrintS(log, "CAN_Init complete\n", LOGGING_DEFAULT_BUFF_LEN);
+  logPrintS(logging, "CAN_Init complete\n", LOGGING_DEFAULT_BUFF_LEN);
   return CAN_STATUS_OK;
 }
 
@@ -177,7 +177,7 @@ CAN_Status_T CAN_Init(Logging_T* logger)
 // Rename to CAN_Start
 CAN_Status_T CAN_Config(CAN_HandleTypeDef* handle)
 {
-  logPrintS(log, "CAN_Config begin\n", LOGGING_DEFAULT_BUFF_LEN);
+  logPrintS(logging, "CAN_Config begin\n", LOGGING_DEFAULT_BUFF_LEN);
 
   // Filter config
   CAN_FilterTypeDef  sFilterConfig;
@@ -207,7 +207,7 @@ CAN_Status_T CAN_Config(CAN_HandleTypeDef* handle)
     return CAN_STATUS_ERROR_START_NOTIFY;
   }
 
-  logPrintS(log, "CAN_Config complete\n", LOGGING_DEFAULT_BUFF_LEN);
+  logPrintS(logging, "CAN_Config complete\n", LOGGING_DEFAULT_BUFF_LEN);
   return CAN_STATUS_OK;
 }
 

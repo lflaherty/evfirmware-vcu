@@ -151,12 +151,20 @@ typedef struct
 
 
 // ================== Define methods ==================
-HAL_StatusTypeDef HAL_CAN_GetRxMessage(CAN_HandleTypeDef *hcan, uint32_t RxFifo, CAN_RxHeaderTypeDef *pHeader, uint8_t aData[]);
-HAL_StatusTypeDef HAL_CAN_ConfigFilter(CAN_HandleTypeDef *hcan, CAN_FilterTypeDef *sFilterConfig);
-HAL_StatusTypeDef HAL_CAN_Start(CAN_HandleTypeDef *hcan);
-HAL_StatusTypeDef HAL_CAN_ActivateNotification(CAN_HandleTypeDef *hcan, uint32_t ActiveITs);
-HAL_StatusTypeDef HAL_CAN_AddTxMessage(CAN_HandleTypeDef *hcan, CAN_TxHeaderTypeDef *pHeader, uint8_t aData[], uint32_t *pTxMailbox);
+HAL_StatusTypeDef stubHAL_CAN_GetRxMessage(CAN_HandleTypeDef *hcan, uint32_t RxFifo, CAN_RxHeaderTypeDef *pHeader, uint8_t aData[]);
+HAL_StatusTypeDef stubHAL_CAN_ConfigFilter(CAN_HandleTypeDef *hcan, CAN_FilterTypeDef *sFilterConfig);
+HAL_StatusTypeDef stubHAL_CAN_Start(CAN_HandleTypeDef *hcan);
+HAL_StatusTypeDef stubHAL_CAN_ActivateNotification(CAN_HandleTypeDef *hcan, uint32_t ActiveITs);
+HAL_StatusTypeDef stubHAL_CAN_AddTxMessage(CAN_HandleTypeDef *hcan, CAN_TxHeaderTypeDef *pHeader, uint8_t aData[], uint32_t *pTxMailbox);
 
+// Replace real methods with mock stubs
+#define HAL_CAN_GetRxMessage stubHAL_CAN_GetRxMessage
+#define HAL_CAN_ConfigFilter stubHAL_CAN_ConfigFilter
+#define HAL_CAN_Start stubHAL_CAN_Start
+#define HAL_CAN_ActivateNotification stubHAL_CAN_ActivateNotification
+#define HAL_CAN_AddTxMessage stubHAL_CAN_AddTxMessage
+
+// ================== Mock control methods ==================
 /**
  * @brief Sets the queue to return this data upon next xQueueReceive
  * @param data Pointer to data to use. This will be used to control size of data copying

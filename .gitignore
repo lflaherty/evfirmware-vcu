@@ -1,8 +1,8 @@
-# Unit test binary
-all_tests
-
 # VS code config
 .vscode
+
+# .DS store files
+.DS_Store
 
 # Test files
 *.gcno
@@ -10,5 +10,5 @@ all_tests
 test/coverage/
 test/coverage_report/
 test/main_coverage.info
-test/Test*
+test/run_tests*
 

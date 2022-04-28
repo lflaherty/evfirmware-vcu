@@ -22,18 +22,18 @@ static Logging_T* logging;
 /**
  * Used by DMA to store data
  */
-static volatile uint16_t adcDMABuf[ADC_MAX_NUM_CHANNELS];
+static uint32_t adcDMABuf[ADC_MAX_NUM_CHANNELS];
 
 /**
  * Used to store intermediate ADC counting values.
  * (The sum value before averaging)
  */
-static volatile uint16_t adcDataCounting[ADC_MAX_NUM_CHANNELS];
+static uint16_t adcDataCounting[ADC_MAX_NUM_CHANNELS];
 
 /**
  * Used to store final ADC results
  */
-static volatile uint16_t adcData[ADC_MAX_NUM_CHANNELS];
+static uint16_t adcData[ADC_MAX_NUM_CHANNELS];
 
 /**
  * Number of channels in use
@@ -94,7 +94,7 @@ ADC_Status_T ADC_Config(ADC_HandleTypeDef* handle)
   // TODO: this only works for ADC1 (with multiple channels), expand to ADCx
 
   // just need to start DMA
-  if (HAL_ADC_Start_DMA(handle, (uint32_t*)adcDMABuf, numChannels) != HAL_OK) {
+  if (HAL_ADC_Start_DMA(handle, adcDMABuf, numChannels) != HAL_OK) {
     return ADC_STATUS_ERROR_DMA;
   }
 

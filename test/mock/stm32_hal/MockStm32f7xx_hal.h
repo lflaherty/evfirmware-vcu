@@ -17,6 +17,8 @@
 
 #define portMAX_DELAY (TickType_t) 0xffffffffUL
 
-uint32_t ITM_SendChar(uint32_t ch);
+uint32_t stubITM_SendChar(uint32_t ch);
+
+#define ITM_SendChar stubITM_SendChar;
 
 #endif

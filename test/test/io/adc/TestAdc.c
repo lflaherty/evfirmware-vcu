@@ -8,6 +8,7 @@
 #include "unity.h"
 #include "unity_fixture.h"
 
+// Mocks for code under test (replaces stubs)
 #include "stm32_hal/MockStm32f7xx_hal.h"
 #include "FreeRTOS.h"
 #include "task.h"
@@ -15,8 +16,8 @@
 
 #include "lib/logging/MockLogging.h"
 
-#include "lib/logging/logging.h"
-#include "io/adc/adc.h"
+// source code under test
+#include "io/adc/adc.c"
 
 static Logging_T mLog;
 
@@ -161,9 +162,9 @@ TEST(IO_ADC, TestAdcDataSingle)
     TEST_ASSERT_EQUAL_STRING(expectedLogging, mockLogGet());
 
     // set data
-    uint16_t dataRaw[4] = {0, 4095, 100, 0x1FFF};
+    uint32_t dataRaw[4] = {0, 4095, 100, 0x1FFF};
     uint16_t dataExpected[4] = {0, 4095, 100, 0xFFF};
-    mockSetADCData((uint32_t*)dataRaw, sizeof(dataRaw));
+    mockSetADCData(dataRaw, sizeof(dataRaw));
 
     // Raise interrupt
     HAL_ADC_ConvCpltCallback(&hadc);
@@ -193,16 +194,16 @@ TEST(IO_ADC, TestAdcDataAvg)
     TEST_ASSERT_EQUAL_STRING(expectedLogging, mockLogGet());
 
     // set data
-    uint16_t dataRaw1[6]     = {0, 4095, 100, 4000, 4000, 0x1FFF};
-    uint16_t dataRaw2[6]     = {0, 4000, 150, 4001, 4002, 0x1FFF};
+    uint32_t dataRaw1[6]     = {0, 4095, 100, 4000, 4000, 0x1FFF};
+    uint32_t dataRaw2[6]     = {0, 4000, 150, 4001, 4002, 0x1FFF};
     uint16_t dataExpected[6] = {0, 4047, 125, 4000, 4001, 4095};
 
     // Send first set of data
-    mockSetADCData((uint32_t*)dataRaw1, sizeof(dataRaw1));
+    mockSetADCData(dataRaw1, sizeof(dataRaw1));
     HAL_ADC_ConvCpltCallback(&hadc);
 
     // Send second set of data
-    mockSetADCData((uint32_t*)dataRaw2, sizeof(dataRaw2));
+    mockSetADCData(dataRaw2, sizeof(dataRaw2));
     HAL_ADC_ConvCpltCallback(&hadc);
 
     for (uint16_t i = 0; i < numChannels; ++i) {
@@ -211,7 +212,7 @@ TEST(IO_ADC, TestAdcDataAvg)
     }
 }
 
-static void RunAllTests(void)
+TEST_GROUP_RUNNER(IO_ADC)
 {
     RUN_TEST_CASE(IO_ADC, TestAdcInitOk);
     RUN_TEST_CASE(IO_ADC, TestAdcInitTooManyChannels);
@@ -221,9 +222,4 @@ static void RunAllTests(void)
     RUN_TEST_CASE(IO_ADC, TestAdcInterruptHalf);
     RUN_TEST_CASE(IO_ADC, TestAdcDataSingle);
     RUN_TEST_CASE(IO_ADC, TestAdcDataAvg);
-}
-
-int main(int argc, const char* argv[])
-{
-    return UnityMain(argc, argv, RunAllTests);
 }
