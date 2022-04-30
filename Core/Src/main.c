@@ -893,19 +893,17 @@ static void MX_GPIO_Init(void)
                           |MPIO_EN3_Pin|MPIO_OUT2_Pin|P_SW2_Pin|P_SW3_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, MPIO_EN2_Pin|MPIO_EN1_Pin|MPIO_OUT1_Pin|External_WDG_Trigger_Pin
-                          |External_WDG_EN_Pin|P_SW1_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, MPIO_EN2_Pin|MPIO_EN1_Pin|MPIO_OUT1_Pin|P_SW1_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOF, MPIO_OUT7_Pin|DOUT_START_B_Pin|MPIO_EN7_Pin|MPIO_OUT6_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOG, MPIO_EN6_Pin|MPIO_EN5_Pin|MPIO_OUT5_Pin|EEPROM_ADDR2_Pin
-                          |EEPROM_ADDR1_Pin|EEPROM_ADDR0_Pin|EEPROM_WP_Pin|MPIO_EN8_Pin
-                          |ECU_SW_Error2_Pin, GPIO_PIN_RESET);
+                          |EEPROM_ADDR1_Pin|EEPROM_ADDR0_Pin|EEPROM_WP_Pin|MPIO_EN8_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOD, MPIO_EN4_Pin|MPIO_OUT4_Pin|IMU_ADDR0_Pin|ECU_SW_Error1_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOD, MPIO_EN4_Pin|MPIO_OUT4_Pin|IMU_ADDR0_Pin|ECU_SW_Error_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(MPIO_OUT8_GPIO_Port, MPIO_OUT8_Pin, GPIO_PIN_RESET);
@@ -928,10 +926,8 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : MPIO_EN2_Pin MPIO_EN1_Pin MPIO_OUT1_Pin External_WDG_Trigger_Pin
-                           External_WDG_EN_Pin P_SW1_Pin */
-  GPIO_InitStruct.Pin = MPIO_EN2_Pin|MPIO_EN1_Pin|MPIO_OUT1_Pin|External_WDG_Trigger_Pin
-                          |External_WDG_EN_Pin|P_SW1_Pin;
+  /*Configure GPIO pins : MPIO_EN2_Pin MPIO_EN1_Pin MPIO_OUT1_Pin P_SW1_Pin */
+  GPIO_InitStruct.Pin = MPIO_EN2_Pin|MPIO_EN1_Pin|MPIO_OUT1_Pin|P_SW1_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -950,25 +946,23 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(DIN_INV_ERR_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : DIN_WS_R_Pin External_WDG_Meas_Pin */
-  GPIO_InitStruct.Pin = DIN_WS_R_Pin|External_WDG_Meas_Pin;
+  /*Configure GPIO pins : DIN_WS_R_Pin SDCSTATE_BMS_Pin SDCSTATE_IMD_Pin SDCSTATE_BSPD_Pin */
+  GPIO_InitStruct.Pin = DIN_WS_R_Pin|SDCSTATE_BMS_Pin|SDCSTATE_IMD_Pin|SDCSTATE_BSPD_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
 
   /*Configure GPIO pins : MPIO_EN6_Pin MPIO_EN5_Pin MPIO_OUT5_Pin EEPROM_ADDR2_Pin
-                           EEPROM_ADDR1_Pin EEPROM_ADDR0_Pin EEPROM_WP_Pin MPIO_EN8_Pin
-                           ECU_SW_Error2_Pin */
+                           EEPROM_ADDR1_Pin EEPROM_ADDR0_Pin EEPROM_WP_Pin MPIO_EN8_Pin */
   GPIO_InitStruct.Pin = MPIO_EN6_Pin|MPIO_EN5_Pin|MPIO_OUT5_Pin|EEPROM_ADDR2_Pin
-                          |EEPROM_ADDR1_Pin|EEPROM_ADDR0_Pin|EEPROM_WP_Pin|MPIO_EN8_Pin
-                          |ECU_SW_Error2_Pin;
+                          |EEPROM_ADDR1_Pin|EEPROM_ADDR0_Pin|EEPROM_WP_Pin|MPIO_EN8_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : MPIO_EN4_Pin MPIO_OUT4_Pin IMU_ADDR0_Pin ECU_SW_Error1_Pin */
-  GPIO_InitStruct.Pin = MPIO_EN4_Pin|MPIO_OUT4_Pin|IMU_ADDR0_Pin|ECU_SW_Error1_Pin;
+  /*Configure GPIO pins : MPIO_EN4_Pin MPIO_OUT4_Pin IMU_ADDR0_Pin ECU_SW_Error_Pin */
+  GPIO_InitStruct.Pin = MPIO_EN4_Pin|MPIO_OUT4_Pin|IMU_ADDR0_Pin|ECU_SW_Error_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -987,12 +981,24 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(MPIO_OUT8_GPIO_Port, &GPIO_InitStruct);
 
+  /*Configure GPIO pin : SDMMC_DET_Pin */
+  GPIO_InitStruct.Pin = SDMMC_DET_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(SDMMC_DET_GPIO_Port, &GPIO_InitStruct);
+
   /*Configure GPIO pin : STATUS_LED_Pin */
   GPIO_InitStruct.Pin = STATUS_LED_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(STATUS_LED_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : SDCSTATE_OUT_Pin */
+  GPIO_InitStruct.Pin = SDCSTATE_OUT_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(SDCSTATE_OUT_GPIO_Port, &GPIO_InitStruct);
 
 }
 
