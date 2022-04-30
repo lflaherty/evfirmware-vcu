@@ -8,12 +8,11 @@
 #include "unity.h"
 #include "unity_fixture.h"
 
+#include "system_tests.c"
 
 static void RunAllTests(void)
 {
-    RUN_TEST_GROUP(COMM_CAN);
-    RUN_TEST_GROUP(COMM_UART);
-    RUN_TEST_GROUP(IO_ADC);
+    RunSystemTests();
 }
 
 int main(int argc, const char* argv[])
