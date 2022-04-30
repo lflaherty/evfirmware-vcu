@@ -8,6 +8,7 @@
 #include "unity.h"
 #include "unity_fixture.h"
 
+// Mocks for code under test (replaces stubs)
 #include "stm32_hal/MockStm32f7xx_hal.h"
 #include "FreeRTOS.h"
 #include "task.h"
@@ -15,17 +16,18 @@
 
 #include "lib/logging/MockLogging.h"
 
-#include "vehicleInterface/vehicleState/vehicleState.h"
+// source code under test
+#include "vehicleInterface/vehicleState/vehicleState.c"
 
-static Logging_T mLog;
+static Logging_T testLog;
 
 TEST_GROUP(VEHICLEINTERFACE_VEHICLESTATE);
 
 TEST_SETUP(VEHICLEINTERFACE_VEHICLESTATE)
 {
-    mLog.enableLogToDebug = true;
-    mLog.enableLogToLogFile = false;
-    mLog.enableLogToSerial = false;
+    testLog.enableLogToDebug = true;
+    testLog.enableLogToLogFile = false;
+    testLog.enableLogToSerial = false;
     mockLogClear();
 }
 
@@ -39,12 +41,7 @@ TEST(VEHICLEINTERFACE_VEHICLESTATE, TestVehicleStateInitOk)
 
 }
 
-static void RunAllTests(void)
+TEST_GROUP_RUNNER(VEHICLEINTERFACE_VEHICLESTATE)
 {
     RUN_TEST_CASE(VEHICLEINTERFACE_VEHICLESTATE, TestVehicleStateInitOk);
-}
-
-int main(int argc, const char* argv[])
-{
-    return UnityMain(argc, argv, RunAllTests);
 }
