@@ -45,7 +45,7 @@ SYMBOLS=-DUNITY_FIXTURE_NO_EXTRAS
 all_tests:
 	@echo Build...
 	$(GCC) $(CFLAGS) $(INC_DIRS) $(SYMBOLS) $(SRC_FILES) $(LFLAGS) -o run_tests
-	./generate_report.sh
+	./generate_report.sh ../src
 
 clean:
 	# make -f test/Makefile clean
