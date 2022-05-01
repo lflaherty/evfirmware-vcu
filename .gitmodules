@@ -1,3 +1,0 @@
-[submodule "System"]
-	path = System
-	url = git@github.com:lflaherty/evfirmware-lib.git
