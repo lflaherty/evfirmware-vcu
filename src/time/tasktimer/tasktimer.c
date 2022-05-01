@@ -17,7 +17,7 @@
 #include "lib/logging/logging.h"
 
 // ------------------- Static data ----------------------
-static Logging_T* log;
+static Logging_T* mLog;
 
 typedef struct {
   bool isSet;                  // Only true when used
@@ -37,8 +37,8 @@ static TIM_HandleTypeDef* timHandle;
 // ------------------- Public methods -------------------
 TaskTimer_Status_T TaskTimer_Init(Logging_T* logger, TIM_HandleTypeDef* htim)
 {
-  log = logger;
-  logPrintS(log, "TaskTimer_Init begin\n", LOGGING_DEFAULT_BUFF_LEN);
+  mLog = logger;
+  logPrintS(mLog, "TaskTimer_Init begin\n", LOGGING_DEFAULT_BUFF_LEN);
 
   // Init data
   memset(&taskData, 0, sizeof(taskData));
@@ -49,7 +49,7 @@ TaskTimer_Status_T TaskTimer_Init(Logging_T* logger, TIM_HandleTypeDef* htim)
     return TASKTIMER_STATUS_ERROR_TIMER;
   }
 
-  logPrintS(log, "TaskTimer_Init complete\n", LOGGING_DEFAULT_BUFF_LEN);
+  logPrintS(mLog, "TaskTimer_Init complete\n", LOGGING_DEFAULT_BUFF_LEN);
   return TASKTIMER_STATUS_OK;
 }
 

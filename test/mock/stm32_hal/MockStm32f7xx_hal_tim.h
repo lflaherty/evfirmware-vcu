@@ -54,5 +54,14 @@ typedef struct
 
 
 // ================== Define methods ==================
+/* Non-Blocking mode: Interrupt */
+HAL_StatusTypeDef stubHAL_TIM_Base_Start_IT(TIM_HandleTypeDef *htim);
+
+// Replace real methods with mock stubs
+#define HAL_TIM_Base_Start_IT stubHAL_TIM_Base_Start_IT
+
+// ================== Mock control methods ==================
+void mockSet_HAL_TIME_AllStatus(HAL_StatusTypeDef status);
+void mockSet_HAL_TIM_Base_Start_IT(HAL_StatusTypeDef status);
 
 #endif

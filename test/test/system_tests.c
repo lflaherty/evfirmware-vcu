@@ -13,4 +13,5 @@ static void RunSystemTests(void)
     RUN_TEST_GROUP(COMM_CAN);
     RUN_TEST_GROUP(COMM_UART);
     RUN_TEST_GROUP(IO_ADC);
+    RUN_TEST_GROUP(TIME_TASKTIMER);
 }
