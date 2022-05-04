@@ -35,7 +35,7 @@ def parse(filename):
         res_1 = re.findall(_REGEX_1, text)
         res_2 = re.findall(_REGEX_2, text)
         res_3 = re.findall(_REGEX_3, text)
-        
+
         guards_found = all([
             len(res_1) == 1,
             len(res_2) == 1,
@@ -43,14 +43,14 @@ def parse(filename):
         ])
         if not guards_found:
             raise ValueError('Could not find any include guards')
-        
+
         guards_consistent = all([
             res_1 == res_2,
             res_2 == res_3
         ])
         if not guards_consistent:
             raise ValueError('Multiple options for include guard value')
-        
+
         # By this point, they're all the same:
         return res_1[0]
     def get_method_names(text):
@@ -80,7 +80,7 @@ def parse(filename):
 
     with open(filename) as file:
         text = file.read()
-    
+
     data = {}
     data['header_filename'] = get_header_filename(filename)
     data['methods'] = get_method_names(text)
@@ -106,7 +106,7 @@ def create_header_file(parse_data, output_dir, author):
     date = datetime.datetime.now().strftime('%-d %b %Y')
 
     lines = []
-    
+
     # Create content
     header_comment = """/*
  * {}
@@ -147,7 +147,7 @@ def create_header_file(parse_data, output_dir, author):
     with open(output_path, 'w') as file:
         contents = '\n'.join(lines)
         file.writelines(contents)
-    
+
     return output_basename
 
 
