@@ -13,37 +13,40 @@
 
 // ------------------- Private data -------------------
 static Logging_T* mLog;
+static const TickType_t mBlockTime = 100 / portTICK_PERIOD_MS; // 100ms
 
 // ------------------- Private methods -------------------
-static void StateProcessing(void* pvParameters)
+static void StateProcessing(VehicleState_T* vehicleState)
+{
+  // Wait for notification to wake up
+  uint32_t notifiedValue = ulTaskNotifyTake(pdTRUE, mBlockTime);
+  if (notifiedValue > 0) {
+
+    // Acquire lock on data
+    if (pdTRUE == xSemaphoreTake(vehicleState->mutex, portMAX_DELAY)) {
+      // Process any waiting data
+      VehicleState_QueuedData_T queuedData;
+      while (pdTRUE == xQueueReceive(vehicleState->dataQueueHandle, &queuedData, 10U)) {
+
+        // copy data out
+        if (queuedData.dest != NULL) {
+          memcpy(queuedData.dest, queuedData.data, queuedData.dataSize);
+        }
+
+      }
+
+      xSemaphoreGive(vehicleState->mutex);
+    }
+
+  }
+}
+
+static void StateProcessing_Task(void* pvParameters)
 {
   VehicleState_T* obj = (VehicleState_T*)pvParameters;
 
-  const TickType_t blockTime = 100 / portTICK_PERIOD_MS; // 100ms
-  uint32_t notifiedValue;
-
   while (1) {
-    // Wait for notification to wake up
-    notifiedValue = ulTaskNotifyTake(pdTRUE, blockTime);
-    if (notifiedValue > 0) {
-
-      // Acquire lock on data
-      if (pdTRUE == xSemaphoreTake(obj->mutex, portMAX_DELAY)) {
-        // Process any waiting data
-        VehicleState_QueuedData_T queuedData;
-        while (pdTRUE == xQueueReceive(obj->dataQueueHandle, &queuedData, 10U)) {
-
-          // copy data out
-          if (queuedData.dest != NULL) {
-            memcpy(queuedData.dest, queuedData.data, queuedData.dataSize);
-          }
-
-        }
-
-        xSemaphoreGive(obj->mutex);
-      }
-
-    }
+    StateProcessing(obj);
   }
 }
 
@@ -67,8 +70,8 @@ VehicleState_Status_T VehicleState_Init(Logging_T* logger, VehicleState_T* state
 
   // create main task
   state->taskHandle = xTaskCreateStatic(
-      StateProcessing,
-      "ExampleTask",
+      StateProcessing_Task,
+      "VehicleState",
       VEHCILESTATE_STACK_SIZE,   /* Stack size */
       (void*)state,  /* Parameter passed as pointer */
       VEHICLESTATE_TASK_PRIORITY,
