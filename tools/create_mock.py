@@ -202,12 +202,14 @@ def create_source_file(parse_data, output_dir, mock_header, author):
         return_type = method['return_type']
         method_name = method['method_name']
         params = method['params']
-        method_declaration = f"""void mockSet_{method_name}_Status({return_type} status)
+
+        if return_type != 'void':
+            method_declaration = f"""void mockSet_{method_name}_Status({return_type} status)
 {{
     mStatus_{method_name} = status;
 }}"""
-        lines.append(method_declaration)
-        lines.append('')
+            lines.append(method_declaration)
+            lines.append('')
     
     print('Writing %s' % output_path)
     with open(output_path, 'w') as file:
