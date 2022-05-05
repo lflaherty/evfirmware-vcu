@@ -16,7 +16,6 @@
 #include "comm/uart/uart.h"
 #include "io/adc/adc.h"
 #include "time/tasktimer/tasktimer.h"
-#include "time/externalWatchdog/externalWatchdog.h"
 #include "time/rtc/rtc.h"
 
 #include "device/inverter/cInverter.h"
@@ -27,7 +26,6 @@
 static Logging_T mLog;
 
 // ------------------- Module structures -------------------
-static ExternalWatchdog_T mWdg;
 static CInverter_T mInverter;
 static VehicleState_T mVehicleState;
 
@@ -147,15 +145,6 @@ static ECU_Init_Status_T ECU_Init_System2(void)
 static ECU_Init_Status_T ECU_Init_System3(void)
 {
   logPrintS(&mLog, "###### ECU_Init_System3 ######\n", LOGGING_DEFAULT_BUFF_LEN);
-
-  // External watchdog
-  memset(&mWdg, 0, sizeof(mWdg));
-  mWdg.gpioBank = External_WDG_Trigger_GPIO_Port;
-  mWdg.gpioPin = External_WDG_Trigger_Pin;
-  if (ExternalWatchdog_Init(&mLog, &mWdg) != EXTWATCHDOG_STATUS_OK) {
-    logPrintS(&mLog, "ExternalWatchdog initialization error\n", LOGGING_DEFAULT_BUFF_LEN);
-    return ECU_INIT_ERROR;
-  }
 
   return ECU_INIT_OK;
 }
