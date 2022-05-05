@@ -16,4 +16,5 @@ TEST_SRC=\
 	test/time/tasktimer/TestTaskTimer.c
 
 SRC_MOCKS=\
-	mock/lib/logging/MockLogging.c
+	mock/lib/logging/MockLogging.c \
+	mock/time/tasktimer/MockTaskTimer.c
