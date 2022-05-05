@@ -181,7 +181,7 @@ def create_source_file(parse_data, output_dir, mock_header, author):
         method_name = method['method_name']
 
         if return_type != 'void':
-            static_field = f'static {return_type} mStatus_{method_name} = TODO_SET_VALUE;'
+            static_field = f'static {return_type} mStatus_{method_name} = TODO_DEFAULT_VALUE;'
             lines.append(static_field)
 
     lines.append('')
@@ -190,12 +190,20 @@ def create_source_file(parse_data, output_dir, mock_header, author):
         return_type = method['return_type']
         method_name = method['method_name']
         params = method['params']
-        method_declaration = f"""{return_type} stub_{method_name}{params}
-{{
-    // TODO
-    return mStatus_{method_name};
-}}"""
-        lines.append(method_declaration)
+
+        lines.append(f'{return_type} stub_{method_name}{params}')
+        lines.append('{')
+
+        # Add (void)param; statements to remove unused param warnings/errors
+        _REGEX_PARAMS = '\s*\w+\s*\**\s+(\w+)'
+        params = re.findall(_REGEX_PARAMS, params)
+        for param in params:
+            lines.append(f'    (void){param};')
+
+        if return_type != 'void':
+            lines.append(f'    return mStatus_{method_name};')
+
+        lines.append('}')
         lines.append('')
 
     for method in parse_data['methods']:
