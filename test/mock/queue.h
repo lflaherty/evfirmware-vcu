@@ -10,6 +10,7 @@
 #define QUEUE_H
 
 #include <stddef.h>
+#include <stdbool.h>
 
 #ifndef INC_FREERTOS_H
 	#error "include FreeRTOS.h" must appear in source files before "include queue.h"
@@ -34,6 +35,14 @@ BaseType_t xQueueSendToBackFromISR(QueueHandle_t xQueue, const void* const pvIte
  * @param data Pointer to data to use
  * @param dataSize size of data. Note that this will be used to copy the data.
  */
-void mockSetQueueDataPtr(void* data);
+void mockSetQueueData(void* data, size_t dataSize);
+
+/**
+ * @brief Gets the data item currently in queue
+ * @param data Pointer to location to copy data to
+ * @param dataSize size of data. Note that this will be used to copy the data.
+ * @returns True if data is present.
+ */
+bool mockGetQueueData(void* data, size_t dataSize);
 
 #endif
