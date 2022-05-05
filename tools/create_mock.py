@@ -120,12 +120,14 @@ def create_header_file(parse_data, output_dir, author):
     lines.append('#define _MOCK_{}'.format(parse_data['include_guard']))
     lines.append('')
 
+    lines.append('// Redefine methods to be mocked')
     for method in parse_data['methods']:
         method_name = method['method_name']
         method_redefine = f'#define {method_name} stub_{method_name}'
         lines.append(method_redefine)
     
-    lines.append('// Redefine methods to be mocked')
+    lines.append('')
+    lines.append('// Bring in the header to be mocked')
     lines.append('#include "{}"'.format(parse_data['header_filename']))
 
     lines.append('')
