@@ -7,4 +7,5 @@ TEST_SRC:=$(addprefix systemlib-test/, $(TEST_SRC))
 SRC_MOCKS:=$(addprefix systemlib-test/, $(SRC_MOCKS))
 
 TEST_SRC+=\
-	test/vehicleInterface/vehicleState/TestVehicleState.c
+	test/vehicleInterface/vehicleState/TestVehicleState.c \
+	test/vehicleInterface/vehicleControl/TestVehicleControl.c
