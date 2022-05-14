@@ -37,6 +37,7 @@ SRC_FILES=\
 
 INC_DIRS=-I../System/src
 INC_DIRS+=-I../Application
+INC_DIRS+=-Imock
 INC_DIRS+=-Isystemlib-test/test
 INC_DIRS+=-Isystemlib-test/mock
 INC_DIRS+=-Isystemlib-test/Unity/src
