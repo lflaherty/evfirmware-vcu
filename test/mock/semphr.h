@@ -25,4 +25,7 @@ SemaphoreHandle_t xSemaphoreCreateBinaryStatic(StaticSemaphore_t* staticSemaphor
 BaseType_t xSemaphoreTake(SemaphoreHandle_t xQueue, TickType_t xTicksToWait);
 BaseType_t xSemaphoreGive(SemaphoreHandle_t xQueue);
 
+void mockSemaphoreSetLocked(bool locked);
+bool mockSempahoreGetLocked(void);
+
 #endif

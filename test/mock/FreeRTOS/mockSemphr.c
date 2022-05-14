@@ -10,8 +10,10 @@
 #include "semphr.h"
 
 #include <string.h>
+#include <stdbool.h>
 
 // ------------------- Static data -------------------
+static bool mLocked = false;
 
 // ------------------- Methods -------------------
 SemaphoreHandle_t xSemaphoreCreateBinaryStatic(StaticSemaphore_t* staticSemaphore)
@@ -26,11 +28,31 @@ BaseType_t xSemaphoreTake(SemaphoreHandle_t xQueue, TickType_t xTicksToWait)
 {
     (void)xQueue;
     (void)xTicksToWait;
-    return pdTRUE;
+    if (mLocked) {
+        return pdFALSE;
+    } else {
+        mLocked = true;
+        return pdTRUE;
+    }
 }
 
 BaseType_t xSemaphoreGive(SemaphoreHandle_t xQueue)
 {
     (void)xQueue;
-    return pdTRUE;
+    if (mLocked) {
+        mLocked = false;
+        return pdTRUE;
+    } else {
+        return pdFALSE;
+    }
+}
+
+void mockSemaphoreSetLocked(bool locked)
+{
+    mLocked = locked;
+}
+
+bool mockSempahoreGetLocked(void)
+{
+    return mLocked;
 }
