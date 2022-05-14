@@ -20,33 +20,29 @@ Reads header file and creates:
     "header_filename": name of original header (relative to evfirmware-lib/src)
 }
 """
-def parse(filename):
+def parse(filename, src_dirname):
     def get_header_filename(filename):
         abs_path = os.path.abspath(filename)
-        if '/src/' not in abs_path:
+        if f'/{src_dirname}/' not in abs_path:
             raise ValueError('The input file is not within the src directory')
-        rel_path = abs_path.split('/src/')[1]
+        rel_path = abs_path.split(f'/{src_dirname}/')[1]
         return rel_path
     def get_include_guard(text):
         _REGEX_1 = '#ifndef (\w+_H_)'
         _REGEX_2 = '#define (\w+_H_)'
-        _REGEX_3 = '#endif \/\* (\w+_H_) \*\/'
 
         res_1 = re.findall(_REGEX_1, text)
         res_2 = re.findall(_REGEX_2, text)
-        res_3 = re.findall(_REGEX_3, text)
 
         guards_found = all([
             len(res_1) == 1,
             len(res_2) == 1,
-            len(res_3) == 1,
         ])
         if not guards_found:
             raise ValueError('Could not find any include guards')
 
         guards_consistent = all([
             res_1 == res_2,
-            res_2 == res_3
         ])
         if not guards_consistent:
             raise ValueError('Multiple options for include guard value')
@@ -225,11 +221,11 @@ def create_source_file(parse_data, output_dir, mock_header, author):
         file.writelines(contents)
 
 
-def main(input_file, output_dir, author):
+def main(input_file, output_dir, author, src_dirname = 'src'):
     if not os.path.exists(output_dir):
         raise ValueError('Ouptut directory does not exist')
 
-    parse_data = parse(input_file)
+    parse_data = parse(input_file, src_dirname)
     print(json.dumps(parse_data, indent=4))
 
     mock_header = create_header_file(
@@ -252,10 +248,13 @@ if __name__ == '__main__':
     parser.add_argument('author', help='Author to label mock files')
     parser.add_argument('input_file', help='Input header file')
     parser.add_argument('output_dir', help='Directory to store generated mocks')
+    parser.add_argument('--src', help='Name of top level directory containing src',
+        default='src')
     args = parser.parse_args()
     
     main(
         input_file=args.input_file,
         output_dir=args.output_dir,
-        author=args.author
+        author=args.author,
+        src_dirname=args.src
     )
