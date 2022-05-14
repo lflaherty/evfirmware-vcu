@@ -155,6 +155,27 @@ TEST(VEHICLEINTERFACE_VEHICLESTATE, PushFieldfQueueFull)
     TEST_ASSERT_EQUAL_FLOAT(0.0f, mState.data.motor.phaseCCurrent);
 }
 
+TEST(VEHICLEINTERFACE_VEHICLESTATE, AccessAcquire)
+{
+    mockSemaphoreSetLocked(false);
+    TEST_ASSERT_TRUE(VehicleState_AccessAcquire(&mState));
+    TEST_ASSERT_TRUE(mockSempahoreGetLocked());
+
+    TEST_ASSERT_FALSE(VehicleState_AccessAcquire(&mState));
+    TEST_ASSERT_TRUE(mockSempahoreGetLocked());
+}
+
+TEST(VEHICLEINTERFACE_VEHICLESTATE, AccessRelease)
+{
+    mockSemaphoreSetLocked(false);
+    TEST_ASSERT_FALSE(VehicleState_AccessRelease(&mState));
+    TEST_ASSERT_FALSE(mockSempahoreGetLocked());
+
+    mockSemaphoreSetLocked(true);
+    TEST_ASSERT_TRUE(VehicleState_AccessRelease(&mState));
+    TEST_ASSERT_FALSE(mockSempahoreGetLocked());
+}
+
 TEST_GROUP_RUNNER(VEHICLEINTERFACE_VEHICLESTATE)
 {
     RUN_TEST_CASE(VEHICLEINTERFACE_VEHICLESTATE, InitOk);
@@ -164,4 +185,6 @@ TEST_GROUP_RUNNER(VEHICLEINTERFACE_VEHICLESTATE)
     RUN_TEST_CASE(VEHICLEINTERFACE_VEHICLESTATE, PushFieldQueueFull);
     RUN_TEST_CASE(VEHICLEINTERFACE_VEHICLESTATE, PushFieldf);
     RUN_TEST_CASE(VEHICLEINTERFACE_VEHICLESTATE, PushFieldfQueueFull);
+    RUN_TEST_CASE(VEHICLEINTERFACE_VEHICLESTATE, AccessAcquire);
+    RUN_TEST_CASE(VEHICLEINTERFACE_VEHICLESTATE, AccessRelease);
 }

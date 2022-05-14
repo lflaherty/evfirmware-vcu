@@ -91,5 +91,25 @@ VehicleState_Status_T VehicleState_PushField(VehicleState_T* state, void* dest, 
  */
 VehicleState_Status_T VehicleState_PushFieldf(VehicleState_T* state, float* dest, float value);
 
+/**
+ * @brief Lock the mutex for access.
+ * Only use this to batch read a number of variables. Do not leave locked.
+ * 
+ * @param state Pointer to VehicleState struct
+ * @return true If mutex was granted
+ * @return false If mutex failed 
+ */
+bool VehicleState_AccessAcquire(VehicleState_T* state);
+
+/**
+ * @brief Corresponding unlock for VehicleState_AccessAcquire.
+ * Only use this to batch read a number of variables. Do not leave locked.
+ * 
+ * @param state Pointer to VehicleState struct
+ * @return true If mutex was released
+ * @return false If failed
+ */
+bool VehicleState_AccessRelease(VehicleState_T* state);
+
 
 #endif /* VEHICLEINTERFACE_VEHICLESTATE_VEHICLESTATE_H_ */
