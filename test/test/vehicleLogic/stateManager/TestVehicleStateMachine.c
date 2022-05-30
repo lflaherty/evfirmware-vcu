@@ -19,6 +19,7 @@
 #include "vehicleLogic/stateManager/stateMachine.c"
 
 static const uint32_t ticksPerMs = 10; // 100Hz
+static const uint32_t hvChargeTimeoutMs = 5*1000; // 5 seconds (in ms)
 
 static Logging_T testLog;
 static VehicleState_T mVehicleState;
@@ -29,6 +30,20 @@ static void setVsmState(VSM_State_T state, uint32_t nTicks)
     mVsm.vsmState = state;
     mVsm.nextState = state;
     mVsm.ticksInState = nTicks;
+}
+
+/**
+ * @brief Steps the state a number of times and checks that the state
+ * holds at the given value
+ * 
+ * @param state 
+ */
+static void stepAndAssertStable(VSM_State_T state)
+{
+    for (int i = 0; i < 12; ++i) {
+        VSM_Step(&mVsm);
+        TEST_ASSERT_EQUAL(state, mVsm.vsmState);
+    }
 }
 
 TEST_GROUP(VEHICLELOGIC_STATEMACHINE);
@@ -46,6 +61,7 @@ TEST_SETUP(VEHICLELOGIC_STATEMACHINE)
     memset(&mVsm, 0xFF, sizeof(VSM_T));
     memset(&mVehicleState, 0x00, sizeof(VehicleState_T));
     mVsm.tickRateMs = ticksPerMs;
+    mVsm.hvChargeTimeoutMs = hvChargeTimeoutMs;
     mVsm.inputState = &mVehicleState;
 
     VSM_Init(&testLog, &mVsm);
@@ -94,19 +110,13 @@ TEST(VEHICLELOGIC_STATEMACHINE, StateLvStartupOk)
     setVsmState(VSM_STATE_LV_STARTUP, 0);
 
     // Stay in LV startup state while LV errors are present
-    for (int i = 0; i < 12; ++i) {
-        VSM_Step(&mVsm);
-        TEST_ASSERT_EQUAL(VSM_STATE_LV_STARTUP, mVsm.vsmState);
-    }
+    stepAndAssertStable(VSM_STATE_LV_STARTUP);
 
     // Transition to no fault (LV has started correctly)
     mockSet_FaultManager_Step_Status(FAULT_NO_FAULT);
 
     // State should stay in LV ready
-    for (int i = 0; i < 12; ++i) {
-        VSM_Step(&mVsm);
-        TEST_ASSERT_EQUAL(VSM_STATE_LV_READY, mVsm.vsmState);
-    }
+    stepAndAssertStable(VSM_STATE_LV_READY);
 }
 
 TEST(VEHICLELOGIC_STATEMACHINE, StateLvStartupFault)
@@ -115,26 +125,195 @@ TEST(VEHICLELOGIC_STATEMACHINE, StateLvStartupFault)
     setVsmState(VSM_STATE_LV_STARTUP, 0);
 
     // Stay in LV startup state while LV errors are present
-    for (int i = 0; i < 12; ++i) {
-        VSM_Step(&mVsm);
-        TEST_ASSERT_EQUAL(VSM_STATE_LV_STARTUP, mVsm.vsmState);
-    }
+    stepAndAssertStable(VSM_STATE_LV_STARTUP);
 
     // Transition to a HV fault
     mockSet_FaultManager_Step_Status(FAULT_FAULT);
 
     // State should stay in fault
-    for (int i = 0; i < 12; ++i) {
-        VSM_Step(&mVsm);
-        TEST_ASSERT_EQUAL(VSM_STATE_FAULT, mVsm.vsmState);
-    }
+    stepAndAssertStable(VSM_STATE_FAULT);
 
     // Transitioning out of a HV fault shouldn't change the state
     mockSet_FaultManager_Step_Status(FAULT_NO_FAULT);
-    for (int i = 0; i < 12; ++i) {
+    stepAndAssertStable(VSM_STATE_FAULT);
+}
+
+TEST(VEHICLELOGIC_STATEMACHINE, StateLvReadyOk)
+{
+    // Start in LV Ready state & no faults
+    setVsmState(VSM_STATE_LV_READY, 0);
+    mockSet_FaultManager_Step_Status(FAULT_NO_FAULT);
+    mVehicleState.data.dash.buttonPressed = false;
+
+    // Stay in LV ready state while input button hasn't been pressed
+    stepAndAssertStable(VSM_STATE_LV_READY);
+
+    // Request HV charge
+    mVehicleState.data.dash.buttonPressed = true;
+
+    // Stay in LV ready state while input button hasn't been pressed
+    stepAndAssertStable(VSM_STATE_HV_CHARGING);
+}
+
+TEST(VEHICLELOGIC_STATEMACHINE, StateLvReadyFault)
+{
+    // Start in LV Ready state & no faults
+    setVsmState(VSM_STATE_LV_READY, 0);
+    mockSet_FaultManager_Step_Status(FAULT_NO_FAULT);
+
+    // Stay in LV ready state while input button hasn't been pressed
+    stepAndAssertStable(VSM_STATE_LV_READY);
+
+    // Transition to a HV fault
+    mockSet_FaultManager_Step_Status(FAULT_FAULT);
+
+    // Stay in LV ready state while input button hasn't been pressed
+    stepAndAssertStable(VSM_STATE_FAULT);
+}
+
+TEST(VEHICLELOGIC_STATEMACHINE, StateHvChargingOk)
+{
+    // Start in HV charging state & no faults
+    setVsmState(VSM_STATE_HV_CHARGING, 0);
+    mockSet_FaultManager_Step_Status(FAULT_NO_FAULT);
+    mVehicleState.data.inverter.state = VEHICLESTATE_INVERTERSTATE_START;
+
+    // Stay in HV charging state for a bit (while charging)
+    stepAndAssertStable(VSM_STATE_HV_CHARGING);
+
+    mVehicleState.data.inverter.state = VEHICLESTATE_INVERTERSTATE_READY;
+
+    // State transitions to active - neutral
+    stepAndAssertStable(VSM_STATE_ACTIVE_NEUTRAL);
+}
+
+TEST(VEHICLELOGIC_STATEMACHINE, StateHvChargingFault)
+{
+    // Start in HV charging state & no faults
+    setVsmState(VSM_STATE_HV_CHARGING, 0);
+    mockSet_FaultManager_Step_Status(FAULT_NO_FAULT);
+    mVehicleState.data.inverter.state = VEHICLESTATE_INVERTERSTATE_PRECHARGEACTIVE;
+
+    // Stay in HV charging state for a bit (while charging)
+    stepAndAssertStable(VSM_STATE_HV_CHARGING);
+
+    // Transition to a HV fault
+    mockSet_FaultManager_Step_Status(FAULT_FAULT);
+
+    // State should stay in fault
+    stepAndAssertStable(VSM_STATE_FAULT);
+}
+
+TEST(VEHICLELOGIC_STATEMACHINE, StateHvChargingTimeout)
+{
+    // Start in HV charging state & no faults
+    setVsmState(VSM_STATE_HV_CHARGING, 0);
+    mockSet_FaultManager_Step_Status(FAULT_NO_FAULT);
+    mVehicleState.data.inverter.state = VEHICLESTATE_INVERTERSTATE_PRECHARGEACTIVE;
+
+    // Stay in HV charging state while not timed out
+    // (+ 1 to exceed the timeout)
+    uint32_t timeoutTicks = hvChargeTimeoutMs / ticksPerMs + 1;
+    for (uint32_t i = 0; i < timeoutTicks; ++i) {
         VSM_Step(&mVsm);
-        TEST_ASSERT_EQUAL(VSM_STATE_FAULT, mVsm.vsmState);
+        TEST_ASSERT_EQUAL(VSM_STATE_HV_CHARGING, mVsm.vsmState);
     }
+
+    // Should timeout and go to a fault
+    stepAndAssertStable(VSM_STATE_FAULT);
+}
+
+TEST(VEHICLELOGIC_STATEMACHINE, StateActiveNeutral)
+{
+    // Start in HV charging state & no faults
+    setVsmState(VSM_STATE_ACTIVE_NEUTRAL, 0);
+    mockSet_FaultManager_Step_Status(FAULT_NO_FAULT);
+
+    // Stay in HV charging state for a bit (while charging)
+    stepAndAssertStable(VSM_STATE_ACTIVE_NEUTRAL);
+
+    mVehicleState.data.dash.buttonPressed = true;
+
+    // State transitions to active - neutral
+    stepAndAssertStable(VSM_STATE_ACTIVE_FORWARD);
+}
+
+TEST(VEHICLELOGIC_STATEMACHINE, StateActiveNeutralFault)
+{
+    // Start in HV charging state & no faults
+    setVsmState(VSM_STATE_ACTIVE_NEUTRAL, 0);
+    mockSet_FaultManager_Step_Status(FAULT_NO_FAULT);
+
+    // Stay in HV charging state for a bit (while charging)
+    stepAndAssertStable(VSM_STATE_ACTIVE_NEUTRAL);
+
+    // Transition to a HV fault
+    mockSet_FaultManager_Step_Status(FAULT_FAULT);
+
+    // State should stay in fault
+    stepAndAssertStable(VSM_STATE_FAULT);
+}
+
+TEST(VEHICLELOGIC_STATEMACHINE, StateActiveForward)
+{
+    // Start in HV charging state & no faults
+    setVsmState(VSM_STATE_ACTIVE_FORWARD, 0);
+    mockSet_FaultManager_Step_Status(FAULT_NO_FAULT);
+
+    // Stay in HV charging state for a bit (while charging)
+    stepAndAssertStable(VSM_STATE_ACTIVE_FORWARD);
+
+    mVehicleState.data.dash.buttonPressed = true;
+
+    // State transitions to active - neutral
+    stepAndAssertStable(VSM_STATE_ACTIVE_REVERSE);
+}
+
+TEST(VEHICLELOGIC_STATEMACHINE, StateActiveForwardFault)
+{
+    // Start in HV charging state & no faults
+    setVsmState(VSM_STATE_ACTIVE_FORWARD, 0);
+    mockSet_FaultManager_Step_Status(FAULT_NO_FAULT);
+
+    // Stay in HV charging state for a bit (while charging)
+    stepAndAssertStable(VSM_STATE_ACTIVE_FORWARD);
+
+    // Transition to a HV fault
+    mockSet_FaultManager_Step_Status(FAULT_FAULT);
+
+    // State should stay in fault
+    stepAndAssertStable(VSM_STATE_FAULT);
+}
+
+TEST(VEHICLELOGIC_STATEMACHINE, StateActiveReverse)
+{
+    // Start in HV charging state & no faults
+    setVsmState(VSM_STATE_ACTIVE_REVERSE, 0);
+    mockSet_FaultManager_Step_Status(FAULT_NO_FAULT);
+
+    // Stay in HV charging state for a bit (while charging)
+    stepAndAssertStable(VSM_STATE_ACTIVE_REVERSE);
+
+    mVehicleState.data.dash.buttonPressed = true;
+
+    // State transitions to active - neutral
+    stepAndAssertStable(VSM_STATE_ACTIVE_NEUTRAL);
+}
+
+TEST(VEHICLELOGIC_STATEMACHINE, StateActiveReverseFault)
+{
+    // Start in HV charging state & no faults
+    setVsmState(VSM_STATE_ACTIVE_REVERSE, 0);
+    mockSet_FaultManager_Step_Status(FAULT_NO_FAULT);
+
+    // Stay in HV charging state for a bit (while charging)
+    stepAndAssertStable(VSM_STATE_ACTIVE_REVERSE);
+
+    // Transition to a HV fault
+    mockSet_FaultManager_Step_Status(FAULT_FAULT);
+
+    // State should stay in fault
+    stepAndAssertStable(VSM_STATE_FAULT);
 }
 
 TEST_GROUP_RUNNER(VEHICLELOGIC_STATEMACHINE)
@@ -144,4 +323,15 @@ TEST_GROUP_RUNNER(VEHICLELOGIC_STATEMACHINE)
     RUN_TEST_CASE(VEHICLELOGIC_STATEMACHINE, StateInit);
     RUN_TEST_CASE(VEHICLELOGIC_STATEMACHINE, StateLvStartupOk);
     RUN_TEST_CASE(VEHICLELOGIC_STATEMACHINE, StateLvStartupFault);
+    RUN_TEST_CASE(VEHICLELOGIC_STATEMACHINE, StateLvReadyOk);
+    RUN_TEST_CASE(VEHICLELOGIC_STATEMACHINE, StateLvReadyFault);
+    RUN_TEST_CASE(VEHICLELOGIC_STATEMACHINE, StateHvChargingOk);
+    RUN_TEST_CASE(VEHICLELOGIC_STATEMACHINE, StateHvChargingFault);
+    RUN_TEST_CASE(VEHICLELOGIC_STATEMACHINE, StateHvChargingTimeout);
+    RUN_TEST_CASE(VEHICLELOGIC_STATEMACHINE, StateActiveNeutral);
+    RUN_TEST_CASE(VEHICLELOGIC_STATEMACHINE, StateActiveNeutralFault);
+    RUN_TEST_CASE(VEHICLELOGIC_STATEMACHINE, StateActiveForward);
+    RUN_TEST_CASE(VEHICLELOGIC_STATEMACHINE, StateActiveForwardFault);
+    RUN_TEST_CASE(VEHICLELOGIC_STATEMACHINE, StateActiveReverse);
+    RUN_TEST_CASE(VEHICLELOGIC_STATEMACHINE, StateActiveReverseFault);
 }

@@ -6,6 +6,7 @@
  */
 
 #include "stateMachine.h"
+#include <stdio.h>
 
 // ------------------- Private data -------------------
 static Logging_T* mLog;
@@ -26,8 +27,13 @@ static void stateLvStartup(VSM_T* vsm, FaultStatus_T faultStatus)
   }
 }
 
-static void stateLvReady(VSM_T* vsm)
+static void stateLvReady(VSM_T* vsm, FaultStatus_T faultStatus)
 {
+  if (FAULT_NO_FAULT != faultStatus) {
+    vsm->nextState = VSM_STATE_FAULT;
+    return;
+  }
+
   // TODO check whether HV is on
 
   // Thread-safe acquisition of vehicle sense data
@@ -39,11 +45,125 @@ static void stateLvReady(VSM_T* vsm)
   VehicleState_AccessRelease(vsm->inputState);
 
   if (stateAccess) {
-    if (inputBtnPressed) {
+    if (inputBtnPressed && !vsm->inputButtonPrev) {
       vsm->nextState = VSM_STATE_HV_CHARGING;
       VehicleControl_EnableInverter(vsm->control);
     }
+
+    vsm->inputButtonPrev = inputBtnPressed;
   }
+}
+
+static void stateHvCharging(VSM_T* vsm, FaultStatus_T faultStatus)
+{
+  if (FAULT_NO_FAULT != faultStatus) {
+    vsm->nextState = VSM_STATE_FAULT;
+    return;
+  }
+
+  // Thread-safe acquisition of vehicle sense data
+  VehicleState_InverterState_T inverterState = VEHICLESTATE_INVERTERSTATE_START;
+  bool stateAccess = VehicleState_AccessAcquire(vsm->inputState);
+  if (stateAccess) {
+    inverterState = vsm->inputState->data.inverter.state;
+  }
+  VehicleState_AccessRelease(vsm->inputState);
+
+  if (stateAccess) {
+    if (VEHICLESTATE_INVERTERSTATE_READY == inverterState) {
+      vsm->nextState = VSM_STATE_ACTIVE_NEUTRAL;
+      return;
+    }
+
+    // timeout counting
+    uint32_t currentStateMs = vsm->tickRateMs * vsm->ticksInState;
+    if (currentStateMs > vsm->hvChargeTimeoutMs) {
+      // HV timeout occured
+      vsm->nextState = VSM_STATE_FAULT;
+      return;
+    }
+  }
+}
+
+static void stateActiveNeutral(VSM_T* vsm, FaultStatus_T faultStatus)
+{
+  if (FAULT_NO_FAULT != faultStatus) {
+    vsm->nextState = VSM_STATE_FAULT;
+    return;
+  }
+
+  // Thread-safe acquisition of vehicle sense data
+  bool inputBtnPressed = false;
+  bool stateAccess = VehicleState_AccessAcquire(vsm->inputState);
+  if (stateAccess) {
+    inputBtnPressed = vsm->inputState->data.dash.buttonPressed;
+  }
+  VehicleState_AccessRelease(vsm->inputState);
+
+  if (stateAccess) {
+    if (inputBtnPressed && !vsm->inputButtonPrev) {
+      vsm->nextState = VSM_STATE_ACTIVE_FORWARD;
+      // TODO enable torque output, set direction forward
+    }
+
+    vsm->inputButtonPrev = inputBtnPressed;
+  }
+}
+
+static void stateActiveForward(VSM_T* vsm, FaultStatus_T faultStatus)
+{
+  if (FAULT_NO_FAULT != faultStatus) {
+    vsm->nextState = VSM_STATE_FAULT;
+    return;
+  }
+
+  // Thread-safe acquisition of vehicle sense data
+  bool inputBtnPressed = false;
+  bool stateAccess = VehicleState_AccessAcquire(vsm->inputState);
+  if (stateAccess) {
+    inputBtnPressed = vsm->inputState->data.dash.buttonPressed;
+  }
+  VehicleState_AccessRelease(vsm->inputState);
+
+  if (stateAccess) {
+    if (inputBtnPressed && !vsm->inputButtonPrev) {
+      vsm->nextState = VSM_STATE_ACTIVE_REVERSE;
+      // TODO enable torque output, set direction reverse
+    }
+
+    vsm->inputButtonPrev = inputBtnPressed;
+  }
+}
+
+static void stateActiveReverse(VSM_T* vsm, FaultStatus_T faultStatus)
+{
+  if (FAULT_NO_FAULT != faultStatus) {
+    vsm->nextState = VSM_STATE_FAULT;
+    return;
+  }
+
+  // Thread-safe acquisition of vehicle sense data
+  bool inputBtnPressed = false;
+  bool stateAccess = VehicleState_AccessAcquire(vsm->inputState);
+  if (stateAccess) {
+    inputBtnPressed = vsm->inputState->data.dash.buttonPressed;
+  }
+  VehicleState_AccessRelease(vsm->inputState);
+
+  if (stateAccess) {
+    if (inputBtnPressed && !vsm->inputButtonPrev) {
+      vsm->nextState = VSM_STATE_ACTIVE_NEUTRAL;
+      // TODO disable torque output, set direction forward
+    }
+
+    vsm->inputButtonPrev = inputBtnPressed;
+  }
+}
+
+static void stateFault(VSM_T* vsm)
+{
+  (void)vsm;
+  // Do nothing
 }
 
 // ------------------- Public methods -------------------
@@ -55,6 +175,7 @@ void VSM_Init(Logging_T* logger, VSM_T* vsm)
   vsm->vsmState = VSM_STATE_INIT;
   vsm->nextState = VSM_STATE_INIT;
   vsm->ticksInState = 0;
+  vsm->inputButtonPrev = false;
 
   // TODO write up vsm->faultMgr
   FaultManager_Init(logger, &vsm->faultMgr);
@@ -78,19 +199,27 @@ void VSM_Step(VSM_T* vsm)
       break;
     
     case VSM_STATE_LV_READY:
-      stateLvReady(vsm);
+      stateLvReady(vsm, faultStatus);
       break;
     
     case VSM_STATE_HV_CHARGING:
+      stateHvCharging(vsm, faultStatus);
       break;
     
+    case VSM_STATE_ACTIVE_NEUTRAL:
+      stateActiveNeutral(vsm, faultStatus);
+      break;
+
     case VSM_STATE_ACTIVE_FORWARD:
+      stateActiveForward(vsm, faultStatus);
       break;
     
     case VSM_STATE_ACTIVE_REVERSE:
+      stateActiveReverse(vsm, faultStatus);
       break;
     
     case VSM_STATE_FAULT:
+      stateFault(vsm);
       break;
     
     default:

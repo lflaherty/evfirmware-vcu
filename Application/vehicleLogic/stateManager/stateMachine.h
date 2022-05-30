@@ -23,14 +23,16 @@ typedef enum
   VSM_STATE_LV_STARTUP      = 0x02U,
   VSM_STATE_LV_READY        = 0x03U,
   VSM_STATE_HV_CHARGING     = 0x04U,
-  VSM_STATE_ACTIVE_FORWARD  = 0x05U,
-  VSM_STATE_ACTIVE_REVERSE  = 0x06U
+  VSM_STATE_ACTIVE_NEUTRAL  = 0x05U,
+  VSM_STATE_ACTIVE_FORWARD  = 0x06U,
+  VSM_STATE_ACTIVE_REVERSE  = 0x07U
 } VSM_State_T;
 
 typedef struct
 {
   // Config
-  uint32_t tickRateMs; // counts per millisecond
+  uint32_t tickRateMs; // milliseconds per count
+  uint32_t hvChargeTimeoutMs; // Time which causes a HV charge timeout (ms)
 
   // Vehicle interface
   VehicleState_T* inputState; // must be set prior to initialization
@@ -40,6 +42,7 @@ typedef struct
   VSM_State_T vsmState;
   VSM_State_T nextState; // for staging next state
   uint32_t ticksInState;
+  bool inputButtonPrev; // used for 0->1 detections
   FaultManager_T faultMgr;
 } VSM_T;
 
