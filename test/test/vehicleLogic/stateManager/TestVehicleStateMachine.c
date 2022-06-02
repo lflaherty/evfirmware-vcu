@@ -63,6 +63,7 @@ TEST_SETUP(VEHICLELOGIC_STATEMACHINE)
     mVsm.tickRateMs = ticksPerMs;
     mVsm.hvChargeTimeoutMs = hvChargeTimeoutMs;
     mVsm.inputState = &mVehicleState;
+    mVehicleState.data.inverter.state = VEHICLESTATE_INVERTERSTATE_START;
 
     VSM_Init(&testLog, &mVsm);
 
@@ -316,6 +317,51 @@ TEST(VEHICLELOGIC_STATEMACHINE, StateActiveReverseFault)
     stepAndAssertStable(VSM_STATE_FAULT);
 }
 
+TEST(VEHICLELOGIC_STATEMACHINE, StartupProcedure)
+{
+    // Test the full sequence from init to active - forward
+
+    // 1. Init
+    TEST_ASSERT_EQUAL(VSM_STATE_INIT, mVsm.vsmState);
+
+    // 2. LV startup
+    VSM_Step(&mVsm);
+    stepAndAssertStable(VSM_STATE_LV_STARTUP);
+
+    // 3. LV ready
+    mockSet_FaultManager_Step_Status(FAULT_NO_FAULT);
+    VSM_Step(&mVsm);
+    stepAndAssertStable(VSM_STATE_LV_READY);
+
+    // 4. HV charging
+    mVehicleState.data.dash.buttonPressed = true;
+    stepAndAssertStable(VSM_STATE_HV_CHARGING);
+    mVehicleState.data.dash.buttonPressed = false;
+    stepAndAssertStable(VSM_STATE_HV_CHARGING);
+
+    // 5. Active - neutral
+    mVehicleState.data.inverter.state = VEHICLESTATE_INVERTERSTATE_READY;
+    stepAndAssertStable(VSM_STATE_ACTIVE_NEUTRAL);
+
+    // 5. Active - forward
+    mVehicleState.data.dash.buttonPressed = true;
+    stepAndAssertStable(VSM_STATE_ACTIVE_FORWARD);
+    mVehicleState.data.dash.buttonPressed = false;
+    stepAndAssertStable(VSM_STATE_ACTIVE_FORWARD);
+
+    // 5. Active - reverse
+    mVehicleState.data.dash.buttonPressed = true;
+    stepAndAssertStable(VSM_STATE_ACTIVE_REVERSE);
+    mVehicleState.data.dash.buttonPressed = false;
+    stepAndAssertStable(VSM_STATE_ACTIVE_REVERSE);
+
+    // 5. Active - neutral
+    mVehicleState.data.dash.buttonPressed = true;
+    stepAndAssertStable(VSM_STATE_ACTIVE_NEUTRAL);
+    mVehicleState.data.dash.buttonPressed = false;
+    stepAndAssertStable(VSM_STATE_ACTIVE_NEUTRAL);
+}
+
 TEST_GROUP_RUNNER(VEHICLELOGIC_STATEMACHINE)
 {
     RUN_TEST_CASE(VEHICLELOGIC_STATEMACHINE, InitOk);
@@ -334,4 +380,5 @@ TEST_GROUP_RUNNER(VEHICLELOGIC_STATEMACHINE)
     RUN_TEST_CASE(VEHICLELOGIC_STATEMACHINE, StateActiveForwardFault);
     RUN_TEST_CASE(VEHICLELOGIC_STATEMACHINE, StateActiveReverse);
     RUN_TEST_CASE(VEHICLELOGIC_STATEMACHINE, StateActiveReverseFault);
+    RUN_TEST_CASE(VEHICLELOGIC_STATEMACHINE, StartupProcedure);
 }
