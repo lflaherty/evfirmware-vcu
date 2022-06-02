@@ -27,7 +27,6 @@ typedef struct
 /**
  * @brief Initialize the vehicle control process
  * @param logger Pointer to system logger
- * @param state Pointer to VehicleControl object
  * @returns Success status. VEHICLECONTORL_STATUS_OK if successful.
  */
 VehicleControl_Status_T VehicleControl_Init(Logging_T* logger);

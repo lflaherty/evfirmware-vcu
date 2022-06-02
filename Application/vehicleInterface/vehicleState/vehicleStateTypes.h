@@ -8,6 +8,7 @@
 #ifndef VEHICLEINTERFACE_VEHICLESTATE_VEHICLESTATETYPES_H_
 #define VEHICLEINTERFACE_VEHICLESTATE_VEHICLESTATETYPES_H_
 
+#include <stdbool.h>
 
 typedef struct
 {
@@ -15,6 +16,11 @@ typedef struct
   // throttle input
   // brake input
 } VehicleState_InputSensors_T;
+
+typedef struct
+{
+  bool buttonPressed;
+} VehicleState_DashInputs_T;
 
 typedef struct
 {
@@ -109,6 +115,7 @@ typedef struct
 typedef struct
 {
   VehicleState_InputSensors_T inputs;
+  VehicleState_DashInputs_T dash;
   VehicleState_VehicleSensors_T vehicle;
   VehicleState_Battery_T battery;
   VehicleState_Motor_T motor;
