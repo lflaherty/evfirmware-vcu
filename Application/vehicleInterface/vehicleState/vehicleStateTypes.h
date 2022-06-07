@@ -9,12 +9,17 @@
 #define VEHICLEINTERFACE_VEHICLESTATE_VEHICLESTATETYPES_H_
 
 #include <stdbool.h>
+#include <stdint.h>
 
 typedef struct
 {
-  // TODO
-  // throttle input
-  // brake input
+  float accel; // accelerator pedal press % [0,1]
+  uint32_t accelRawA; // accelerator sensor A press raw sensor value
+  uint32_t accelRawB; // accelerator sensor B press raw sensor value
+
+  float brakePres; // brake pressure % [0,1]
+  uint32_t brakeRawA; // brake sensor A press raw sensor value
+  uint32_t brakeRawB; // brake sensor B press raw sensor value
 } VehicleState_InputSensors_T;
 
 typedef struct

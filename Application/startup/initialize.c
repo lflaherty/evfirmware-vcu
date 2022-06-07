@@ -19,7 +19,7 @@
 #include "time/rtc/rtc.h"
 
 #include "device/inverter/cInverter.h"
-#include "vehicleInterface/deviceMapping/deviceMapping.h"
+#include "vehicleInterface/config/deviceMapping.h"
 #include "vehicleInterface/vehicleState/vehicleState.h"
 
 // ------------------- Private data -------------------
