@@ -172,6 +172,39 @@ TEST(VEHICLELOGIC_STATEMACHINE, StateLvReadyFault)
     stepAndAssertStable(VSM_STATE_FAULT);
 }
 
+TEST(VEHICLELOGIC_STATEMACHINE, StateHvActiveOk)
+{
+    // Start in HV charging state & no faults
+    setVsmState(VSM_STATE_HV_ACTIVE, 0);
+    mockSet_FaultManager_Step_Status(FAULT_NO_FAULT);
+
+    // Stay in HV active state while waiting
+    uint32_t hvChargeWaitTicks = 3000U / ticksPerMs;
+    for (uint32_t i = 0; i < hvChargeWaitTicks; ++i) {
+        VSM_Step(&mVsm);
+        TEST_ASSERT_EQUAL(VSM_STATE_HV_ACTIVE, mVsm.vsmState);
+    }
+
+    // State transitions to active - neutral
+    stepAndAssertStable(VSM_STATE_HV_CHARGING);
+}
+
+TEST(VEHICLELOGIC_STATEMACHINE, StateHvActiveFault)
+{
+    // Start in HV charging state & no faults
+    setVsmState(VSM_STATE_HV_ACTIVE, 0);
+    mockSet_FaultManager_Step_Status(FAULT_NO_FAULT);
+
+    // Stay in HV active state while waiting
+    stepAndAssertStable(VSM_STATE_HV_ACTIVE);
+
+    // Transition to a HV fault
+    mockSet_FaultManager_Step_Status(FAULT_FAULT);
+
+    // State should stay in fault
+    stepAndAssertStable(VSM_STATE_FAULT);
+}
+
 TEST(VEHICLELOGIC_STATEMACHINE, StateHvChargingOk)
 {
     // Start in HV charging state & no faults
@@ -336,7 +369,7 @@ TEST(VEHICLELOGIC_STATEMACHINE, StartupProcedure)
     // 4. HV active
     mVehicleState.data.dash.buttonPressed = true;
 
-    uint32_t hvChargeWaitTicks = 3000U / ticksPerMs + 1;
+    uint32_t hvChargeWaitTicks = 3000U / ticksPerMs + 1; // (+1 to transition into state)
     uint32_t buttonSwitchOffTime = 1000U / ticksPerMs;
     for (uint32_t i = 0; i < hvChargeWaitTicks; ++i) {
         if (i > buttonSwitchOffTime) {
@@ -383,6 +416,8 @@ TEST_GROUP_RUNNER(VEHICLELOGIC_STATEMACHINE)
     RUN_TEST_CASE(VEHICLELOGIC_STATEMACHINE, StateLvStartupFault);
     RUN_TEST_CASE(VEHICLELOGIC_STATEMACHINE, StateLvReadyOk);
     RUN_TEST_CASE(VEHICLELOGIC_STATEMACHINE, StateLvReadyFault);
+    RUN_TEST_CASE(VEHICLELOGIC_STATEMACHINE, StateHvActiveOk);
+    RUN_TEST_CASE(VEHICLELOGIC_STATEMACHINE, StateHvActiveFault);
     RUN_TEST_CASE(VEHICLELOGIC_STATEMACHINE, StateHvChargingOk);
     RUN_TEST_CASE(VEHICLELOGIC_STATEMACHINE, StateHvChargingFault);
     RUN_TEST_CASE(VEHICLELOGIC_STATEMACHINE, StateHvChargingTimeout);
