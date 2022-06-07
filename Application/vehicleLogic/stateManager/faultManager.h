@@ -8,15 +8,21 @@
 #ifndef VEHICLELOGIC_STATEMANAGER_FAULT_H_
 #define VEHICLELOGIC_STATEMANAGER_FAULT_H_
 
+#include <stdint.h>
+
 #include "lib/logging/logging.h"
+#include "vehicleInterface/vehicleState/vehicleState.h"
 
 typedef struct
 {
+  // Config
+  uint32_t tickRateMs; // milliseconds between each step
+
   // Input data
-  // TODO pointer to vehicle state
+  VehicleState_T* vehicleData; // must be set prior to initialization
 
   // Internal storage
-  
+
 } FaultManager_T;
 
 typedef enum
@@ -26,6 +32,32 @@ typedef enum
   FAULT_LV_ERROR  = 0x02U,
   FAULT_FAULT     = 0x03U
 } FaultStatus_T;
+
+// Fault categories
+#define FAULTMGR_LV_ERROR_MASK  ((uint32_t)0x000000FFU) /* LV error */
+#define FAULTMGR_FAULT_MASK     ((uint32_t)0xFFFFFF00U) /* Fault */
+
+// LV errors
+#define FAULTMGR_LV_ERROR_BMS_TIMEOUT ((uint32_t)0x00000001U)   /* BMS CAN message timeout */
+#define FAULTMGR_LV_ERROR_INV_TIMEOUT ((uint32_t)0x00000002U)   /* Inverter CAN message timeout */
+#define FAULTMGR_LV_ERROR_INV_STATE   ((uint32_t)0x00000002U)   /* Inverter LV error state */
+
+// Faults
+#define FAULTMGR_FAULT_ACCELPDL_RANGE ((uint32_t)0x00000100U)   /* Accelerator: pedal outside calibrated range */
+#define FAULTMGR_FAULT_ACCELPDL_SENSE ((uint32_t)0x00000200U)   /* Accelerator: pedal redunant sensors disagree */
+#define FAULTMGR_FAULT_BRAKEPDL_RANGE ((uint32_t)0x00000400U)   /* Brake: pedal outside calibrated range */
+#define FAULTMGR_FAULT_BRAKEPDL_ABUSE ((uint32_t)0x00000800U)   /* Brake: Accelerator & brake pedal depressed */
+#define FAULTMGR_FAULT_BMS_CELLTEMP   ((uint32_t)0x00001000U)   /* BMS: A cell is above temperature threshold */
+#define FAULTMGR_FAULT_BMS_CURRENT    ((uint32_t)0x00002000U)   /* BMS: Current draw too high */
+#define FAULTMGR_FAULT_BMS_CELLVOLT   ((uint32_t)0x00004000U)   /* BMS: A cell is over voltage */
+#define FAULTMGR_FAULT_BMS_FAULTIND   ((uint32_t)0x00008000U)   /* BMS: Fault indicator is on */
+#define FAULTMGR_FAULT_INV_OVERTEMP   ((uint32_t)0x00010000U)   /* Inverter: Internal temperature is above threshold */
+#define FAULTMGR_FAULT_INV_IGBTTEMP   ((uint32_t)0x00020000U)   /* Inverter: IGBT temperature is above threshold */
+#define FAULTMGR_FAULT_INV_MOTORTEMP  ((uint32_t)0x00040000U)   /* Inverter: Motor temperature is above threshold */
+#define FAULTMGR_FAULT_INV_CURRENT    ((uint32_t)0x00080000U)   /* Inverter: Current draw too high */
+#define FAULTMGR_FAULT_INV_FAULTIND   ((uint32_t)0x00100000U)   /* Inverter: Fault indicator (discrete input) */
+#define FAULTMGR_FAULT_INV_FAULTMSG   ((uint32_t)0x00200000U)   /* Inverter: Fault message */
+#define FAULTMGR_FAULT_INV_STATE      ((uint32_t)0x00400000U)   /* Inverter: Fault state */
 
 /**
  * @brief Initialize the fault manager
