@@ -153,7 +153,7 @@ TEST(VEHICLELOGIC_STATEMACHINE, StateLvReadyOk)
     mVehicleState.data.dash.buttonPressed = true;
 
     // Stay in LV ready state while input button hasn't been pressed
-    stepAndAssertStable(VSM_STATE_HV_CHARGING);
+    stepAndAssertStable(VSM_STATE_HV_ACTIVE);
 }
 
 TEST(VEHICLELOGIC_STATEMACHINE, StateLvReadyFault)
@@ -333,29 +333,41 @@ TEST(VEHICLELOGIC_STATEMACHINE, StartupProcedure)
     VSM_Step(&mVsm);
     stepAndAssertStable(VSM_STATE_LV_READY);
 
-    // 4. HV charging
+    // 4. HV active
     mVehicleState.data.dash.buttonPressed = true;
-    stepAndAssertStable(VSM_STATE_HV_CHARGING);
-    mVehicleState.data.dash.buttonPressed = false;
+
+    uint32_t hvChargeWaitTicks = 3000U / ticksPerMs + 1;
+    uint32_t buttonSwitchOffTime = 1000U / ticksPerMs;
+    for (uint32_t i = 0; i < hvChargeWaitTicks; ++i) {
+        if (i > buttonSwitchOffTime) {
+            // release the button
+            mVehicleState.data.dash.buttonPressed = false;
+        }
+
+        VSM_Step(&mVsm);
+        TEST_ASSERT_EQUAL(VSM_STATE_HV_ACTIVE, mVsm.vsmState);
+    }
+
+    // 5. HV charging
     stepAndAssertStable(VSM_STATE_HV_CHARGING);
 
-    // 5. Active - neutral
+    // 6. Active - neutral
     mVehicleState.data.inverter.state = VEHICLESTATE_INVERTERSTATE_READY;
     stepAndAssertStable(VSM_STATE_ACTIVE_NEUTRAL);
 
-    // 5. Active - forward
+    // 7. Active - forward
     mVehicleState.data.dash.buttonPressed = true;
     stepAndAssertStable(VSM_STATE_ACTIVE_FORWARD);
     mVehicleState.data.dash.buttonPressed = false;
     stepAndAssertStable(VSM_STATE_ACTIVE_FORWARD);
 
-    // 5. Active - reverse
+    // 8. Active - reverse
     mVehicleState.data.dash.buttonPressed = true;
     stepAndAssertStable(VSM_STATE_ACTIVE_REVERSE);
     mVehicleState.data.dash.buttonPressed = false;
     stepAndAssertStable(VSM_STATE_ACTIVE_REVERSE);
 
-    // 5. Active - neutral
+    // 9. Active - neutral
     mVehicleState.data.dash.buttonPressed = true;
     stepAndAssertStable(VSM_STATE_ACTIVE_NEUTRAL);
     mVehicleState.data.dash.buttonPressed = false;
