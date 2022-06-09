@@ -126,6 +126,20 @@ VehicleState_Status_T VehicleState_PushFieldf(VehicleState_T* state, float* dest
 }
 
 //------------------------------------------------------------------------------
+bool VehicleState_CopyState(VehicleState_T* state, VehicleState_Data_T* dest)
+{
+  BaseType_t result = xSemaphoreTake(state->mutex, portMAX_DELAY);
+  if (result != pdTRUE) {
+    return false;
+  }
+
+  memcpy(dest, &state->data, sizeof(VehicleState_Data_T));
+
+  xSemaphoreGive(state->mutex);
+  return true;
+}
+
+//------------------------------------------------------------------------------
 bool VehicleState_AccessAcquire(VehicleState_T* state)
 {
   BaseType_t result = xSemaphoreTake(state->mutex, portMAX_DELAY);

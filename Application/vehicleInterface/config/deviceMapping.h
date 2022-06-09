@@ -5,8 +5,8 @@
  *      Author: Liam Flaherty
  */
 
-#ifndef VEHICLEINTERFACE_DEVICEMAPPING_DEVICEMAPPING_H_
-#define VEHICLEINTERFACE_DEVICEMAPPING_DEVICEMAPPING_H_
+#ifndef VEHICLEINTERFACE_CONFIG_DEVICEMAPPING_H_
+#define VEHICLEINTERFACE_CONFIG_DEVICEMAPPING_H_
 
 #include "stm32f7xx_hal.h"
 #include <stdint.h>
@@ -60,4 +60,4 @@ CAN_HandleTypeDef* Mapping_GetCAN1(void);
 CAN_HandleTypeDef* Mapping_GetCAN2(void);
 CAN_HandleTypeDef* Mapping_GetCAN3(void);
 
-#endif /* VEHICLEINTERFACE_DEVICEMAPPING_DEVICEMAPPING_H_ */
+#endif /* VEHICLEINTERFACE_CONFIG_DEVICEMAPPING_H_ */

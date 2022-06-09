@@ -16,6 +16,8 @@ static void stateInit(VSM_T* vsm)
 {
   // Do nothing and transition on
   vsm->nextState = VSM_STATE_LV_STARTUP;
+
+  // make sure ECU error is on
 }
 
 static void stateLvStartup(VSM_T* vsm, FaultStatus_T faultStatus)
@@ -46,11 +48,27 @@ static void stateLvReady(VSM_T* vsm, FaultStatus_T faultStatus)
 
   if (stateAccess) {
     if (inputBtnPressed && !vsm->inputButtonPrev) {
-      vsm->nextState = VSM_STATE_HV_CHARGING;
-      VehicleControl_EnableInverter(vsm->control);
+      vsm->nextState = VSM_STATE_HV_ACTIVE;
+      // TODO disable ECU faults
     }
 
     vsm->inputButtonPrev = inputBtnPressed;
+  }
+}
+
+static void stateHvActive(VSM_T* vsm, FaultStatus_T faultStatus)
+{
+  if (FAULT_NO_FAULT != faultStatus) {
+    vsm->nextState = VSM_STATE_FAULT;
+    return;
+  }
+
+  // wait and transition (if no fault)
+  uint32_t currentStateMs = vsm->tickRateMs * vsm->ticksInState;
+  // TODO move 3000 to configurable constant
+  if (currentStateMs >= 3000U) {
+    vsm->nextState = VSM_STATE_HV_CHARGING;
+    VehicleControl_EnableInverter(vsm->control);
   }
 }
 
@@ -200,6 +218,10 @@ void VSM_Step(VSM_T* vsm)
     
     case VSM_STATE_LV_READY:
       stateLvReady(vsm, faultStatus);
+      break;
+    
+    case VSM_STATE_HV_ACTIVE:
+      stateHvActive(vsm, faultStatus);
       break;
     
     case VSM_STATE_HV_CHARGING:

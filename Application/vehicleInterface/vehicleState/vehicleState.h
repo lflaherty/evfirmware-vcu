@@ -92,6 +92,16 @@ VehicleState_Status_T VehicleState_PushField(VehicleState_T* state, void* dest, 
 VehicleState_Status_T VehicleState_PushFieldf(VehicleState_T* state, float* dest, float value);
 
 /**
+ * @brief Thread safe copy from state->data to dest
+ * 
+ * @param state Source of data
+ * @param dest Location to copy to
+ * @return true Copy was successful
+ * @return false Copy failed (thread fail)
+ */
+bool VehicleState_CopyState(VehicleState_T* state, VehicleState_Data_T* dest);
+
+/**
  * @brief Lock the mutex for access.
  * Only use this to batch read a number of variables. Do not leave locked.
  * 

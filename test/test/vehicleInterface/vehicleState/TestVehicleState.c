@@ -155,6 +155,27 @@ TEST(VEHICLEINTERFACE_VEHICLESTATE, PushFieldfQueueFull)
     TEST_ASSERT_EQUAL_FLOAT(0.0f, mState.data.motor.phaseCCurrent);
 }
 
+TEST(VEHICLEINTERFACE_VEHICLESTATE, CopyState)
+{
+    mState.data.motor.calculatedTorque = 420.0f;
+    mState.data.motor.phaseACurrent = 125.25f;
+    mState.data.inverter.enabled = VEHICLESTATE_INVERTER_ENABLED;
+    mState.data.inverter.dcBusVoltage = 624.5f;
+
+    VehicleState_Data_T destData;
+    bool status = VehicleState_CopyState(&mState, &destData);
+    TEST_ASSERT_TRUE(status);
+    TEST_ASSERT_EQUAL_MEMORY(&mState.data, &destData, sizeof(VehicleState_Data_T));
+}
+
+TEST(VEHICLEINTERFACE_VEHICLESTATE, CopyStateFail)
+{
+    mockSemaphoreSetLocked(true);
+    VehicleState_Data_T destData;
+    bool status = VehicleState_CopyState(&mState, &destData);
+    TEST_ASSERT_FALSE(status);
+}
+
 TEST(VEHICLEINTERFACE_VEHICLESTATE, AccessAcquire)
 {
     mockSemaphoreSetLocked(false);
@@ -185,6 +206,8 @@ TEST_GROUP_RUNNER(VEHICLEINTERFACE_VEHICLESTATE)
     RUN_TEST_CASE(VEHICLEINTERFACE_VEHICLESTATE, PushFieldQueueFull);
     RUN_TEST_CASE(VEHICLEINTERFACE_VEHICLESTATE, PushFieldf);
     RUN_TEST_CASE(VEHICLEINTERFACE_VEHICLESTATE, PushFieldfQueueFull);
+    RUN_TEST_CASE(VEHICLEINTERFACE_VEHICLESTATE, CopyState);
+    RUN_TEST_CASE(VEHICLEINTERFACE_VEHICLESTATE, CopyStateFail);
     RUN_TEST_CASE(VEHICLEINTERFACE_VEHICLESTATE, AccessAcquire);
     RUN_TEST_CASE(VEHICLEINTERFACE_VEHICLESTATE, AccessRelease);
 }
