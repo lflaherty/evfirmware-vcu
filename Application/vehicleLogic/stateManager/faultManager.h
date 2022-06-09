@@ -12,17 +12,30 @@
 
 #include "lib/logging/logging.h"
 #include "vehicleInterface/vehicleState/vehicleState.h"
+#include "vehicleInterface/config/configData.h"
+
+typedef struct
+{
+  uint32_t faults; // used to latch fault bits
+
+  uint16_t accelPedalRangeTimer;
+  uint16_t accelPedalRangeTimerLimit;
+  uint16_t pedalConsistencyTimer;
+  uint16_t pedalConsistencyTimerLimit;
+} FaultManager_Internal_T;
 
 typedef struct
 {
   // Config
   uint32_t tickRateMs; // milliseconds between each step
+  Config_T* vehicleConfig;
 
   // Input data
   VehicleState_T* vehicleData; // must be set prior to initialization
 
   // Internal storage
-
+  // Local variables - use a separate struct for easier memset operations
+  FaultManager_Internal_T internal;
 } FaultManager_T;
 
 typedef enum
@@ -36,6 +49,8 @@ typedef enum
 // Fault categories
 #define FAULTMGR_LV_ERROR_MASK  ((uint32_t)0x000000FFU) /* LV error */
 #define FAULTMGR_FAULT_MASK     ((uint32_t)0xFFFFFF00U) /* Fault */
+
+#define FAULTMGR_NO_FAULT             ((uint32_t)0)
 
 // LV errors
 #define FAULTMGR_LV_ERROR_BMS_TIMEOUT ((uint32_t)0x00000001U)   /* BMS CAN message timeout */
