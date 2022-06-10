@@ -30,6 +30,11 @@ static const uint16_t accelAUpper = 2000U;
 static const uint16_t accelBLower = 3000U;
 static const uint16_t accelBUpper = 4000U;
 static const float accelPedalConsistencyPct = 0.1f; // 10%
+static const uint16_t brakeALower = 1000U;
+static const uint16_t brakeAUpper = 2000U;
+static const uint16_t brakeBLower = 3000U;
+static const uint16_t brakeBUpper = 4000U;
+static const float brakePedalConsistencyPct = 0.1f; // 10%
 static const uint16_t pedalInvalidTimeout = 100U; // 100ms
 
 static void stepAndAssert(FaultStatus_T status, uint16_t steps)
@@ -44,7 +49,9 @@ static void resetFaults(void)
 {
     mFaultMgr.internal.faults = FAULTMGR_NO_FAULT;
     mFaultMgr.internal.accelPedalRangeTimer = 0U;
-    mFaultMgr.internal.pedalConsistencyTimer = 0U;
+    mFaultMgr.internal.accelPedalConsistencyTimer = 0U;
+    mFaultMgr.internal.brakePressureRangeTimer = 0U;
+    mFaultMgr.internal.brakePressureConsistencyTimer = 0U;
 }
 
 static void setValidData(void)
@@ -52,6 +59,14 @@ static void setValidData(void)
     memset(&mVehicleState.data, 0U, sizeof(VehicleState_Data_T));
     mVehicleState.data.inputs.accelRawA = accelALower;
     mVehicleState.data.inputs.accelRawB = accelBLower;
+    mVehicleState.data.inputs.accel = 0.0f;
+    mVehicleState.data.inputs.accelA = 0.0f;
+    mVehicleState.data.inputs.accelB = 0.0f;
+    mVehicleState.data.inputs.brakeRawA = brakeALower;
+    mVehicleState.data.inputs.brakeRawB = brakeBLower;
+    mVehicleState.data.inputs.brakePres = 0.0f;
+    mVehicleState.data.inputs.brakePresA = 0.0f;
+    mVehicleState.data.inputs.brakePresB = 0.0f;
 }
 
 TEST_GROUP(VEHICLELOGIC_FAULTMANAGER);
@@ -71,6 +86,12 @@ TEST_SETUP(VEHICLELOGIC_FAULTMANAGER)
     mConfig.inputs.accelPedal.calibrationB.rawUpper = accelBUpper;
     mConfig.inputs.accelPedal.consistencyLimit = accelPedalConsistencyPct;
     mConfig.inputs.accelPedal.invalidDataTimeout = pedalInvalidTimeout;
+    mConfig.inputs.brakePressure.calibrationA.rawLower = brakeALower;
+    mConfig.inputs.brakePressure.calibrationA.rawUpper = brakeAUpper;
+    mConfig.inputs.brakePressure.calibrationB.rawLower = brakeBLower;
+    mConfig.inputs.brakePressure.calibrationB.rawUpper = brakeBUpper;
+    mConfig.inputs.brakePressure.consistencyLimit = brakePedalConsistencyPct;
+    mConfig.inputs.brakePressure.invalidDataTimeout = pedalInvalidTimeout;
 
     // Set up fault manager
     memset(&mFaultMgr, 0U, sizeof(FaultManager_T));
@@ -169,9 +190,75 @@ TEST(VEHICLELOGIC_FAULTMANAGER, FaultAccelPedalConsistency)
     stepAndAssert(FAULT_FAULT, timeoutCount);
 }
 
+TEST(VEHICLELOGIC_FAULTMANAGER, FaultBrakePedalRange)
+{
+    uint16_t timeoutCount = pedalInvalidTimeout / tickRateMs;
+
+    mVehicleState.data.inputs.brakeRawA = 1500U;
+    mVehicleState.data.inputs.brakeRawB = 3500U;
+    stepAndAssert(FAULT_NO_FAULT, timeoutCount);
+
+    mVehicleState.data.inputs.brakeRawA = 2500U;
+    mVehicleState.data.inputs.brakeRawB = 3500U;
+    stepAndAssert(FAULT_NO_FAULT, timeoutCount);
+    stepAndAssert(FAULT_FAULT, timeoutCount);
+
+    resetFaults();
+    mVehicleState.data.inputs.brakeRawA = 1500U;
+    mVehicleState.data.inputs.brakeRawB = 4500U;
+    stepAndAssert(FAULT_NO_FAULT, timeoutCount);
+    stepAndAssert(FAULT_FAULT, timeoutCount);
+
+    resetFaults();
+    mVehicleState.data.inputs.brakeRawA = 2500U;
+    mVehicleState.data.inputs.brakeRawB = 4500U;
+    stepAndAssert(FAULT_NO_FAULT, timeoutCount);
+    stepAndAssert(FAULT_FAULT, timeoutCount);
+
+    mVehicleState.data.inputs.brakeRawA = 1500U;
+    mVehicleState.data.inputs.brakeRawB = 3500U;
+    stepAndAssert(FAULT_FAULT, timeoutCount); // faults should latch
+}
+
+TEST(VEHICLELOGIC_FAULTMANAGER, FaultBrakePedalConsistency)
+{
+    uint16_t timeoutCount = pedalInvalidTimeout / tickRateMs;
+
+    mVehicleState.data.inputs.brakePresA = 0.0f;
+    mVehicleState.data.inputs.brakePresB = 0.0f;
+    stepAndAssert(FAULT_NO_FAULT, timeoutCount);
+
+    mVehicleState.data.inputs.brakePresA = 0.7f;
+    mVehicleState.data.inputs.brakePresB = 0.7f;
+    stepAndAssert(FAULT_NO_FAULT, timeoutCount);
+
+    // 5% difference
+    mVehicleState.data.inputs.brakePresA = 0.0f;
+    mVehicleState.data.inputs.brakePresB = 0.05f;
+    stepAndAssert(FAULT_NO_FAULT, timeoutCount);
+
+    // 10% difference
+    mVehicleState.data.inputs.brakePresA = 0.0f;
+    mVehicleState.data.inputs.brakePresB = 0.1f;
+    stepAndAssert(FAULT_NO_FAULT, timeoutCount);
+
+    // 15% difference
+    mVehicleState.data.inputs.brakePresA = 0.0f;
+    mVehicleState.data.inputs.brakePresB = 0.15f;
+    stepAndAssert(FAULT_NO_FAULT, timeoutCount);
+    stepAndAssert(FAULT_FAULT, timeoutCount);
+
+    // 0% difference (but it latches)
+    mVehicleState.data.inputs.brakePresA = 0.0f;
+    mVehicleState.data.inputs.brakePresB = 0.0f;
+    stepAndAssert(FAULT_FAULT, timeoutCount);
+}
+
 TEST_GROUP_RUNNER(VEHICLELOGIC_FAULTMANAGER)
 {
     RUN_TEST_CASE(VEHICLELOGIC_FAULTMANAGER, InitOk);
     RUN_TEST_CASE(VEHICLELOGIC_FAULTMANAGER, FaultAccelPedalRange);
     RUN_TEST_CASE(VEHICLELOGIC_FAULTMANAGER, FaultAccelPedalConsistency);
+    RUN_TEST_CASE(VEHICLELOGIC_FAULTMANAGER, FaultBrakePedalRange);
+    RUN_TEST_CASE(VEHICLELOGIC_FAULTMANAGER, FaultBrakePedalConsistency);
 }
