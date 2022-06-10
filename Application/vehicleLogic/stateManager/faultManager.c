@@ -64,8 +64,8 @@ static uint32_t isFaultAccelPedal(FaultManager_T* faultMgr, VehicleState_Data_T*
   float diff = fabs(data->inputs.accelA - data->inputs.accelB);
   bool diffCheck = handleTimedCondition(
       diff > faultMgr->vehicleConfig->inputs.accelPedal.consistencyLimit,
-      &faultMgr->internal.pedalConsistencyTimer,
-      faultMgr->internal.pedalConsistencyTimerLimit
+      &faultMgr->internal.accelPedalConsistencyTimer,
+      faultMgr->internal.accelPedalConsistencyTimerLimit
   );
   if (!diffCheck) {
     faults |= FAULTMGR_FAULT_ACCELPDL_SENSE;
@@ -76,9 +76,40 @@ static uint32_t isFaultAccelPedal(FaultManager_T* faultMgr, VehicleState_Data_T*
 
 static uint32_t isFaultBrakePedal(FaultManager_T* faultMgr, VehicleState_Data_T* data)
 {
-  (void)faultMgr;
-  (void)data;
-  return 0x0U;
+  uint32_t faults = faultMgr->internal.faults;
+
+  // Brake pressure outside of calibrated range
+  uint16_t brakeRawA = data->inputs.brakeRawA;
+  uint16_t brakeRawALimitUpper = faultMgr->vehicleConfig->inputs.brakePressure.calibrationA.rawUpper;
+  uint16_t brakeRawALimitLower = faultMgr->vehicleConfig->inputs.brakePressure.calibrationA.rawLower;
+  uint16_t brakeRawB = data->inputs.brakeRawB;
+  uint16_t brakeRawBLimitUpper = faultMgr->vehicleConfig->inputs.brakePressure.calibrationB.rawUpper;
+  uint16_t brakeRawBLimitLower = faultMgr->vehicleConfig->inputs.brakePressure.calibrationB.rawLower;
+
+  bool brakeRangeCheck = handleTimedCondition(
+      brakeRawA > brakeRawALimitUpper || brakeRawA < brakeRawALimitLower ||
+      brakeRawB > brakeRawBLimitUpper || brakeRawB < brakeRawBLimitLower,
+      &faultMgr->internal.brakePressureRangeTimer,
+      faultMgr->internal.brakePressureRangeTimerLimit);
+  if (!brakeRangeCheck) {
+    faults |= FAULTMGR_FAULT_BRAKEPDL_RANGE;
+  }
+
+  // Redundant values disagree
+  float diff = fabs(data->inputs.brakePresA - data->inputs.brakePresB);
+  bool diffCheck = handleTimedCondition(
+      diff > faultMgr->vehicleConfig->inputs.brakePressure.consistencyLimit,
+      &faultMgr->internal.brakePressureConsistencyTimer,
+      faultMgr->internal.brakePressureConsistencyTimerLimit
+  );
+  if (!diffCheck) {
+    faults |= FAULTMGR_FAULT_BRAKEPDL_SENSE;
+  }
+
+  return faults;
+  // (void)faultMgr;
+  // (void)data;
+  // return 0;
 }
 
 static uint32_t isFaultBMS(FaultManager_T* faultMgr, VehicleState_Data_T* data)
@@ -120,7 +151,11 @@ void FaultManager_Init(Logging_T* logger, FaultManager_T* faultMgr)
   // Re-calculate fault timer/counter limits
   faultMgr->internal.accelPedalRangeTimerLimit =
       faultMgr->vehicleConfig->inputs.accelPedal.invalidDataTimeout / faultMgr->tickRateMs;
-  faultMgr->internal.pedalConsistencyTimerLimit =
+  faultMgr->internal.accelPedalConsistencyTimerLimit =
+      faultMgr->vehicleConfig->inputs.accelPedal.invalidDataTimeout / faultMgr->tickRateMs;
+  faultMgr->internal.brakePressureRangeTimerLimit =
+      faultMgr->vehicleConfig->inputs.brakePressure.invalidDataTimeout / faultMgr->tickRateMs;
+  faultMgr->internal.brakePressureConsistencyTimerLimit =
       faultMgr->vehicleConfig->inputs.accelPedal.invalidDataTimeout / faultMgr->tickRateMs;
 
   logPrintS(mLog, "FaultManager_Init complete\n", LOGGING_DEFAULT_BUFF_LEN);
@@ -136,20 +171,16 @@ FaultStatus_T FaultManager_Step(FaultManager_T* faultMgr)
   }
 
   // Run checks on data
-  uint32_t faultStatus = 0U;
-  faultStatus |= isFaultAccelPedal(faultMgr, &latestData);
-  faultStatus |= isFaultBrakePedal(faultMgr, &latestData);
-  faultStatus |= isFaultBMS(faultMgr, &latestData);
-  faultStatus |= isFaultInverter(faultMgr, &latestData);
-  faultStatus |= isLVErrorBMS(faultMgr, &latestData);
-  faultStatus |= isLVErrorInverter(faultMgr, &latestData);
+  faultMgr->internal.faults |= isFaultAccelPedal(faultMgr, &latestData);
+  faultMgr->internal.faults |= isFaultBrakePedal(faultMgr, &latestData);
+  faultMgr->internal.faults |= isFaultBMS(faultMgr, &latestData);
+  faultMgr->internal.faults |= isFaultInverter(faultMgr, &latestData);
+  faultMgr->internal.faults |= isLVErrorBMS(faultMgr, &latestData);
+  faultMgr->internal.faults |= isLVErrorInverter(faultMgr, &latestData);
 
-  // latch faults
-  faultMgr->internal.faults |= faultStatus;
-
-  if ((faultStatus & FAULTMGR_FAULT_MASK) > 0U) {
+  if ((faultMgr->internal.faults & FAULTMGR_FAULT_MASK) > 0U) {
     return FAULT_FAULT;
-  } else if ((faultStatus & FAULTMGR_LV_ERROR_MASK) > 0U) {
+  } else if ((faultMgr->internal.faults & FAULTMGR_LV_ERROR_MASK) > 0U) {
     return FAULT_LV_ERROR;
   } else {
     return FAULT_NO_FAULT;
