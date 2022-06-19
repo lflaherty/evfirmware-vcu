@@ -82,7 +82,7 @@ VehicleState_Status_T VehicleState_Init(Logging_T* logger, VehicleState_T* state
   uint16_t timerDivider = 10 * TASKTIMER_BASE_PERIOD_MS;
   TaskTimer_Status_T statusTimer = TaskTimer_RegisterTask(&state->taskHandle, timerDivider);
   if (TASKTIMER_STATUS_OK != statusTimer) {
-    return VEHCILESTATE_STATUS_ERROR_INIT;
+    return VEHICLESTATE_STATUS_ERROR_INIT;
   }
 
   logPrintS(mLog, "VehicleState_Init complete\n", LOGGING_DEFAULT_BUFF_LEN);
@@ -93,7 +93,7 @@ VehicleState_Status_T VehicleState_Init(Logging_T* logger, VehicleState_T* state
 VehicleState_Status_T VehicleState_PushField(VehicleState_T* state, void* dest, void* value, size_t sz)
 {
   if (sz > VEHICLESTATE_QUEUE_MAX_VALUE_SIZE) {
-    return VEHCILESTATE_STATUS_ERROR_SIZE;
+    return VEHICLESTATE_STATUS_ERROR_SIZE;
   }
 
   VehicleState_QueuedData_T queuedData;
@@ -103,7 +103,7 @@ VehicleState_Status_T VehicleState_PushField(VehicleState_T* state, void* dest, 
 
   BaseType_t status = xQueueSendToBack(state->dataQueueHandle, (void*)&queuedData, (TickType_t)10U);
   if (pdTRUE != status) {
-    return VEHCILESTATE_STATUS_ERROR_QUEUE;
+    return VEHICLESTATE_STATUS_ERROR_QUEUE;
   }
 
   return VEHICLESTATE_STATUS_OK;
@@ -119,7 +119,7 @@ VehicleState_Status_T VehicleState_PushFieldf(VehicleState_T* state, float* dest
 
   BaseType_t status = xQueueSendToBack(state->dataQueueHandle, (void*)&queuedData, (TickType_t)10U);
   if (pdTRUE != status) {
-    return VEHCILESTATE_STATUS_ERROR_QUEUE;
+    return VEHICLESTATE_STATUS_ERROR_QUEUE;
   }
 
   return VEHICLESTATE_STATUS_OK;

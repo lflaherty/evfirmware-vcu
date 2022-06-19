@@ -66,7 +66,7 @@ TEST(VEHICLEINTERFACE_VEHICLESTATE, InitTaskRegisterError)
     mockSet_TaskTimer_RegisterTask_Status(TASKTIMER_STATUS_ERROR_FULL);
 
     VehicleState_Status_T status = VehicleState_Init(&testLog, &mState);
-    TEST_ASSERT(VEHCILESTATE_STATUS_ERROR_INIT == status);
+    TEST_ASSERT(VEHICLESTATE_STATUS_ERROR_INIT == status);
 
     const char* expectedLogging =
         "VehicleState_Init begin\n";
@@ -93,7 +93,7 @@ TEST(VEHICLEINTERFACE_VEHICLESTATE, PushFieldTooLarge)
     // External call:
     uint32_t value = 0x0AA0U;
     VehicleState_Status_T status = VehicleState_PushField(&mState, &mState.data.inverter.runFaults, &value, VEHICLESTATE_QUEUE_MAX_VALUE_SIZE+1);
-    TEST_ASSERT_EQUAL(status, VEHCILESTATE_STATUS_ERROR_SIZE);
+    TEST_ASSERT_EQUAL(status, VEHICLESTATE_STATUS_ERROR_SIZE);
 
     // Internal sequence of events:
     mockSetTaskNotifyValue(1); // to wake up
@@ -113,7 +113,7 @@ TEST(VEHICLEINTERFACE_VEHICLESTATE, PushFieldQueueFull)
     TEST_ASSERT_EQUAL(status, VEHICLESTATE_STATUS_OK);
 
     status = VehicleState_PushField(&mState, &mState.data.inverter.runFaults, &value2, sizeof(uint32_t));
-    TEST_ASSERT_EQUAL(status, VEHCILESTATE_STATUS_ERROR_QUEUE);
+    TEST_ASSERT_EQUAL(status, VEHICLESTATE_STATUS_ERROR_QUEUE);
 
     mockSetTaskNotifyValue(1); // to wake up
     StateProcessing(&mState); // RTOS will eventually call this
@@ -146,7 +146,7 @@ TEST(VEHICLEINTERFACE_VEHICLESTATE, PushFieldfQueueFull)
     TEST_ASSERT_EQUAL(status, VEHICLESTATE_STATUS_OK);
 
     status = VehicleState_PushFieldf(&mState, &mState.data.motor.calculatedTorque, value2);
-    TEST_ASSERT_EQUAL(status, VEHCILESTATE_STATUS_ERROR_QUEUE);
+    TEST_ASSERT_EQUAL(status, VEHICLESTATE_STATUS_ERROR_QUEUE);
 
     mockSetTaskNotifyValue(1); // to wake up
     StateProcessing(&mState); // RTOS will eventually call this
