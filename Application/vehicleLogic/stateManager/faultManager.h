@@ -26,6 +26,8 @@ typedef struct
   uint16_t brakePressureRangeTimerLimit;
   uint16_t brakePressureConsistencyTimer;
   uint16_t brakePressureConsistencyTimerLimit;
+  uint16_t pedalAbuseTimer;
+  uint16_t pedalAbuseTimerLimit;
 } FaultManager_Internal_T;
 
 typedef struct

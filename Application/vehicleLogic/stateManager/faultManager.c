@@ -106,10 +106,22 @@ static uint32_t isFaultBrakePedal(FaultManager_T* faultMgr, VehicleState_Data_T*
     faults |= FAULTMGR_FAULT_BRAKEPDL_SENSE;
   }
 
+  // Accel-brake pedal abuse
+  if (1U == faultMgr->vehicleConfig->inputs.pedalAbuseCheckEnabled) {
+    bool pedalAbuseCondition =
+        data->inputs.accel > faultMgr->vehicleConfig->inputs.pedalAbuseAccelThreshold &&
+        data->inputs.brakePres > faultMgr->vehicleConfig->inputs.pedalAbuseBrakeThreshold;
+    bool pedalAbuseCheck = handleTimedCondition(
+        pedalAbuseCondition,
+        &faultMgr->internal.pedalAbuseTimer,
+        faultMgr->internal.pedalAbuseTimerLimit
+    );
+    if (!pedalAbuseCheck) {
+      faults |= FAULTMGR_FAULT_BRAKEPDL_ABUSE;
+    }
+  }
+
   return faults;
-  // (void)faultMgr;
-  // (void)data;
-  // return 0;
 }
 
 static uint32_t isFaultBMS(FaultManager_T* faultMgr, VehicleState_Data_T* data)
@@ -150,13 +162,15 @@ void FaultManager_Init(Logging_T* logger, FaultManager_T* faultMgr)
 
   // Re-calculate fault timer/counter limits
   faultMgr->internal.accelPedalRangeTimerLimit =
-      faultMgr->vehicleConfig->inputs.accelPedal.invalidDataTimeout / faultMgr->tickRateMs;
+      faultMgr->vehicleConfig->inputs.invalidDataTimeout / faultMgr->tickRateMs;
   faultMgr->internal.accelPedalConsistencyTimerLimit =
-      faultMgr->vehicleConfig->inputs.accelPedal.invalidDataTimeout / faultMgr->tickRateMs;
+      faultMgr->vehicleConfig->inputs.invalidDataTimeout / faultMgr->tickRateMs;
   faultMgr->internal.brakePressureRangeTimerLimit =
-      faultMgr->vehicleConfig->inputs.brakePressure.invalidDataTimeout / faultMgr->tickRateMs;
+      faultMgr->vehicleConfig->inputs.invalidDataTimeout / faultMgr->tickRateMs;
   faultMgr->internal.brakePressureConsistencyTimerLimit =
-      faultMgr->vehicleConfig->inputs.accelPedal.invalidDataTimeout / faultMgr->tickRateMs;
+      faultMgr->vehicleConfig->inputs.invalidDataTimeout / faultMgr->tickRateMs;
+  faultMgr->internal.pedalAbuseTimerLimit =
+      faultMgr->vehicleConfig->inputs.invalidDataTimeout / faultMgr->tickRateMs;
 
   logPrintS(mLog, "FaultManager_Init complete\n", LOGGING_DEFAULT_BUFF_LEN);
 }

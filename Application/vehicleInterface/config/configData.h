@@ -21,14 +21,16 @@ typedef struct
     Config_PedalCalibration_T calibrationA;
     Config_PedalCalibration_T calibrationB;
     float consistencyLimit; // % that both sensors can disagree by
-    uint16_t invalidDataTimeout; // [ms]
 } Config_Pedal_T;
 
 typedef struct
 {
     Config_Pedal_T accelPedal;
     Config_Pedal_T brakePressure;
-    uint8_t pedalAbuseCheck; // 0=disabled, 1=enabled
+    uint8_t pedalAbuseCheckEnabled; // 0=disabled, 1=enabled
+    float pedalAbuseAccelThreshold; // percent
+    float pedalAbuseBrakeThreshold; // percent
+    uint16_t invalidDataTimeout; // [ms]
 } Config_InputSensors_T;
 
 typedef struct
