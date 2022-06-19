@@ -14,4 +14,5 @@ TEST_SRC+=\
 	test/vehicleLogic/stateManager/TestFaultManager.c
 
 SRC_MOCKS+=\
-	mock/Application/vehicleLogic/stateManager/MockFaultManager.c
+	mock/Application/vehicleLogic/stateManager/MockFaultManager.c \
+	mock/Application/vehicleLogic/stateManager/MockStateMachine.c

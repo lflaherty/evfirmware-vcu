@@ -16,14 +16,33 @@
 
 #include "lib/logging/logging.h"
 
+#include "vehicleInterface/vehicleState/vehicleState.h"
+#include "vehicleInterface/vehicleControl/vehicleControl.h"
+#include "stateMachine.h"
+
 typedef enum
 {
-  STATEMANAGER_STATUS_OK    = 0x00U
+  STATEMANAGER_STATUS_OK          = 0x00U,
+  STATEMANAGER_STATUS_ERROR_INIT  = 0x01U
 } VehicleStateManager_Status_T;
+
+#define VEHICLESTATEMANAGER_STACK_SIZE 2000
+#define VEHICLESTATEMANAGER_TASK_PRIORITY 3
 
 typedef struct
 {
-  // TODO
+  // Config
+  VehicleState_T* inputState; // must be set prior to initialization
+  VehicleControl_T* control; // must be set prior to initialization
+  Config_T* vehicleConfig; // must be set prior to initialization
+
+  // ******* Internal use *******
+  VSM_T vsm;
+
+  // RTOS task
+  TaskHandle_t taskHandle;
+  StaticTask_t taskBuffer;
+  StackType_t taskStack[VEHICLESTATEMANAGER_STACK_SIZE];
 } VehicleStateManager_T;
 
 /**

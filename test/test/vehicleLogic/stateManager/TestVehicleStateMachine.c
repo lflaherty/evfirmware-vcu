@@ -13,7 +13,7 @@
 
 // Mocks for code under test (replaces stubs)
 #include "lib/logging/MockLogging.h"
-#include "Application/vehicleLogic/stateManager/MockFaultManager.h"
+#include "vehicleLogic/stateManager/MockFaultManager.h"
 
 // source code under test
 #include "vehicleLogic/stateManager/stateMachine.c"
