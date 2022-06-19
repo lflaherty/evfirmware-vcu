@@ -128,6 +128,7 @@ static uint32_t isFaultBMS(FaultManager_T* faultMgr, VehicleState_Data_T* data)
 {
   (void)faultMgr;
   (void)data;
+  // TODO
   return 0x0U;
 }
 
@@ -135,6 +136,7 @@ static uint32_t isFaultInverter(FaultManager_T* faultMgr, VehicleState_Data_T* d
 {
   (void)faultMgr;
   (void)data;
+  // TODO
   return 0x0U;
 }
 
@@ -142,6 +144,7 @@ static uint32_t isLVErrorBMS(FaultManager_T* faultMgr, VehicleState_Data_T* data
 {
   (void)faultMgr;
   (void)data;
+  // TODO
   return 0x0U;
 }
 
@@ -149,6 +152,7 @@ static uint32_t isLVErrorInverter(FaultManager_T* faultMgr, VehicleState_Data_T*
 {
   (void)faultMgr;
   (void)data;
+  // TODO
   return 0x0U;
 }
 
