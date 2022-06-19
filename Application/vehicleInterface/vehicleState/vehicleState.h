@@ -40,7 +40,7 @@ typedef struct
 } VehicleState_QueuedData_T;
 
 
-#define VEHCILESTATE_STACK_SIZE 2000
+#define VEHICLESTATE_STACK_SIZE 2000
 #define VEHICLESTATE_TASK_PRIORITY 3
 #define VEHICLESTATE_QUEUE_LENGTH 256
 #define VEHICLESTATE_QUEUE_DATA_SIZE sizeof(VehicleState_QueuedData_T)
@@ -59,7 +59,7 @@ typedef struct
   // RTOS task
   TaskHandle_t taskHandle;
   StaticTask_t taskBuffer;
-  StackType_t taskStack[VEHCILESTATE_STACK_SIZE];
+  StackType_t taskStack[VEHICLESTATE_STACK_SIZE];
 
   // Queue
   QueueHandle_t dataQueueHandle;

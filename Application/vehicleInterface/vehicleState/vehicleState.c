@@ -72,7 +72,7 @@ VehicleState_Status_T VehicleState_Init(Logging_T* logger, VehicleState_T* state
   state->taskHandle = xTaskCreateStatic(
       StateProcessing_Task,
       "VehicleState",
-      VEHCILESTATE_STACK_SIZE,   /* Stack size */
+      VEHICLESTATE_STACK_SIZE,   /* Stack size */
       (void*)state,  /* Parameter passed as pointer */
       VEHICLESTATE_TASK_PRIORITY,
       state->taskStack,
