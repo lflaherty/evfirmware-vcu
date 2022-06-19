@@ -33,11 +33,11 @@ typedef struct
 {
   // Config
   uint32_t tickRateMs; // milliseconds per count
-  uint32_t hvChargeTimeoutMs; // Time which causes a HV charge timeout (ms)
 
   // Vehicle interface
   VehicleState_T* inputState; // must be set prior to initialization
   VehicleControl_T* control; // must be set
+  Config_T* vehicleConfig; // must be set
 
   // Internal storage
   VSM_State_T vsmState;

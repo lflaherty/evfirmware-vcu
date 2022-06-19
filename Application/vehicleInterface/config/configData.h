@@ -58,9 +58,16 @@ typedef struct
 
 typedef struct
 {
+    uint32_t hvActiveStateWait; // ms to wait in HV active state
+    uint32_t hvChargeTimeout; // Time which causes a HV charge timeout (ms)
+} Config_VCULogic_T;
+
+typedef struct
+{
     Config_InputSensors_T inputs;
     Config_BMS_T bms;
     Config_Inverter_T inverter;
+    Config_VCULogic_T vcu;
 } Config_T;
 
 #endif /* VEHICLEINTERFACE_CONFIG_CONFIGDATA_H_ */

@@ -18,7 +18,10 @@
 // source code under test
 #include "vehicleLogic/stateManager/stateMachine.c"
 
+
+static Config_T mConfig;
 static const uint32_t ticksPerMs = 10; // 100Hz
+static const uint32_t hvActiveWait = 3*1000U; // 3 seconds (in ms)
 static const uint32_t hvChargeTimeoutMs = 5*1000; // 5 seconds (in ms)
 
 static Logging_T testLog;
@@ -58,11 +61,15 @@ TEST_SETUP(VEHICLELOGIC_STATEMACHINE)
     // set LV error since system should start this way
     mockSet_FaultManager_Step_Status(FAULT_LV_ERROR);
 
+    memset(&mConfig, 0U, sizeof(Config_T));
+    mConfig.vcu.hvActiveStateWait = hvActiveWait;
+    mConfig.vcu.hvChargeTimeout = hvChargeTimeoutMs;
+
     memset(&mVsm, 0xFF, sizeof(VSM_T));
     memset(&mVehicleState, 0x00, sizeof(VehicleState_T));
     mVsm.tickRateMs = ticksPerMs;
-    mVsm.hvChargeTimeoutMs = hvChargeTimeoutMs;
     mVsm.inputState = &mVehicleState;
+    mVsm.vehicleConfig = &mConfig;
     mVehicleState.data.inverter.state = VEHICLESTATE_INVERTERSTATE_START;
 
     VSM_Init(&testLog, &mVsm);

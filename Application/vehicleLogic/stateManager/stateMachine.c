@@ -65,8 +65,7 @@ static void stateHvActive(VSM_T* vsm, FaultStatus_T faultStatus)
 
   // wait and transition (if no fault)
   uint32_t currentStateMs = vsm->tickRateMs * vsm->ticksInState;
-  // TODO move 3000 to configurable constant
-  if (currentStateMs >= 3000U) {
+  if (currentStateMs >= vsm->vehicleConfig->vcu.hvActiveStateWait) {
     vsm->nextState = VSM_STATE_HV_CHARGING;
     VehicleControl_EnableInverter(vsm->control);
   }
@@ -95,7 +94,7 @@ static void stateHvCharging(VSM_T* vsm, FaultStatus_T faultStatus)
 
     // timeout counting
     uint32_t currentStateMs = vsm->tickRateMs * vsm->ticksInState;
-    if (currentStateMs > vsm->hvChargeTimeoutMs) {
+    if (currentStateMs > vsm->vehicleConfig->vcu.hvChargeTimeout) {
       // HV timeout occured
       vsm->nextState = VSM_STATE_FAULT;
       return;
@@ -195,7 +194,8 @@ void VSM_Init(Logging_T* logger, VSM_T* vsm)
   vsm->ticksInState = 0;
   vsm->inputButtonPrev = false;
 
-  // TODO write up vsm->faultMgr
+  vsm->faultMgr.vehicleConfig = vsm->vehicleConfig;
+  vsm->faultMgr.tickRateMs = vsm->tickRateMs;
   FaultManager_Init(logger, &vsm->faultMgr);
 
   logPrintS(mLog, "VSM_Init complete\n", LOGGING_DEFAULT_BUFF_LEN);
