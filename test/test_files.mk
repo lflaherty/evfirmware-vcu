@@ -11,8 +11,11 @@ TEST_SRC+=\
 	test/vehicleInterface/vehicleControl/TestVehicleControl.c \
 	test/vehicleLogic/stateManager/TestVehicleStateManager.c \
 	test/vehicleLogic/stateManager/TestVehicleStateMachine.c \
-	test/vehicleLogic/stateManager/TestFaultManager.c
+	test/vehicleLogic/stateManager/TestFaultManager.c \
+	test/vehicleLogic/throttleController/TestThrottleController.c \
+	test/vehicleLogic/throttleController/TestTorqueMap.c
 
 SRC_MOCKS+=\
 	mock/Application/vehicleLogic/stateManager/MockFaultManager.c \
-	mock/Application/vehicleLogic/stateManager/MockStateMachine.c
+	mock/Application/vehicleLogic/stateManager/MockStateMachine.c \
+	mock/Application/vehicleInterface/vehicleControl/MockVehicleControl.c
