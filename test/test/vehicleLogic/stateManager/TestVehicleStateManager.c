@@ -12,9 +12,16 @@
 #include <stdio.h>
 
 // Mocks for code under test (replaces stubs)
+#include "stm32_hal/MockStm32f7xx_hal.h"
+#include "FreeRTOS.h"
+#include "task.h"
+#include "queue.h"
+
 #include "lib/logging/MockLogging.h"
 #include "time/tasktimer/MockTasktimer.h"
+#include "vehicleInterface/vehicleControl/MockVehicleControl.h"
 #include "vehicleLogic/stateManager/MockStateMachine.h"
+#include "vehicleLogic/throttleController/MockThrottleController.h"
 
 // source code under test
 #include "vehicleLogic/stateManager/vehicleStateManager.c"
@@ -23,6 +30,7 @@ static Logging_T testLog;
 static VehicleStateManager_T mStateMgr;
 static VehicleState_T mInputState;
 static VehicleControl_T mControl;
+static ThrottleController_T mThrottleController;
 static Config_T mConfig;
 
 TEST_GROUP(VEHICLELOGIC_VEHICLESTATEMANAGER);
@@ -43,6 +51,7 @@ TEST_SETUP(VEHICLELOGIC_VEHICLESTATEMANAGER)
 
     mStateMgr.inputState = &mInputState;
     mStateMgr.control = &mControl;
+    mStateMgr.throttleController = &mThrottleController;
     mStateMgr.vehicleConfig = &mConfig;
     VehicleStateManager_Status_T status = VehicleStateManager_Init(&testLog, &mStateMgr);
     TEST_ASSERT(STATEMANAGER_STATUS_OK == status);

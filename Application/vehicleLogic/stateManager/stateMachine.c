@@ -68,6 +68,7 @@ static void stateHvActive(VSM_T* vsm, FaultStatus_T faultStatus)
   if (currentStateMs >= vsm->vehicleConfig->vcu.hvActiveStateWait) {
     vsm->nextState = VSM_STATE_HV_CHARGING;
     VehicleControl_EnableInverter(vsm->control);
+    // TODO check result ^
   }
 }
 
@@ -119,8 +120,11 @@ static void stateActiveNeutral(VSM_T* vsm, FaultStatus_T faultStatus)
 
   if (stateAccess) {
     if (inputBtnPressed && !vsm->inputButtonPrev) {
+      // Go to forward. Set direction forward & enable torque output
       vsm->nextState = VSM_STATE_ACTIVE_FORWARD;
-      // TODO enable torque output, set direction forward
+      ThrottleController_SetMotorDirection(vsm->throttleController, VEHICLESTATE_INVERTER_FORWARD);
+      ThrottleController_SetTorqueEnabled(vsm->throttleController, true);
+      // TODO check result ^
     }
 
     vsm->inputButtonPrev = inputBtnPressed;
@@ -144,8 +148,11 @@ static void stateActiveForward(VSM_T* vsm, FaultStatus_T faultStatus)
 
   if (stateAccess) {
     if (inputBtnPressed && !vsm->inputButtonPrev) {
+      // Go to reverse. Set direction reverse & enable torque output
       vsm->nextState = VSM_STATE_ACTIVE_REVERSE;
-      // TODO enable torque output, set direction reverse
+      ThrottleController_SetMotorDirection(vsm->throttleController, VEHICLESTATE_INVERTER_REVERSE);
+      ThrottleController_SetTorqueEnabled(vsm->throttleController, true);
+      // TODO check result ^
     }
 
     vsm->inputButtonPrev = inputBtnPressed;
@@ -169,8 +176,11 @@ static void stateActiveReverse(VSM_T* vsm, FaultStatus_T faultStatus)
 
   if (stateAccess) {
     if (inputBtnPressed && !vsm->inputButtonPrev) {
+      // Go to neutral. Set direction forward & disable torque output
       vsm->nextState = VSM_STATE_ACTIVE_NEUTRAL;
-      // TODO disable torque output, set direction forward
+      ThrottleController_SetMotorDirection(vsm->throttleController, VEHICLESTATE_INVERTER_FORWARD);
+      ThrottleController_SetTorqueEnabled(vsm->throttleController, false);
+      // TODO check result ^
     }
 
     vsm->inputButtonPrev = inputBtnPressed;
@@ -179,8 +189,9 @@ static void stateActiveReverse(VSM_T* vsm, FaultStatus_T faultStatus)
 
 static void stateFault(VSM_T* vsm)
 {
-  (void)vsm;
-  // Do nothing
+  ThrottleController_SetMotorDirection(vsm->throttleController, VEHICLESTATE_INVERTER_FORWARD);
+  ThrottleController_SetTorqueEnabled(vsm->throttleController, false);
+  // TODO assert ECU fault
 }
 
 // ------------------- Public methods -------------------

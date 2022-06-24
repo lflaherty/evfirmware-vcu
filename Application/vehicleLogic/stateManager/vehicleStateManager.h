@@ -18,6 +18,7 @@
 
 #include "vehicleInterface/vehicleState/vehicleState.h"
 #include "vehicleInterface/vehicleControl/vehicleControl.h"
+#include "vehicleLogic/throttleController/throttleController.h"
 #include "stateMachine.h"
 
 typedef enum
@@ -34,6 +35,7 @@ typedef struct
   // Config
   VehicleState_T* inputState; // must be set prior to initialization
   VehicleControl_T* control; // must be set prior to initialization
+  ThrottleController_T* throttleController; // must be set prior to initialization
   Config_T* vehicleConfig; // must be set prior to initialization
 
   // ******* Internal use *******

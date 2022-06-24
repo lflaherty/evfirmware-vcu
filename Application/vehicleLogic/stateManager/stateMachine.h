@@ -13,6 +13,7 @@
 #include "lib/logging/logging.h"
 #include "vehicleInterface/vehicleState/vehicleState.h"
 #include "vehicleInterface/vehicleControl/vehicleControl.h"
+#include "vehicleLogic/throttleController/throttleController.h"
 
 #include "faultManager.h"
 
@@ -37,6 +38,7 @@ typedef struct
   // Vehicle interface
   VehicleState_T* inputState; // must be set prior to initialization
   VehicleControl_T* control; // must be set
+  ThrottleController_T* throttleController; // must be set
   Config_T* vehicleConfig; // must be set
 
   // Internal storage

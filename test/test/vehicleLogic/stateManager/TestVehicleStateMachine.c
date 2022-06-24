@@ -12,8 +12,16 @@
 #include <stdio.h>
 
 // Mocks for code under test (replaces stubs)
+#include "stm32_hal/MockStm32f7xx_hal.h"
+#include "FreeRTOS.h"
+#include "task.h"
+#include "queue.h"
+
 #include "lib/logging/MockLogging.h"
+#include "time/tasktimer/MockTasktimer.h"
+#include "vehicleInterface/vehicleControl/MockVehicleControl.h"
 #include "vehicleLogic/stateManager/MockFaultManager.h"
+#include "vehicleLogic/throttleController/MockThrottleController.h"
 
 // source code under test
 #include "vehicleLogic/stateManager/stateMachine.c"
@@ -26,6 +34,7 @@ static const uint32_t hvChargeTimeoutMs = 5*1000; // 5 seconds (in ms)
 
 static Logging_T testLog;
 static VehicleState_T mVehicleState;
+static ThrottleController_T mThrottleController;
 static VSM_T mVsm;
 
 static void setVsmState(VSM_State_T state, uint32_t nTicks)
@@ -43,9 +52,30 @@ static void setVsmState(VSM_State_T state, uint32_t nTicks)
  */
 static void stepAndAssertStable(VSM_State_T state)
 {
+    VSM_Step(&mVsm);
     for (int i = 0; i < 12; ++i) {
         VSM_Step(&mVsm);
         TEST_ASSERT_EQUAL(state, mVsm.vsmState);
+    }
+}
+
+/**
+ * @brief Steps the state a number of times and checks that the state
+ * holds at the given value
+ * 
+ * @param state 
+ */
+static void stepAndAssertStable2(
+        VSM_State_T state,
+        bool torqueEnabled,
+        VehicleState_InverterDirection_T direction)
+{
+    VSM_Step(&mVsm);
+    for (int i = 0; i < 12; ++i) {
+        VSM_Step(&mVsm);
+        TEST_ASSERT_EQUAL(state, mVsm.vsmState);
+        TEST_ASSERT_EQUAL(direction, mockGet_ThrottleController_MotorDirection());
+        TEST_ASSERT_EQUAL(torqueEnabled, mockGet_ThrottleController_TorqueEnable());
     }
 }
 
@@ -61,6 +91,9 @@ TEST_SETUP(VEHICLELOGIC_STATEMACHINE)
     // set LV error since system should start this way
     mockSet_FaultManager_Step_Status(FAULT_LV_ERROR);
 
+    mockSet_ThrottleController_TorqueEnable(false);
+    mockSet_ThrottleController_MotorDirection(VEHICLESTATE_INVERTER_FORWARD);
+
     memset(&mConfig, 0U, sizeof(Config_T));
     mConfig.vcu.hvActiveStateWait = hvActiveWait;
     mConfig.vcu.hvChargeTimeout = hvChargeTimeoutMs;
@@ -70,6 +103,7 @@ TEST_SETUP(VEHICLELOGIC_STATEMACHINE)
     mVsm.tickRateMs = ticksPerMs;
     mVsm.inputState = &mVehicleState;
     mVsm.vehicleConfig = &mConfig;
+    mVsm.throttleController = &mThrottleController;
     mVehicleState.data.inverter.state = VEHICLESTATE_INVERTERSTATE_START;
 
     VSM_Init(&testLog, &mVsm);
@@ -268,93 +302,105 @@ TEST(VEHICLELOGIC_STATEMACHINE, StateActiveNeutral)
 {
     // Start in HV charging state & no faults
     setVsmState(VSM_STATE_ACTIVE_NEUTRAL, 0);
+    mockSet_ThrottleController_TorqueEnable(false);
+    mockSet_ThrottleController_MotorDirection(VEHICLESTATE_INVERTER_FORWARD);
     mockSet_FaultManager_Step_Status(FAULT_NO_FAULT);
 
     // Stay in HV charging state for a bit (while charging)
-    stepAndAssertStable(VSM_STATE_ACTIVE_NEUTRAL);
+    stepAndAssertStable2(VSM_STATE_ACTIVE_NEUTRAL, false, VEHICLESTATE_INVERTER_FORWARD);
 
     mVehicleState.data.dash.buttonPressed = true;
 
     // State transitions to active - neutral
-    stepAndAssertStable(VSM_STATE_ACTIVE_FORWARD);
+    stepAndAssertStable2(VSM_STATE_ACTIVE_FORWARD, true, VEHICLESTATE_INVERTER_FORWARD);
 }
 
 TEST(VEHICLELOGIC_STATEMACHINE, StateActiveNeutralFault)
 {
     // Start in HV charging state & no faults
     setVsmState(VSM_STATE_ACTIVE_NEUTRAL, 0);
+    mockSet_ThrottleController_TorqueEnable(false);
+    mockSet_ThrottleController_MotorDirection(VEHICLESTATE_INVERTER_FORWARD);
     mockSet_FaultManager_Step_Status(FAULT_NO_FAULT);
 
     // Stay in HV charging state for a bit (while charging)
-    stepAndAssertStable(VSM_STATE_ACTIVE_NEUTRAL);
+    stepAndAssertStable2(VSM_STATE_ACTIVE_NEUTRAL, false, VEHICLESTATE_INVERTER_FORWARD);
 
     // Transition to a HV fault
     mockSet_FaultManager_Step_Status(FAULT_FAULT);
 
     // State should stay in fault
-    stepAndAssertStable(VSM_STATE_FAULT);
+    stepAndAssertStable2(VSM_STATE_FAULT, false, VEHICLESTATE_INVERTER_FORWARD);
 }
 
 TEST(VEHICLELOGIC_STATEMACHINE, StateActiveForward)
 {
     // Start in HV charging state & no faults
     setVsmState(VSM_STATE_ACTIVE_FORWARD, 0);
+    mockSet_ThrottleController_TorqueEnable(true);
+    mockSet_ThrottleController_MotorDirection(VEHICLESTATE_INVERTER_FORWARD);
     mockSet_FaultManager_Step_Status(FAULT_NO_FAULT);
 
     // Stay in HV charging state for a bit (while charging)
-    stepAndAssertStable(VSM_STATE_ACTIVE_FORWARD);
+    stepAndAssertStable2(VSM_STATE_ACTIVE_FORWARD, true, VEHICLESTATE_INVERTER_FORWARD);
 
     mVehicleState.data.dash.buttonPressed = true;
 
     // State transitions to active - neutral
-    stepAndAssertStable(VSM_STATE_ACTIVE_REVERSE);
+    stepAndAssertStable2(VSM_STATE_ACTIVE_REVERSE, true, VEHICLESTATE_INVERTER_REVERSE);
 }
 
 TEST(VEHICLELOGIC_STATEMACHINE, StateActiveForwardFault)
 {
     // Start in HV charging state & no faults
     setVsmState(VSM_STATE_ACTIVE_FORWARD, 0);
+    mockSet_ThrottleController_TorqueEnable(true);
+    mockSet_ThrottleController_MotorDirection(VEHICLESTATE_INVERTER_FORWARD);
     mockSet_FaultManager_Step_Status(FAULT_NO_FAULT);
 
     // Stay in HV charging state for a bit (while charging)
-    stepAndAssertStable(VSM_STATE_ACTIVE_FORWARD);
+    stepAndAssertStable2(VSM_STATE_ACTIVE_FORWARD, true, VEHICLESTATE_INVERTER_FORWARD);
 
     // Transition to a HV fault
     mockSet_FaultManager_Step_Status(FAULT_FAULT);
 
     // State should stay in fault
-    stepAndAssertStable(VSM_STATE_FAULT);
+    stepAndAssertStable2(VSM_STATE_FAULT, false, VEHICLESTATE_INVERTER_FORWARD);
 }
 
 TEST(VEHICLELOGIC_STATEMACHINE, StateActiveReverse)
 {
     // Start in HV charging state & no faults
     setVsmState(VSM_STATE_ACTIVE_REVERSE, 0);
+    mockSet_ThrottleController_TorqueEnable(true);
+    mockSet_ThrottleController_MotorDirection(VEHICLESTATE_INVERTER_REVERSE);
     mockSet_FaultManager_Step_Status(FAULT_NO_FAULT);
 
     // Stay in HV charging state for a bit (while charging)
-    stepAndAssertStable(VSM_STATE_ACTIVE_REVERSE);
+    stepAndAssertStable2(VSM_STATE_ACTIVE_REVERSE, true, VEHICLESTATE_INVERTER_REVERSE);
 
     mVehicleState.data.dash.buttonPressed = true;
 
     // State transitions to active - neutral
-    stepAndAssertStable(VSM_STATE_ACTIVE_NEUTRAL);
+    stepAndAssertStable2(VSM_STATE_ACTIVE_NEUTRAL, false, VEHICLESTATE_INVERTER_FORWARD);
 }
 
 TEST(VEHICLELOGIC_STATEMACHINE, StateActiveReverseFault)
 {
     // Start in HV charging state & no faults
     setVsmState(VSM_STATE_ACTIVE_REVERSE, 0);
+    mockSet_ThrottleController_TorqueEnable(true);
+    mockSet_ThrottleController_MotorDirection(VEHICLESTATE_INVERTER_REVERSE);
     mockSet_FaultManager_Step_Status(FAULT_NO_FAULT);
 
     // Stay in HV charging state for a bit (while charging)
-    stepAndAssertStable(VSM_STATE_ACTIVE_REVERSE);
+    stepAndAssertStable2(VSM_STATE_ACTIVE_REVERSE, true, VEHICLESTATE_INVERTER_REVERSE);
 
     // Transition to a HV fault
     mockSet_FaultManager_Step_Status(FAULT_FAULT);
 
     // State should stay in fault
-    stepAndAssertStable(VSM_STATE_FAULT);
+    stepAndAssertStable2(VSM_STATE_FAULT, false, VEHICLESTATE_INVERTER_FORWARD);
 }
 
 TEST(VEHICLELOGIC_STATEMACHINE, StartupProcedure)
@@ -366,12 +412,12 @@ TEST(VEHICLELOGIC_STATEMACHINE, StartupProcedure)
 
     // 2. LV startup
     VSM_Step(&mVsm);
-    stepAndAssertStable(VSM_STATE_LV_STARTUP);
+    stepAndAssertStable2(VSM_STATE_LV_STARTUP, false, VEHICLESTATE_INVERTER_FORWARD);
 
     // 3. LV ready
     mockSet_FaultManager_Step_Status(FAULT_NO_FAULT);
     VSM_Step(&mVsm);
-    stepAndAssertStable(VSM_STATE_LV_READY);
+    stepAndAssertStable2(VSM_STATE_LV_READY, false, VEHICLESTATE_INVERTER_FORWARD);
 
     // 4. HV active
     mVehicleState.data.dash.buttonPressed = true;
@@ -389,29 +435,29 @@ TEST(VEHICLELOGIC_STATEMACHINE, StartupProcedure)
     }
 
     // 5. HV charging
-    stepAndAssertStable(VSM_STATE_HV_CHARGING);
+    stepAndAssertStable2(VSM_STATE_HV_CHARGING, false, VEHICLESTATE_INVERTER_FORWARD);
 
     // 6. Active - neutral
     mVehicleState.data.inverter.state = VEHICLESTATE_INVERTERSTATE_READY;
-    stepAndAssertStable(VSM_STATE_ACTIVE_NEUTRAL);
+    stepAndAssertStable2(VSM_STATE_ACTIVE_NEUTRAL, false, VEHICLESTATE_INVERTER_FORWARD);
 
     // 7. Active - forward
     mVehicleState.data.dash.buttonPressed = true;
-    stepAndAssertStable(VSM_STATE_ACTIVE_FORWARD);
+    stepAndAssertStable2(VSM_STATE_ACTIVE_FORWARD, true, VEHICLESTATE_INVERTER_FORWARD);
     mVehicleState.data.dash.buttonPressed = false;
-    stepAndAssertStable(VSM_STATE_ACTIVE_FORWARD);
+    stepAndAssertStable2(VSM_STATE_ACTIVE_FORWARD, true, VEHICLESTATE_INVERTER_FORWARD);
 
     // 8. Active - reverse
     mVehicleState.data.dash.buttonPressed = true;
-    stepAndAssertStable(VSM_STATE_ACTIVE_REVERSE);
+    stepAndAssertStable2(VSM_STATE_ACTIVE_REVERSE, true, VEHICLESTATE_INVERTER_REVERSE);
     mVehicleState.data.dash.buttonPressed = false;
-    stepAndAssertStable(VSM_STATE_ACTIVE_REVERSE);
+    stepAndAssertStable2(VSM_STATE_ACTIVE_REVERSE, true, VEHICLESTATE_INVERTER_REVERSE);
 
     // 9. Active - neutral
     mVehicleState.data.dash.buttonPressed = true;
-    stepAndAssertStable(VSM_STATE_ACTIVE_NEUTRAL);
+    stepAndAssertStable2(VSM_STATE_ACTIVE_NEUTRAL, false, VEHICLESTATE_INVERTER_FORWARD);
     mVehicleState.data.dash.buttonPressed = false;
-    stepAndAssertStable(VSM_STATE_ACTIVE_NEUTRAL);
+    stepAndAssertStable2(VSM_STATE_ACTIVE_NEUTRAL, false, VEHICLESTATE_INVERTER_FORWARD);
 }
 
 TEST_GROUP_RUNNER(VEHICLELOGIC_STATEMACHINE)

@@ -43,6 +43,7 @@ VehicleStateManager_Status_T VehicleStateManager_Init(Logging_T* logger, Vehicle
   sm->vsm.inputState = sm->inputState;
   sm->vsm.control = sm->control;
   sm->vsm.vehicleConfig = sm->vehicleConfig;
+  sm->vsm.throttleController = sm->throttleController;
   sm->vsm.tickRateMs = tickRateMs;
   VSM_Init(logger, &sm->vsm);
 
