@@ -52,7 +52,7 @@ def parse(filename, src_dirname):
     def get_method_names(text):
         # Regex to roughly match a C method
         # _REGEX_METHOD = '\w+\s+(\w+)\s*\([\w &*,\/]*\);'
-        _REGEX_METHOD = '\w*\s*(\w+)\s+(\w+)(\s*\([\w &*,\/]*\));'
+        _REGEX_METHOD = '\w*\s*(\w+)\s+(\w+)(\s*\([\w\s&*,\/]*\));'
         # Explainer:
         # \w*   Optional qualifier(s) before type
         # \s*   Optional space between qualifier(s) and type
@@ -61,7 +61,7 @@ def parse(filename, src_dirname):
         # (\w+) Method name (captured in a group)
         # \s*   Optional whitespace between method name and (
         # \(    Open bracket
-        # [\w &*,\/\\\]*  any of: characters, whitespace, &, *, /
+        # [\w\s&*,\/\\\]*  any of: characters, whitespace, &, *, /
         # \);   close bracket and ;
         results = re.findall(_REGEX_METHOD, text)
         results = [
