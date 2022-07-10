@@ -27,7 +27,7 @@ Logging_Status_T stubLogPrintS(const Logging_T* logData, const char* message, co
 {
     (void)logData;
 
-    memcpy(mockLogBuffer+offset, message, bufferLen*sizeof(char));
+    memcpy(mockLogBuffer+offset, message, strnlen(message, bufferLen)+1);
     offset += strnlen(message, bufferLen);
 
     return LOGGING_STATUS_OK;
