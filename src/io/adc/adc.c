@@ -78,7 +78,7 @@ ADC_Status_T ADC_Init(Logging_T* logger, const uint16_t numChannelsUsed, const u
 
   numChannels = numChannelsUsed;
   numSamples = numSampleAvg;
-  averagingShift = log(numSamples) / log(2);
+  averagingShift = (uint16_t)(log(numSamples) / log(2)); // TODO make sure numSamples is a multiple of 2
   currentSampleCount = 0;
 
   adcInitialized = true;

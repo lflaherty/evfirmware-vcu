@@ -34,7 +34,7 @@ HAL_StatusTypeDef stubHAL_ADC_Start_DMA(ADC_HandleTypeDef* hadc, uint32_t* pData
 #define HAL_ADC_Start_DMA stubHAL_ADC_Start_DMA
 
 // ================== Mock control methods ==================
-void mockSetADCData(uint32_t* data, size_t dataLength);
+void mockSetADCData(uint32_t* data, uint32_t dataLength);
 void mockSet_HAL_ADC_Start_DMA_Status(HAL_StatusTypeDef status);
 
 #endif

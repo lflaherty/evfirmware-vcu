@@ -95,6 +95,6 @@ CAN_Status_T CAN_RegisterCallback(
  * @return Return status. CAN_STATUS_OK for success. See CAN_Status_T for more.
  * handle->ErrorCode may provide more detailed error information.
  */
-CAN_Status_T CAN_SendMessage(CAN_HandleTypeDef* handle, uint32_t msgId, uint8_t* data, size_t n);
+CAN_Status_T CAN_SendMessage(CAN_HandleTypeDef* handle, uint32_t msgId, uint8_t* data, uint32_t n);
 
 #endif /* COMM_CAN_CAN_H_ */

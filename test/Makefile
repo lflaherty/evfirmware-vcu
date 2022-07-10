@@ -17,10 +17,13 @@ CFLAGS += -Wundef
 CFLAGS += -Wold-style-definition
 CFLAGS += -Wdouble-promotion
 CFLAGS += -Wshadow
+CFLAGS += -Wformat=2
+CFLAGS += -Wconversion
 CFLAGS += -Werror
 # Profiling flags
 CFLAGS += -g
 CFLAGS += -fprofile-arcs
+CFLAGS += -fstack-usage
 CFLAGS += -ftest-coverage
 CFLAGS += -fprofile-dir=./coverage
 # Linker flags

@@ -232,7 +232,7 @@ UART_Status_T UART_RegisterCallback(
 }
 
 //------------------------------------------------------------------------------
-UART_Status_T UART_SendMessage(UART_HandleTypeDef* handle, uint8_t* data, size_t len)
+UART_Status_T UART_SendMessage(UART_HandleTypeDef* handle, uint8_t* data, uint16_t len)
 {
   if (!isReady) {
     return UART_STATUS_NOT_READY;

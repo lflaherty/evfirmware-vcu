@@ -25,7 +25,7 @@ HAL_StatusTypeDef stubHAL_ADC_Start_DMA(ADC_HandleTypeDef* hadc, uint32_t* pData
     return mStatusStartDMA;
 }
 
-void mockSetADCData(uint32_t* data, size_t dataLength)
+void mockSetADCData(uint32_t* data, uint32_t dataLength)
 {
     memcpy(mDataPtr, data, dataLength);
     mDataLen = dataLength;

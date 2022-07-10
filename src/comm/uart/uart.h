@@ -81,7 +81,7 @@ UART_Status_T UART_RegisterCallback(
  * @param n Length of data array
  * @return Return status. UART_STATUS_OK for success. See UART_Status_T for more.
  */
-UART_Status_T UART_SendMessage(UART_HandleTypeDef* handle, uint8_t* data, size_t len);
+UART_Status_T UART_SendMessage(UART_HandleTypeDef* handle, uint8_t* data, uint16_t len);
 
 
 #endif /* COMM_UART_UART_H_ */

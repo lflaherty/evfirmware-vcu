@@ -235,7 +235,7 @@ CAN_Status_T CAN_RegisterCallback(
 }
 
 //------------------------------------------------------------------------------
-CAN_Status_T CAN_SendMessage(CAN_HandleTypeDef* handle, uint32_t msgId, uint8_t* data, size_t n)
+CAN_Status_T CAN_SendMessage(CAN_HandleTypeDef* handle, uint32_t msgId, uint8_t* data, uint32_t n)
 {
   // Construct header
   CAN_TxHeaderTypeDef txHeader;

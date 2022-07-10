@@ -25,8 +25,8 @@ static Logging_T mLog;
 /**
  * Storage for CAN data from callbacks for tests
  */
-static uint16_t canMsgId1 = 0;
-static uint16_t canMsgId2 = 0;
+static uint32_t canMsgId1 = 0;
+static uint32_t canMsgId2 = 0;
 static uint8_t canData1[8] = {0};
 static uint8_t canData2[8] = {0};
 
