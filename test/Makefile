@@ -26,6 +26,11 @@ CFLAGS += -fprofile-arcs
 CFLAGS += -fstack-usage
 CFLAGS += -ftest-coverage
 CFLAGS += -fprofile-dir=./coverage
+# Sanitizers
+CFLAGS += -fsanitize=address
+CFLAGS += -fsanitize=pointer-compare
+CFLAGS += -fsanitize=pointer-subtract
+CFLAGS += -fsanitize=undefined
 # Linker flags
 LFLAGS=-lm
 
