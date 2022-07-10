@@ -61,7 +61,7 @@ static uint32_t isFaultAccelPedal(FaultManager_T* faultMgr, VehicleState_Data_T*
   }
 
   // Redundant values disagree
-  float diff = fabs(data->inputs.accelA - data->inputs.accelB);
+  float diff = fabsf(data->inputs.accelA - data->inputs.accelB);
   bool diffCheck = handleTimedCondition(
       diff > faultMgr->vehicleConfig->inputs.accelPedal.consistencyLimit,
       &faultMgr->internal.accelPedalConsistencyTimer,
@@ -96,7 +96,7 @@ static uint32_t isFaultBrakePedal(FaultManager_T* faultMgr, VehicleState_Data_T*
   }
 
   // Redundant values disagree
-  float diff = fabs(data->inputs.brakePresA - data->inputs.brakePresB);
+  float diff = fabsf(data->inputs.brakePresA - data->inputs.brakePresB);
   bool diffCheck = handleTimedCondition(
       diff > faultMgr->vehicleConfig->inputs.brakePressure.consistencyLimit,
       &faultMgr->internal.brakePressureConsistencyTimer,
