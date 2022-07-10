@@ -15,6 +15,8 @@ CFLAGS += -Wno-unknown-pragmas
 CFLAGS += -Wstrict-prototypes
 CFLAGS += -Wundef
 CFLAGS += -Wold-style-definition
+CFLAGS += -Wdouble-promotion
+CFLAGS += -Wshadow
 CFLAGS += -Werror
 # Profiling flags
 CFLAGS += -g

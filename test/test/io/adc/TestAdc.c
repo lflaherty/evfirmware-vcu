@@ -145,9 +145,9 @@ TEST(IO_ADC, TestAdcInterruptHalf)
 
 TEST(IO_ADC, TestAdcDataSingle)
 {
-    uint16_t numChannels = 4;
+    uint16_t testNumChannels = 4;
     // Perform init & config
-    ADC_Status_T status = ADC_Init(&mLog, numChannels, 1);
+    ADC_Status_T status = ADC_Init(&mLog, testNumChannels, 1);
     TEST_ASSERT(ADC_STATUS_OK == status);
 
     // Perform config
@@ -177,9 +177,9 @@ TEST(IO_ADC, TestAdcDataSingle)
 
 TEST(IO_ADC, TestAdcDataAvg)
 {
-    uint16_t numChannels = 6;
+    uint16_t testNumChannels = 6;
     // Perform init & config
-    ADC_Status_T status = ADC_Init(&mLog, numChannels, 2);
+    ADC_Status_T status = ADC_Init(&mLog, testNumChannels, 2);
     TEST_ASSERT(ADC_STATUS_OK == status);
 
     // Perform config
