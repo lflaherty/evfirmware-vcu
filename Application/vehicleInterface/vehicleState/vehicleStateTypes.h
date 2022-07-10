@@ -16,14 +16,14 @@ typedef struct
   float accel; // accelerator pedal press % [0,1]
   float accelA;
   float accelB;
-  uint32_t accelRawA; // accelerator sensor A press raw sensor value
-  uint32_t accelRawB; // accelerator sensor B press raw sensor value
+  uint16_t accelRawA; // accelerator sensor A press raw sensor value
+  uint16_t accelRawB; // accelerator sensor B press raw sensor value
 
   float brakePres; // brake pressure % [0,1]
   float brakePresA;
   float brakePresB;
-  uint32_t brakeRawA; // brake sensor A press raw sensor value
-  uint32_t brakeRawB; // brake sensor B press raw sensor value
+  uint16_t brakeRawA; // brake sensor A press raw sensor value
+  uint16_t brakeRawB; // brake sensor B press raw sensor value
 } VehicleState_InputSensors_T;
 
 typedef struct
