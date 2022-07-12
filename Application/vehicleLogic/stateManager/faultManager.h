@@ -72,14 +72,15 @@ typedef enum
 #define FAULTMGR_FAULT_BMS_CELLTEMP   ((uint32_t)0x00002000U)   /* BMS: A cell is above temperature threshold */
 #define FAULTMGR_FAULT_BMS_CURRENT    ((uint32_t)0x00004000U)   /* BMS: Current draw too high */
 #define FAULTMGR_FAULT_BMS_CELLVOLT   ((uint32_t)0x00008000U)   /* BMS: A cell is over voltage */
-#define FAULTMGR_FAULT_BMS_FAULTIND   ((uint32_t)0x00010000U)   /* BMS: Fault indicator is on */
-#define FAULTMGR_FAULT_INV_OVERTEMP   ((uint32_t)0x00020000U)   /* Inverter: Internal temperature is above threshold */
-#define FAULTMGR_FAULT_INV_IGBTTEMP   ((uint32_t)0x00040000U)   /* Inverter: IGBT temperature is above threshold */
-#define FAULTMGR_FAULT_INV_MOTORTEMP  ((uint32_t)0x00080000U)   /* Inverter: Motor temperature is above threshold */
-#define FAULTMGR_FAULT_INV_CURRENT    ((uint32_t)0x00100000U)   /* Inverter: Current draw too high */
-#define FAULTMGR_FAULT_INV_FAULTIND   ((uint32_t)0x00200000U)   /* Inverter: Fault indicator (discrete input) */
-#define FAULTMGR_FAULT_INV_FAULTMSG   ((uint32_t)0x00400000U)   /* Inverter: Fault message */
-#define FAULTMGR_FAULT_INV_STATE      ((uint32_t)0x00800000U)   /* Inverter: Fault state */
+#define FAULTMGR_FAULT_BMS_LOWSOC     ((uint32_t)0x00010000U)   /* BMS: Total state of charge is below threshold */
+#define FAULTMGR_FAULT_BMS_FAULTIND   ((uint32_t)0x00020000U)   /* BMS: Fault indicator is on */
+#define FAULTMGR_FAULT_INV_OVERTEMP   ((uint32_t)0x00040000U)   /* Inverter: Internal temperature is above threshold */
+#define FAULTMGR_FAULT_INV_IGBTTEMP   ((uint32_t)0x00080000U)   /* Inverter: IGBT temperature is above threshold */
+#define FAULTMGR_FAULT_INV_MOTORTEMP  ((uint32_t)0x00100000U)   /* Inverter: Motor temperature is above threshold */
+#define FAULTMGR_FAULT_INV_CURRENT    ((uint32_t)0x00200000U)   /* Inverter: Current draw too high */
+#define FAULTMGR_FAULT_INV_FAULTIND   ((uint32_t)0x00400000U)   /* Inverter: Fault indicator (discrete input) */
+#define FAULTMGR_FAULT_INV_FAULTMSG   ((uint32_t)0x00800000U)   /* Inverter: Fault message */
+#define FAULTMGR_FAULT_INV_STATE      ((uint32_t)0x01000000U)   /* Inverter: Fault state */
 
 /**
  * @brief Initialize the fault manager
