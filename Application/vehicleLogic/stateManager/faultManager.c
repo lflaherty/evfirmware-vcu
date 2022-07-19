@@ -126,10 +126,57 @@ static uint32_t isFaultBrakePedal(FaultManager_T* faultMgr, VehicleState_Data_T*
 
 static uint32_t isFaultBMS(FaultManager_T* faultMgr, VehicleState_Data_T* data)
 {
-  (void)faultMgr;
-  (void)data;
-  // TODO
-  return 0x0U;
+  uint32_t faults = faultMgr->internal.faults;
+
+  // Cell temperature over threshold
+  bool cellTempOverCondition =
+      data->battery.upperCellTemperature > faultMgr->vehicleConfig->bms.maxCellTemp;
+  bool cellTempOverCheck = handleTimedCondition(
+      cellTempOverCondition,
+      &faultMgr->internal.cellTempOverTimer,
+      faultMgr->internal.bmsFaultTimerLimit
+  );
+  if (!cellTempOverCheck) {
+    faults |= FAULTMGR_FAULT_BMS_CELLTEMP;
+  }
+
+  // battery current draw too high
+  bool currentOverDrawCondition =
+      data->battery.current > faultMgr->vehicleConfig->bms.maxCurrent;
+  bool currentOverDrawCheck = handleTimedCondition(
+      currentOverDrawCondition,
+      &faultMgr->internal.currentOverDrawTimer,
+      faultMgr->internal.bmsFaultTimerLimit
+  );
+  if (!currentOverDrawCheck) {
+    faults |= FAULTMGR_FAULT_BMS_CURRENT;
+  }
+
+  // Cell voltage over threshold
+  bool cellVoltageOverCondition =
+      data->battery.upperCellVoltage > faultMgr->vehicleConfig->bms.maxCellVoltage;
+  bool cellVoltageOverCheck = handleTimedCondition(
+      cellVoltageOverCondition,
+      &faultMgr->internal.cellVoltageOverTimer,
+      faultMgr->internal.bmsFaultTimerLimit
+  );
+  if (!cellVoltageOverCheck) {
+    faults |= FAULTMGR_FAULT_BMS_CELLVOLT;
+  }
+
+  // state of charge too low
+  bool chargeTooLow =
+      data->battery.stateOfCarge < faultMgr->vehicleConfig->bms.minStateOfCharge;
+  if (chargeTooLow) {
+    faults |= FAULTMGR_FAULT_BMS_LOWSOC;
+  }
+
+  // BMS fault indicator
+  if (data->battery.bmsFaultIndicator) {
+    faults |= FAULTMGR_FAULT_BMS_FAULTIND;
+  }
+
+  return faults;
 }
 
 static uint32_t isFaultInverter(FaultManager_T* faultMgr, VehicleState_Data_T* data)
@@ -175,6 +222,8 @@ void FaultManager_Init(Logging_T* logger, FaultManager_T* faultMgr)
       faultMgr->vehicleConfig->inputs.invalidDataTimeout / faultMgr->tickRateMs;
   faultMgr->internal.pedalAbuseTimerLimit =
       faultMgr->vehicleConfig->inputs.invalidDataTimeout / faultMgr->tickRateMs;
+  faultMgr->internal.bmsFaultTimerLimit =
+      faultMgr->vehicleConfig->bms.invalidDataTimeout / faultMgr->tickRateMs;
 
   logPrintS(mLog, "FaultManager_Init complete\n", LOGGING_DEFAULT_BUFF_LEN);
 }

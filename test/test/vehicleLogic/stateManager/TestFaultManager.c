@@ -39,6 +39,11 @@ static const uint8_t pedalAbuseCheckEnabled = 1U; // enabled
 static const float pedalAbuseAccelThreshold = 0.2f; // 20%
 static const float pedalAbuseBrakeThreshold = 0.2f; // 20%
 static const uint16_t pedalInvalidTimeout = 100U; // 100ms
+static const LowVoltage_T maxCellVoltage = 450U; // 4.5v
+static const Current_T maxBatteryCurrent = 3000U; // 300A
+static const Temperature_T maxCellTemperature = 900U; // 90 degrees
+static const Percent_T minStateOfCharge = 500; // 5%
+static const uint16_t bmsInvalidTimeout = 100u; // 100ms
 
 static void stepAndAssert(FaultStatus_T status, uint16_t steps)
 {
@@ -56,6 +61,9 @@ static void resetFaults(void)
     mFaultMgr.internal.brakePressureRangeTimer = 0U;
     mFaultMgr.internal.brakePressureConsistencyTimer = 0U;
     mFaultMgr.internal.pedalAbuseTimer = 0U;
+    mFaultMgr.internal.cellTempOverTimer = 0U;
+    mFaultMgr.internal.currentOverDrawTimer = 0U;
+    mFaultMgr.internal.cellVoltageOverTimer = 0U;
 }
 
 static void setValidData(void)
@@ -71,6 +79,7 @@ static void setValidData(void)
     mVehicleState.data.inputs.brakePres = 0.0f;
     mVehicleState.data.inputs.brakePresA = 0.0f;
     mVehicleState.data.inputs.brakePresB = 0.0f;
+    mVehicleState.data.battery.stateOfCarge = 800U; // 80%
 }
 
 TEST_GROUP(VEHICLELOGIC_FAULTMANAGER);
@@ -98,6 +107,11 @@ TEST_SETUP(VEHICLELOGIC_FAULTMANAGER)
     mConfig.inputs.pedalAbuseAccelThreshold = pedalAbuseAccelThreshold;
     mConfig.inputs.pedalAbuseBrakeThreshold = pedalAbuseBrakeThreshold;
     mConfig.inputs.invalidDataTimeout = pedalInvalidTimeout;
+    mConfig.bms.maxCellTemp = maxCellTemperature;
+    mConfig.bms.maxCurrent = maxBatteryCurrent;
+    mConfig.bms.maxCellVoltage = maxCellVoltage;
+    mConfig.bms.minStateOfCharge = minStateOfCharge;
+    mConfig.bms.invalidDataTimeout = bmsInvalidTimeout;
 
     // Set up fault manager
     memset(&mFaultMgr, 0U, sizeof(FaultManager_T));
@@ -289,6 +303,90 @@ TEST(VEHICLELOGIC_FAULTMANAGER, FaultPedalAbuse)
     stepAndAssert(FAULT_FAULT, timeoutCount);
 }
 
+TEST(VEHICLELOGIC_FAULTMANAGER, FaultBMSCellTemperature)
+{
+    uint16_t timeoutCount = bmsInvalidTimeout / tickRateMs;
+
+    // valid voltage
+    mVehicleState.data.battery.upperCellTemperature = 500; // 50 deg
+    stepAndAssert(FAULT_NO_FAULT, timeoutCount);
+
+    // voltage too high
+    mVehicleState.data.battery.upperCellTemperature = 1000; // 100 deg
+    stepAndAssert(FAULT_NO_FAULT, timeoutCount);
+    stepAndAssert(FAULT_FAULT, timeoutCount);
+
+    // fault sticks
+    mVehicleState.data.battery.upperCellTemperature = 500; // 50 dec
+    stepAndAssert(FAULT_FAULT, timeoutCount);
+}
+
+TEST(VEHICLELOGIC_FAULTMANAGER, FaultBMSCurrent)
+{
+    uint16_t timeoutCount = bmsInvalidTimeout / tickRateMs;
+
+    // valid current
+    mVehicleState.data.battery.current = 2000; // 200 Amps
+    stepAndAssert(FAULT_NO_FAULT, timeoutCount);
+
+    // current too high
+    mVehicleState.data.battery.current = 10000; // 1,000 Amps
+    stepAndAssert(FAULT_NO_FAULT, timeoutCount);
+    stepAndAssert(FAULT_FAULT, timeoutCount);
+
+    // fault sticks
+    mVehicleState.data.battery.current = 0; // 0 Amps
+    stepAndAssert(FAULT_FAULT, timeoutCount);
+}
+
+TEST(VEHICLELOGIC_FAULTMANAGER, FaultBMSCellVoltage)
+{
+    uint16_t timeoutCount = bmsInvalidTimeout / tickRateMs;
+
+    // valid voltage
+    mVehicleState.data.battery.upperCellVoltage = 360; // 3.6v
+    stepAndAssert(FAULT_NO_FAULT, timeoutCount);
+
+    // voltage too high
+    mVehicleState.data.battery.upperCellVoltage = 480; // 4.8v
+    stepAndAssert(FAULT_NO_FAULT, timeoutCount);
+    stepAndAssert(FAULT_FAULT, timeoutCount);
+
+    // fault sticks
+    mVehicleState.data.battery.upperCellVoltage = 360; // 3.6v
+    stepAndAssert(FAULT_FAULT, timeoutCount);
+}
+
+TEST(VEHICLELOGIC_FAULTMANAGER, FaultBMSCharge)
+{
+    // valid charge
+    mVehicleState.data.battery.stateOfCarge = 8000U; // 80.00%
+    stepAndAssert(FAULT_NO_FAULT, 100U);
+
+    // voltage too high
+    mVehicleState.data.battery.stateOfCarge = 210U; // 2.10%
+    stepAndAssert(FAULT_FAULT, 100U);
+
+    // fault sticks
+    mVehicleState.data.battery.stateOfCarge = 8000U; // 80%
+    stepAndAssert(FAULT_FAULT, 100U);
+}
+
+TEST(VEHICLELOGIC_FAULTMANAGER, FaultBMSFaultInd)
+{
+    // valid charge
+    mVehicleState.data.battery.bmsFaultIndicator = false;
+    stepAndAssert(FAULT_NO_FAULT, 100U);
+
+    // voltage too high
+    mVehicleState.data.battery.bmsFaultIndicator = true;
+    stepAndAssert(FAULT_FAULT, 100U);
+
+    // fault sticks
+    mVehicleState.data.battery.bmsFaultIndicator = false;
+    stepAndAssert(FAULT_FAULT, 100U);
+}
+
 TEST_GROUP_RUNNER(VEHICLELOGIC_FAULTMANAGER)
 {
     RUN_TEST_CASE(VEHICLELOGIC_FAULTMANAGER, InitOk);
@@ -297,4 +395,9 @@ TEST_GROUP_RUNNER(VEHICLELOGIC_FAULTMANAGER)
     RUN_TEST_CASE(VEHICLELOGIC_FAULTMANAGER, FaultBrakePedalRange);
     RUN_TEST_CASE(VEHICLELOGIC_FAULTMANAGER, FaultBrakePedalConsistency);
     RUN_TEST_CASE(VEHICLELOGIC_FAULTMANAGER, FaultPedalAbuse);
+    RUN_TEST_CASE(VEHICLELOGIC_FAULTMANAGER, FaultBMSCellTemperature);
+    RUN_TEST_CASE(VEHICLELOGIC_FAULTMANAGER, FaultBMSCurrent);
+    RUN_TEST_CASE(VEHICLELOGIC_FAULTMANAGER, FaultBMSCellVoltage);
+    RUN_TEST_CASE(VEHICLELOGIC_FAULTMANAGER, FaultBMSCharge);
+    RUN_TEST_CASE(VEHICLELOGIC_FAULTMANAGER, FaultBMSFaultInd);
 }

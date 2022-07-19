@@ -28,6 +28,10 @@ typedef struct
   uint16_t brakePressureConsistencyTimerLimit;
   uint16_t pedalAbuseTimer;
   uint16_t pedalAbuseTimerLimit;
+  uint16_t cellTempOverTimer;
+  uint16_t currentOverDrawTimer;
+  uint16_t cellVoltageOverTimer;
+  uint16_t bmsFaultTimerLimit;
 } FaultManager_Internal_T;
 
 typedef struct

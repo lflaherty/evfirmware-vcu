@@ -10,6 +10,8 @@
 
 #include <stdint.h>
 
+#include "vehicleInterface/vehicleState/vehicleStateTypes.h"
+
 typedef struct
 {
     uint16_t rawLower;
@@ -37,9 +39,10 @@ typedef struct
 {
     uint32_t baseCanId;
     // Fault configuration:
-    uint16_t maxCellTemp; // [deg Celsius]
-    uint32_t maxCurrent; // max current draw [mA]
-    uint16_t maxCellVoltage; // max voltage for any cell [mV]
+    Temperature_T maxCellTemp;
+    Current_T maxCurrent; // max current draw for battery pack
+    LowVoltage_T maxCellVoltage; // max voltage for any cell
+    Percent_T minStateOfCharge; // min state of charge for the battery pack
     uint16_t invalidDataTimeout; // [ms]
     uint16_t canTimeout; // [ms]
 } Config_BMS_T;
@@ -48,10 +51,10 @@ typedef struct
 {
     uint32_t baseCanId;
     // Fault configuration:
-    uint16_t maxInternalTemp; // [deg C]
-    uint16_t maxIGBTTemp; // [deg C]
-    uint16_t maxMotorTemp; // [deg C]
-    uint32_t maxCurrentDraw; // [mA]
+    Temperature_T maxInternalTemp;
+    Temperature_T maxIGBTTemp;
+    Temperature_T maxMotorTemp;
+    Current_T maxCurrentDraw;
     uint16_t invalidDataTimeout; // [ms]
     uint16_t canTimeout; // [ms]
 } Config_Inverter_T;

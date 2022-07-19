@@ -11,6 +11,13 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+typedef int16_t Temperature_T;    // x10   -3276.8 to +3276.7 °C
+typedef int16_t LowVoltage_T;     // x100  -327.68 to +327.67 volts
+typedef int16_t HighVoltage_T;    // x10   -3276.8 to +3276.7 volts
+typedef int16_t Torque_T;         // x10   -3276.8 to +3276.7 Nm
+typedef int16_t Current_T;        // x10   -3276.8 to +3276.7 amps
+typedef uint16_t Percent_T;       // x100     0.00 to +100.00 %
+
 typedef struct
 {
   float accel; // accelerator pedal press % [0,1]
@@ -40,8 +47,11 @@ typedef struct
 
 typedef struct
 {
-  // TODO
-  // cell voltages/temperatures
+  LowVoltage_T upperCellVoltage;      // highest voltage of any cell
+  Temperature_T upperCellTemperature; // highest temp. of any cell
+  Current_T current;                  // Current draw from battery
+  Percent_T stateOfCarge;             // Battery pack SoC
+  bool bmsFaultIndicator;             // BMS indicates fault
 } VehicleState_Battery_T;
 
 typedef struct
