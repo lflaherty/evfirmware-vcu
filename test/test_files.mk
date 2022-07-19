@@ -6,6 +6,7 @@ COMMON_MOCKS=\
 	mock/stm32_hal/MockStm32f7xx_hal.c \
 	mock/stm32_hal/MockStm32f7xx_hal_can.c \
 	mock/stm32_hal/MockStm32f7xx_hal_adc.c \
+	mock/stm32_hal/MockStm32f7xx_hal_gpio.c \
 	mock/stm32_hal/MockStm32f7xx_hal_uart.c \
 	mock/stm32_hal/MockStm32f7xx_hal_tim.c
 
@@ -13,6 +14,7 @@ TEST_SRC=\
 	test/comm/can/TestCan.c \
 	test/comm/uart/TestUart.c \
 	test/io/adc/TestAdc.c \
+	test/io/gpio/TestGpio.c \
 	test/time/tasktimer/TestTaskTimer.c
 
 SRC_MOCKS=\
