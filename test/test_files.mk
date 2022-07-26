@@ -13,6 +13,7 @@ COMMON_MOCKS=\
 TEST_SRC=\
 	test/comm/can/TestCan.c \
 	test/comm/uart/TestUart.c \
+	test/comm/uart/TestMsgFrame.c \
 	test/io/adc/TestAdc.c \
 	test/io/gpio/TestGpio.c \
 	test/time/tasktimer/TestTaskTimer.c
