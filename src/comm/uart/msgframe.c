@@ -8,7 +8,29 @@
 #include "msgframe.h"
 
 #include <string.h>
+#include <assert.h>
 
+// ------------------- Private methods -------------------
+static bool verifyCrc(MsgFrame_T* mf)
+{
+  // This required for the (void*) cast to work
+  assert(CRC_INPUTDATA_FORMAT_BYTES == mf->hcrc->InputDataFormat);
+
+  uint8_t* msg = mf->data + mf->start;
+  size_t crcOffset = mf->msgLen - 6U;
+
+  uint32_t msgCrc = 0U;
+  memcpy(&msgCrc, msg + crcOffset, sizeof(uint32_t));
+  memset(msg + crcOffset, 0U, sizeof(uint32_t));
+
+  uint32_t calcCrc = HAL_CRC_Calculate(mf->hcrc, (void*)msg, mf->msgLen);
+
+  memcpy(msg + crcOffset, &msgCrc, sizeof(uint32_t));
+
+  return calcCrc == msgCrc;
+}
+
+// ------------------- Public methods -------------------
 bool MsgFrame_Init(MsgFrame_T* mf)
 {
   if (mf->msgLen > MSGFRAME_BUFFER_LEN) {
@@ -49,8 +71,7 @@ bool MsgFrame_RecvMsg(MsgFrame_T* mf, size_t* msgOffset)
 
     if (':' == startByte && '\r' == crByte && '\n' == lfByte) {
       // Do CRC check
-      bool crc = true; // TODO - implement this
-      if (crc) {
+      if (verifyCrc(mf)) {
         // Valid message
         *msgOffset = mf->start;
 
@@ -67,7 +88,7 @@ bool MsgFrame_RecvMsg(MsgFrame_T* mf, size_t* msgOffset)
     mf->start++;
   }
 
-  if (0U != mf->start) {
+  if (mf->start > 1U) {
     // no valid messages, and data is offset into the buffer
     // shift data down
     for (uint32_t i = 0U; i < usedBytes; ++i) {

@@ -8,7 +8,8 @@ COMMON_MOCKS=\
 	mock/stm32_hal/MockStm32f7xx_hal_adc.c \
 	mock/stm32_hal/MockStm32f7xx_hal_gpio.c \
 	mock/stm32_hal/MockStm32f7xx_hal_uart.c \
-	mock/stm32_hal/MockStm32f7xx_hal_tim.c
+	mock/stm32_hal/MockStm32f7xx_hal_tim.c \
+	mock/stm32_hal/MockStm32f7xx_hal_crc.c
 
 TEST_SRC=\
 	test/comm/can/TestCan.c \
