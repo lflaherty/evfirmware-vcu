@@ -1,5 +1,5 @@
 /*
- * msgframe.h
+ * msgframedecode.h
  *
  * Usage:
  *   Important: this is not thread safe. This intended to be used synchronously
@@ -8,18 +8,18 @@
  * 
  *   Use the uart interface to receive serial bytes, and store them in a
  *   buffer. Use this to extract pointers to messages in the buffer.
- *   1. Call MsgFrame_RecvByte(...) when data comes from the ISR stream buffer
- *   2. Repeatedly call MsgFrame_RecvMsg(...) and process the resulting message
+ *   1. Call MsgFrameDecode_RecvByte(...) when data comes from the ISR stream buffer
+ *   2. Repeatedly call MsgFrameDecode_RecvMsg(...) and process the resulting message
  *      (until it returns false)
- *      MsgFrame_RecvMsg will automatically trim the internal buffer once all
+ *      MsgFrameDecode_RecvMsg will automatically trim the internal buffer once all
  *      messages have been read out (i.e. when it returns false)
  *
  *  Created on: Jul 23 2021
  *      Author: Liam Flaherty
  */
 
-#ifndef COMM_UART_MSGFRAME_H_
-#define COMM_UART_MSGFRAME_H_
+#ifndef COMM_UART_MSGFRAMEDECODE_H_
+#define COMM_UART_MSGFRAMEDECODE_H_
 
 #include "stm32f7xx_hal.h"
 #include <stdint.h>
@@ -38,15 +38,15 @@ typedef struct {
   uint16_t end; // offset into `data` where to place next byte of data
   uint16_t availableBytes; // remaining bytes in buffer
   uint8_t data[MSGFRAME_BUFFER_LEN];
-} MsgFrame_T;
+} MsgFrameDecode_T;
 
 /**
- * @brief Initialize MsgFrame_T struct
+ * @brief Initialize MsgFrameDecode_T struct
  * 
  * @param msg 
  * @return Success
  */
-bool MsgFrame_Init(MsgFrame_T* mf);
+bool MsgFrameDecode_Init(MsgFrameDecode_T* mf);
 
 /**
  * @brief 
@@ -55,14 +55,14 @@ bool MsgFrame_Init(MsgFrame_T* mf);
  * @param recvNumBytes 
  * @return true If all data was inserted.
  */
-bool MsgFrame_RecvBytes(MsgFrame_T* mf,
-                        uint8_t* recvBytes,
-                        uint16_t recvNumBytes);
+bool MsgFrameDecode_RecvBytes(MsgFrameDecode_T* mf,
+                              uint8_t* recvBytes,
+                              uint16_t recvNumBytes);
 
 /**
  * @brief Processes the internal buffer to find the next valid message.
  * If a message was found, *msgOffset will be updated to contain the
- * offset into mf->data. If MsgFrame_RecvMsg returns true, mf->data[msgOffset]
+ * offset into mf->data. If MsgFrameDecode_RecvMsg returns true, mf->data[msgOffset]
  * will have mf->msgLen bytes of data.
  * 
  * Keep calling this until it returns false.
@@ -74,6 +74,6 @@ bool MsgFrame_RecvBytes(MsgFrame_T* mf,
  * @return true A message was found and the value of *msgOffset is valid.
  * @return false No more messages. Do not use the msgOffset result.
  */
-bool MsgFrame_RecvMsg(MsgFrame_T* mf, size_t* msgOffset);
+bool MsgFrameDecode_RecvMsg(MsgFrameDecode_T* mf, size_t* msgOffset);
 
-#endif // COMM_UART_MSGFRAME_H_
+#endif // COMM_UART_MSGFRAMEDECODE_H_

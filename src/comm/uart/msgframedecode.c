@@ -1,17 +1,17 @@
 /*
- * msgframe.c
+ * msgframedecode.c
  *
  *  Created on: 24 Jul 2022
  *      Author: Liam Flaherty
  */
 
-#include "msgframe.h"
+#include "msgframedecode.h"
 
 #include <string.h>
 #include <assert.h>
 
 // ------------------- Private methods -------------------
-static bool verifyCrc(MsgFrame_T* mf)
+static bool verifyCrc(MsgFrameDecode_T* mf)
 {
   // This required for the (void*) cast to work
   assert(CRC_INPUTDATA_FORMAT_BYTES == mf->hcrc->InputDataFormat);
@@ -31,7 +31,7 @@ static bool verifyCrc(MsgFrame_T* mf)
 }
 
 // ------------------- Public methods -------------------
-bool MsgFrame_Init(MsgFrame_T* mf)
+bool MsgFrameDecode_Init(MsgFrameDecode_T* mf)
 {
   if (mf->msgLen > MSGFRAME_BUFFER_LEN) {
     return false;
@@ -44,7 +44,7 @@ bool MsgFrame_Init(MsgFrame_T* mf)
   return true;
 }
 
-bool MsgFrame_RecvBytes(MsgFrame_T* mf,
+bool MsgFrameDecode_RecvBytes(MsgFrameDecode_T* mf,
                         uint8_t* recvBytes,
                         uint16_t recvNumBytes)
 {
@@ -59,7 +59,7 @@ bool MsgFrame_RecvBytes(MsgFrame_T* mf,
   return true;
 }
 
-bool MsgFrame_RecvMsg(MsgFrame_T* mf, size_t* msgOffset)
+bool MsgFrameDecode_RecvMsg(MsgFrameDecode_T* mf, size_t* msgOffset)
 {
   uint32_t usedBytes = mf->end - mf->start;
 
