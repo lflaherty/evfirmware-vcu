@@ -15,6 +15,7 @@ TEST_SRC=\
 	test/comm/can/TestCan.c \
 	test/comm/uart/TestUart.c \
 	test/comm/uart/TestMsgFrameDecode.c \
+	test/comm/uart/TestMsgFrameEncode.c \
 	test/io/adc/TestAdc.c \
 	test/io/gpio/TestGpio.c \
 	test/time/tasktimer/TestTaskTimer.c
