@@ -14,10 +14,10 @@
 // source code under test
 #include "comm/uart/msgframedecode.c"
 
-const uint16_t MSG_LEN = 11U;
+static const uint16_t MSG_LEN = 11U;
 
-CRC_HandleTypeDef hcrc;
-MsgFrameDecode_T mMsgFrame;
+static CRC_HandleTypeDef hcrc;
+static MsgFrameDecode_T mMsgFrame;
 
 // Helper macro for changing endianness
 #define BIG_TO_LITTLE_ENDIAN_U32(x) (((x >> 24) & 0xff) | \
