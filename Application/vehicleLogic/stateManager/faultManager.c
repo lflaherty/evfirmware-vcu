@@ -7,6 +7,7 @@
 
 #include "faultManager.h"
 #include <math.h>
+#include <string.h>
 
 // ------------------- Private data -------------------
 static Logging_T* mLog;
