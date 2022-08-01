@@ -36,23 +36,37 @@ static ECU_Init_Status_T ECU_Init_System3(void);  // Init external peripherals
 static ECU_Init_Status_T ECU_Init_App1(void);     // Init application vehicle interface (devices depends on this to push data)
 static ECU_Init_Status_T ECU_Init_App2(void);     // Init application devices
 static ECU_Init_Status_T ECU_Init_App3(void);     // Init application processes
+static void ECU_Init_Hang(void);
+
+//------------------------------------------------------------------------------
+void ECU_Init_Hang(void)
+{
+  logPrintS(&mLog, "ECU Failed to initialize\n", LOGGING_DEFAULT_BUFF_LEN);
+
+  while (1);
+}
 
 //------------------------------------------------------------------------------
 ECU_Init_Status_T ECU_Init(void)
 {
-  ECU_Init_Status_T ret = ECU_INIT_OK;
-
   // Initialize components
-  ret |= ECU_Init_System1();
-  ret |= ECU_Init_System2();
-  ret |= ECU_Init_System3();
-  ret |= ECU_Init_App1();
-  ret |= ECU_Init_App2();
-  ret |= ECU_Init_App3();
-
-  if (ret != ECU_INIT_OK) {
-    logPrintS(&mLog, "Failed to initialize\n", LOGGING_DEFAULT_BUFF_LEN);
-    return ret;
+  if (ECU_INIT_OK != ECU_Init_System1()) {
+    ECU_Init_Hang();
+  }
+  if (ECU_INIT_OK != ECU_Init_System2()) {
+    ECU_Init_Hang();
+  }
+  if (ECU_INIT_OK != ECU_Init_System3()) {
+    ECU_Init_Hang();
+  }
+  if (ECU_INIT_OK != ECU_Init_App1()) {
+    ECU_Init_Hang();
+  }
+  if (ECU_INIT_OK != ECU_Init_App2()) {
+    ECU_Init_Hang();
+  }
+  if (ECU_INIT_OK != ECU_Init_App3()) {
+    ECU_Init_Hang();
   }
 
   logPrintS(&mLog, "ECU_Init complete\n", LOGGING_DEFAULT_BUFF_LEN);
