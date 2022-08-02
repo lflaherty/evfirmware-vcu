@@ -12,15 +12,11 @@
 #include <string.h>  // for memset
 
 #include "lib/logging/logging.h"
-#include "comm/can/can.h"
-#include "comm/uart/uart.h"
-#include "io/adc/adc.h"
 #include "time/tasktimer/tasktimer.h"
-#include "time/rtc/rtc.h"
 
-#include "device/inverter/cInverter.h"
 #include "vehicleInterface/config/deviceMapping.h"
-#include "vehicleInterface/vehicleState/vehicleState.h"
+
+#include "vehicleLogic/watchdogTrigger/watchdogTrigger.h"
 
 // ------------------- Private data -------------------
 static Logging_T mLog;
@@ -85,15 +81,7 @@ static ECU_Init_Status_T ECU_Init_System1(void)
   logPrintS(&mLog, "###### ECU_Init_System1 ######\n", LOGGING_DEFAULT_BUFF_LEN);
 
   // UART
-  if (UART_Init(&mLog) != UART_STATUS_OK) {
-    logPrintS(&mLog, "UART initialization error\n", LOGGING_DEFAULT_BUFF_LEN);
-    return ECU_INIT_ERROR;
-  }
-
-  if (UART_Config(Mapping_GetUART1()) != UART_STATUS_OK) {
-    logPrintS(&mLog, "UART config error\n", LOGGING_DEFAULT_BUFF_LEN);
-    return ECU_INIT_ERROR;
-  }
+  // Not configured in this release
 
   // enable serial logging
   mLog.enableLogToSerial = true;
@@ -108,36 +96,10 @@ static ECU_Init_Status_T ECU_Init_System2(void)
   logPrintS(&mLog, "###### ECU_Init_System2 ######\n", LOGGING_DEFAULT_BUFF_LEN);
 
   // CAN bus
-  if (CAN_Init(&mLog) != CAN_STATUS_OK) {
-    logPrintS(&mLog, "CAN initialization error\n", LOGGING_DEFAULT_BUFF_LEN);
-    return ECU_INIT_ERROR;
-  }
-
-  if (CAN_Config(Mapping_GetCAN1()) != CAN_STATUS_OK) {
-    logPrintS(&mLog, "CAN1 config error\n", LOGGING_DEFAULT_BUFF_LEN);
-    return ECU_INIT_ERROR;
-  }
-
-  if (CAN_Config(Mapping_GetCAN2()) != CAN_STATUS_OK) {
-    logPrintS(&mLog, "CAN2 config error\n", LOGGING_DEFAULT_BUFF_LEN);
-    return ECU_INIT_ERROR;
-  }
-
-  if (CAN_Config(Mapping_GetCAN3()) != CAN_STATUS_OK) {
-    logPrintS(&mLog, "CAN3 config error\n", LOGGING_DEFAULT_BUFF_LEN);
-    return ECU_INIT_ERROR;
-  }
+  // Not configured in this release
 
   // ADC
-  if (ADC_Init(&mLog, MAPPING_ADC_NUM_CHANNELS, 16) != ADC_STATUS_OK) {
-    logPrintS(&mLog, "ADC initialization error\n", LOGGING_DEFAULT_BUFF_LEN);
-    return ECU_INIT_ERROR;
-  }
-
-  if (ADC_Config(Mapping_GetADC()) != ADC_STATUS_OK) {
-    logPrintS(&mLog, "ADC config error\n", LOGGING_DEFAULT_BUFF_LEN);
-    return ECU_INIT_ERROR;
-  }
+  // Not configured in this release
 
   // Timers
   if (TaskTimer_Init(&mLog, Mapping_GetTaskTimer()) != TASKTIMER_STATUS_OK) {
@@ -146,10 +108,7 @@ static ECU_Init_Status_T ECU_Init_System2(void)
   }
 
   // RTC
-  if (RTC_Init(&mLog) != RTC_STATUS_OK) {
-    logPrintS(&mLog, "RTC initialization error\n", LOGGING_DEFAULT_BUFF_LEN);
-    return ECU_INIT_ERROR;
-  }
+  // Not configured in this release
 
   return ECU_INIT_OK;
 }
@@ -159,6 +118,8 @@ static ECU_Init_Status_T ECU_Init_System3(void)
 {
   logPrintS(&mLog, "###### ECU_Init_System3 ######\n", LOGGING_DEFAULT_BUFF_LEN);
 
+  // Not configured in this release
+
   return ECU_INIT_OK;
 }
 
@@ -166,12 +127,8 @@ static ECU_Init_Status_T ECU_Init_System3(void)
 static ECU_Init_Status_T ECU_Init_App1(void)
 {
   logPrintS(&mLog, "###### ECU_Init_App2 ######\n", LOGGING_DEFAULT_BUFF_LEN);
-
-  memset(&mVehicleState, 0, sizeof(mVehicleState));
-  if (VehicleState_Init(&mLog, &mVehicleState) != VEHICLESTATE_STATUS_OK) {
-    logPrintS(&mLog, "VehicleState initialization error\n", LOGGING_DEFAULT_BUFF_LEN);
-    return ECU_INIT_ERROR;
-  }
+  
+  // Not configured in this release
 
   return ECU_INIT_OK;
 }
@@ -181,15 +138,7 @@ static ECU_Init_Status_T ECU_Init_App2(void)
 {
   logPrintS(&mLog, "###### ECU_Init_App1 ######\n", LOGGING_DEFAULT_BUFF_LEN);
 
-  // Inverter
-  memset(&mInverter, 0, sizeof(mInverter));
-  mInverter.hcan = Mapping_GetCAN1();
-  mInverter.canIdBase = 0;
-  mInverter.vehicleState = &mVehicleState;
-  if (CInverter_Init(&mLog, &mInverter) != CINVERTER_STATUS_OK) {
-    logPrintS(&mLog, "Inverter initialization error\n", LOGGING_DEFAULT_BUFF_LEN);
-    return ECU_INIT_ERROR;
-  }
+  // Not configured in this release
 
   return ECU_INIT_OK;
 }
@@ -208,4 +157,3 @@ static ECU_Init_Status_T ECU_Init_App3(void)
 
   return ECU_INIT_OK;
 }
-
