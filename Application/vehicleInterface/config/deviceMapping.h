@@ -11,6 +11,7 @@
 #include "stm32f7xx_hal.h"
 #include <stdint.h>
 #include "io/adc/adc.h" /* Needed for ADC_Channel_T */
+#include "io/gpio/gpio.h" /* Needed for GPIO_T */
 
 /*
  * Include main for the auto-generated pin names
@@ -48,6 +49,8 @@
 #define MAPPING_ADC_MPIO6         MAPPING_ADC1_CHANNEL3
 #define MAPPING_ADC_MPIO7         MAPPING_ADC1_CHANNEL0
 #define MAPPING_ADC_MPIO8         MAPPING_ADC1_CHANNEL1
+
+extern GPIO_T Mapping_GPIO_LED;
 
 /*
  * Getters for device handles

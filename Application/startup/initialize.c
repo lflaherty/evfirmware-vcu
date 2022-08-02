@@ -26,8 +26,12 @@
 static Logging_T mLog;
 
 // ------------------- Module structures -------------------
+<<<<<<< Updated upstream
 static CInverter_T mInverter;
 static VehicleState_T mVehicleState;
+=======
+static WatchdogTrigger_T mWdtTrigger;
+>>>>>>> Stashed changes
 
 // ------------------- Private prototypes -------------------
 static ECU_Init_Status_T ECU_Init_System1(void);  // Init basics for logging
@@ -199,6 +203,13 @@ static ECU_Init_Status_T ECU_Init_App2(void)
 static ECU_Init_Status_T ECU_Init_App3(void)
 {
   logPrintS(&mLog, "###### ECU_Init_App3 ######\n", LOGGING_DEFAULT_BUFF_LEN);
+
+  // Watchdog Trigger
+  mWdtTrigger.blinkLED = &Mapping_GPIO_LED;
+  if (WatchdogTrigger_Init(&mLog, &mWdtTrigger) != WATCHDOGTRIGGER_STATUS_OK) {
+    logPrintS(&mLog, "Watchdog Trigger initialization error\n", LOGGING_DEFAULT_BUFF_LEN);
+    return ECU_INIT_ERROR;
+  }
 
   return ECU_INIT_OK;
 }

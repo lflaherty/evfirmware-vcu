@@ -8,6 +8,9 @@
 #include "deviceMapping.h"
 #include "stm32f7xx_hal.h"
 
+GPIO_T Mapping_GPIO_LED = {
+  .GPIOx = STATUS_LED_GPIO_Port, .GPIO_Pin = STATUS_LED_Pin
+};
 
 extern ADC_HandleTypeDef hadc1;
 extern DMA_HandleTypeDef hdma_adc1;
