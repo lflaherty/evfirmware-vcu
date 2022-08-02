@@ -26,12 +26,7 @@
 static Logging_T mLog;
 
 // ------------------- Module structures -------------------
-<<<<<<< Updated upstream
-static CInverter_T mInverter;
-static VehicleState_T mVehicleState;
-=======
 static WatchdogTrigger_T mWdtTrigger;
->>>>>>> Stashed changes
 
 // ------------------- Private prototypes -------------------
 static ECU_Init_Status_T ECU_Init_System1(void);  // Init basics for logging
