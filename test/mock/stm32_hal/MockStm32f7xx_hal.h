@@ -21,6 +21,6 @@
 
 uint32_t stubITM_SendChar(uint32_t ch);
 
-#define ITM_SendChar stubITM_SendChar;
+#define ITM_SendChar stubITM_SendChar
 
 #endif
