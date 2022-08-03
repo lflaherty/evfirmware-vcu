@@ -14,7 +14,8 @@ TEST_SRC+=\
 	test/vehicleLogic/stateManager/TestFaultManager.c \
 	test/vehicleLogic/throttleController/TestThrottleController.c \
 	test/vehicleLogic/throttleController/TestTorqueMap.c \
-	test/vehicleLogic/watchdogTrigger/TestWatchdogTrigger.c
+	test/vehicleLogic/watchdogTrigger/TestWatchdogTrigger.c \
+	test/device/pcdebug/TestPCDebug.c
 
 SRC_MOCKS+=\
 	mock/Application/vehicleLogic/stateManager/MockFaultManager.c \
