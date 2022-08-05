@@ -1,6 +1,7 @@
 COMMON_MOCKS=\
 	mock/FreeRTOS/mockFreeRTOS.c \
 	mock/FreeRTOS/mockQueue.c \
+	mock/FreeRTOS/mockStreamBuffer.c \
 	mock/FreeRTOS/mockTask.c \
 	mock/FreeRTOS/mockSemphr.c \
 	mock/stm32_hal/MockStm32f7xx_hal.c \
@@ -18,7 +19,8 @@ TEST_SRC=\
 	test/comm/uart/TestMsgFrameEncode.c \
 	test/io/adc/TestAdc.c \
 	test/io/gpio/TestGpio.c \
-	test/time/tasktimer/TestTaskTimer.c
+	test/time/tasktimer/TestTaskTimer.c \
+	test/lib/logging/TestLogging.c
 
 SRC_MOCKS=\
 	mock/lib/logging/MockLogging.c \

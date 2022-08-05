@@ -8,7 +8,9 @@
 #ifndef LIB_LOGGING_LOGGING_H_
 #define LIB_LOGGING_LOGGING_H_
 
-#include "stm32f7xx_hal.h"
+#include "FreeRTOS.h"
+#include "semphr.h"
+#include "stream_buffer.h"
 #include <stddef.h>
 #include <stdbool.h>
 
@@ -28,10 +30,21 @@ typedef struct {
   bool enableLogToDebug;
   bool enableLogToLogFile;
 
-  UART_HandleTypeDef* handleSerial; // Serial port to log to
+  // ******* Internal use *******
+  // Mutex lock
+  SemaphoreHandle_t mutex;
+  StaticSemaphore_t mutexBuffer;
 
-  // TODO log file
+  StreamBufferHandle_t serialOutputStream;
 } Logging_T;
+
+/**
+ * @brief Initialize logging module
+ *
+ * @param log Log struct
+ * @return LOGGING_STATUS_OK if successful
+ */
+Logging_Status_T Log_Init(Logging_T* log);
 
 /**
  * Log a message

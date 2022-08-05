@@ -19,11 +19,19 @@ int _write(int file, char *ptr, int len)
   
   int i=0;
   for(i = 0; i < len; i++) {
-    ITM_SendChar((*ptr++));
+    uint32_t chr = (uint32_t)(*ptr++);
+    ITM_SendChar(chr);
   }
   return len;
 }
+
 //------------------------------------------------------------------------------
+Logging_Status_T Log_Init(Logging_T* log)
+{
+  log->mutex = xSemaphoreCreateBinaryStatic(&log->mutexBuffer);
+
+  return LOGGING_STATUS_OK;
+}
 
 //------------------------------------------------------------------------------
 Logging_Status_T logPrint(const Logging_T* logData, const char* message, const size_t len)
@@ -36,8 +44,9 @@ Logging_Status_T logPrint(const Logging_T* logData, const char* message, const s
     printf("%s", message);
   }
 
-  if (logData->enableLogToSerial && NULL != logData->handleSerial) {
-    // TODO
+  if (logData->enableLogToSerial && NULL != logData->serialOutputStream) {
+    xStreamBufferSend(logData->serialOutputStream, (void*)message, len,
+                      pdMS_TO_TICKS(100));
   }
 
   if (logData->enableLogToLogFile) {

@@ -17,4 +17,5 @@ static void RunSystemTests(void)
     RUN_TEST_GROUP(IO_ADC);
     RUN_TEST_GROUP(IO_GPIO);
     RUN_TEST_GROUP(TIME_TASKTIMER);
+    RUN_TEST_GROUP(LIB_LOGGING);
 }
