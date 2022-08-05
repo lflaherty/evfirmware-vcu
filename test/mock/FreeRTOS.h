@@ -12,6 +12,8 @@
 #include <stdint.h>
 #include <stddef.h>
 
+#define pdMS_TO_TICKS(x) (x * 10)  /* Good enough for the mock */
+
 // ================== Define types ==================
 typedef struct
 {
@@ -23,6 +25,12 @@ typedef struct xSTATIC_QUEUE
     size_t itemSize;
     // Must be kept the same as QueueDefinition in queue.h
 } StaticQueue_t;
+
+typedef struct
+{
+    size_t itemSize;
+    // Must be kept the same as StreamBufferDef_t in stream_buffer.h
+} StaticStreamBuffer_t;
 
 typedef StaticQueue_t StaticSemaphore_t;
 
