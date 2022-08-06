@@ -246,7 +246,7 @@ static void CInverter_Callback_FluxWeakening(const CAN_DataFrame_T* data, const 
 CInverter_Status_T CInverter_Init(Logging_T* logger, CInverter_T* inv)
 {
   mLog = logger;
-  logPrintS(mLog, "CInverter_Init begin\n", LOGGING_DEFAULT_BUFF_LEN);
+  Log_Print(mLog, "CInverter_Init begin\n");
 
   // Register callbacks
   CAN_Status_T callbackRegStatus = CAN_STATUS_OK;
@@ -266,6 +266,6 @@ CInverter_Status_T CInverter_Init(Logging_T* logger, CInverter_T* inv)
     return CINVERTER_STATUS_ERROR_CAN;
   }
 
-  logPrintS(mLog, "CInverter_Init complete\n", LOGGING_DEFAULT_BUFF_LEN);
+  Log_Print(mLog, "CInverter_Init complete\n");
   return CINVERTER_STATUS_OK;
 }

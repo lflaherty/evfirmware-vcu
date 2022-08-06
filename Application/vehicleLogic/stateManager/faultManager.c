@@ -208,7 +208,7 @@ static uint32_t isLVErrorInverter(FaultManager_T* faultMgr, VehicleState_Data_T*
 void FaultManager_Init(Logging_T* logger, FaultManager_T* faultMgr)
 {
   mLog = logger;
-  logPrintS(mLog, "FaultManager_Init begin\n", LOGGING_DEFAULT_BUFF_LEN);
+  Log_Print(mLog, "FaultManager_Init begin\n");
 
   memset(&faultMgr->internal, 0U, sizeof(FaultManager_Internal_T));
 
@@ -226,7 +226,7 @@ void FaultManager_Init(Logging_T* logger, FaultManager_T* faultMgr)
   faultMgr->internal.bmsFaultTimerLimit =
       faultMgr->vehicleConfig->bms.invalidDataTimeout / faultMgr->tickRateMs;
 
-  logPrintS(mLog, "FaultManager_Init complete\n", LOGGING_DEFAULT_BUFF_LEN);
+  Log_Print(mLog, "FaultManager_Init complete\n");
 }
 
 FaultStatus_T FaultManager_Step(FaultManager_T* faultMgr)

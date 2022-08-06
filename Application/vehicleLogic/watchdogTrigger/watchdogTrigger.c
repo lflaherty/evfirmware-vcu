@@ -46,7 +46,7 @@ WatchdogTrigger_Status_T WatchdogTrigger_Init(
     WatchdogTrigger_T* wdtTrigger)
 {
   mLog = logger;
-  logPrintS(mLog, "WatchdogTrigger_Init begin\n", LOGGING_DEFAULT_BUFF_LEN);
+  Log_Print(mLog, "WatchdogTrigger_Init begin\n");
 
   wdtTrigger->counter = 0U;
 
@@ -70,6 +70,6 @@ WatchdogTrigger_Status_T WatchdogTrigger_Init(
     return WATCHDOGTRIGGER_STATUS_ERROR_INIT;
   }
 
-  logPrintS(mLog, "WatchdogTrigger_Init complete\n", LOGGING_DEFAULT_BUFF_LEN);
+  Log_Print(mLog, "WatchdogTrigger_Init complete\n");
   return WATCHDOGTRIGGER_STATUS_OK;
 }

@@ -80,7 +80,7 @@ ThrottleController_Status_T ThrottleController_Init(
     ThrottleController_T* throttleControl)
 {
   mLog = logger;
-  logPrintS(mLog, "ThrottleController_Init begin\n", LOGGING_DEFAULT_BUFF_LEN);
+  Log_Print(mLog, "ThrottleController_Init begin\n");
 
   throttleControl->torqueMapForward = &TorqueMap_Default;
   throttleControl->torqueMapReverse = &TorqueMap_DefaultReverse;
@@ -107,7 +107,7 @@ ThrottleController_Status_T ThrottleController_Init(
     return THROTTLECONTROLLER_STATUS_ERROR_INIT;
   }
 
-  logPrintS(mLog, "ThrottleController_Init complete\n", LOGGING_DEFAULT_BUFF_LEN);
+  Log_Print(mLog, "ThrottleController_Init complete\n");
   return THROTTLECONTROLLER_STATUS_OK;
 }
 

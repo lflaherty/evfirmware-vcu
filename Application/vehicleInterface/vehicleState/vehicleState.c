@@ -54,7 +54,7 @@ static void StateProcessing_Task(void* pvParameters)
 VehicleState_Status_T VehicleState_Init(Logging_T* logger, VehicleState_T* state)
 {
   mLog = logger;
-  logPrintS(mLog, "VehicleState_Init begin\n", LOGGING_DEFAULT_BUFF_LEN);
+  Log_Print(mLog, "VehicleState_Init begin\n");
 
   memset(&state->data, 0, sizeof(state->data)); // initialize data to 0
 
@@ -85,7 +85,7 @@ VehicleState_Status_T VehicleState_Init(Logging_T* logger, VehicleState_T* state
     return VEHICLESTATE_STATUS_ERROR_INIT;
   }
 
-  logPrintS(mLog, "VehicleState_Init complete\n", LOGGING_DEFAULT_BUFF_LEN);
+  Log_Print(mLog, "VehicleState_Init complete\n");
   return VEHICLESTATE_STATUS_OK;
 }
 

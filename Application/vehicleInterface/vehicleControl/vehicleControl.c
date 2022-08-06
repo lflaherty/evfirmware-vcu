@@ -18,11 +18,11 @@ static Logging_T* mLog;
 VehicleControl_Status_T VehicleControl_Init(Logging_T* logger)
 {
   mLog = logger;
-  logPrintS(mLog, "VehicleControl_Init begin\n", LOGGING_DEFAULT_BUFF_LEN);
+  Log_Print(mLog, "VehicleControl_Init begin\n");
 
   // Nothing to do
 
-  logPrintS(mLog, "VehicleControl_Init complete\n", LOGGING_DEFAULT_BUFF_LEN);
+  Log_Print(mLog, "VehicleControl_Init complete\n");
   return VEHICLECONTORL_STATUS_OK;
 }
 

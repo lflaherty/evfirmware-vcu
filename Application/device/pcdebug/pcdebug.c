@@ -39,7 +39,7 @@ PCDebug_Status_T PCDebug_Init(
     PCDebug_T* pcdebug)
 {
   mLog = logger;
-  logPrintS(mLog, "PCDebug_Init begin\n", LOGGING_DEFAULT_BUFF_LEN);
+  Log_Print(mLog, "PCDebug_Init begin\n");
 
   // Create mutex lock
   pcdebug->mutex = xSemaphoreCreateBinaryStatic(&pcdebug->mutexBuffer);
@@ -63,6 +63,6 @@ PCDebug_Status_T PCDebug_Init(
 
   // Register to receive logging data
 
-  logPrintS(mLog, "PCDebug_Init complete\n", LOGGING_DEFAULT_BUFF_LEN);
+  Log_Print(mLog, "PCDebug_Init complete\n");
   return PCDEBUG_STATUS_OK;
 }

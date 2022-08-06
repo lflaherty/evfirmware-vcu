@@ -198,7 +198,7 @@ static void stateFault(VSM_T* vsm)
 void VSM_Init(Logging_T* logger, VSM_T* vsm)
 {
   mLog = logger;
-  logPrintS(mLog, "VSM_Init begin\n", LOGGING_DEFAULT_BUFF_LEN);
+  Log_Print(mLog, "VSM_Init begin\n");
 
   vsm->vsmState = VSM_STATE_INIT;
   vsm->nextState = VSM_STATE_INIT;
@@ -209,7 +209,7 @@ void VSM_Init(Logging_T* logger, VSM_T* vsm)
   vsm->faultMgr.tickRateMs = vsm->tickRateMs;
   FaultManager_Init(logger, &vsm->faultMgr);
 
-  logPrintS(mLog, "VSM_Init complete\n", LOGGING_DEFAULT_BUFF_LEN);
+  Log_Print(mLog, "VSM_Init complete\n");
 }
 
 void VSM_Step(VSM_T* vsm)

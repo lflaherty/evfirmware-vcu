@@ -36,7 +36,7 @@ static void ECU_Init_Hang(void);
 //------------------------------------------------------------------------------
 void ECU_Init_Hang(void)
 {
-  logPrintS(&mLog, "ECU Failed to initialize\n", LOGGING_DEFAULT_BUFF_LEN);
+  Log_Print(&mLog, "ECU Failed to initialize\n");
 
   while (1);
 }
@@ -64,7 +64,7 @@ ECU_Init_Status_T ECU_Init(void)
     ECU_Init_Hang();
   }
 
-  logPrintS(&mLog, "ECU_Init complete\n", LOGGING_DEFAULT_BUFF_LEN);
+  Log_Print(&mLog, "ECU_Init complete\n");
 
   return ECU_INIT_OK;
 }
@@ -84,7 +84,7 @@ static ECU_Init_Status_T ECU_Init_System1(void)
     return ECU_INIT_ERROR;
   }
 
-  logPrintS(&mLog, "###### ECU_Init_System1 ######\n", LOGGING_DEFAULT_BUFF_LEN);
+  Log_Print(&mLog, "###### ECU_Init_System1 ######\n");
 
   // UART
   // Not configured in this release
@@ -98,7 +98,7 @@ static ECU_Init_Status_T ECU_Init_System1(void)
 //------------------------------------------------------------------------------
 static ECU_Init_Status_T ECU_Init_System2(void)
 {
-  logPrintS(&mLog, "###### ECU_Init_System2 ######\n", LOGGING_DEFAULT_BUFF_LEN);
+  Log_Print(&mLog, "###### ECU_Init_System2 ######\n");
 
   // CAN bus
   // Not configured in this release
@@ -108,7 +108,7 @@ static ECU_Init_Status_T ECU_Init_System2(void)
 
   // Timers
   if (TaskTimer_Init(&mLog, Mapping_GetTaskTimer()) != TASKTIMER_STATUS_OK) {
-    logPrintS(&mLog, "Task Timer initialization error\n", LOGGING_DEFAULT_BUFF_LEN);
+    Log_Print(&mLog, "Task Timer initialization error\n");
     return ECU_INIT_ERROR;
   }
 
@@ -121,7 +121,7 @@ static ECU_Init_Status_T ECU_Init_System2(void)
 //------------------------------------------------------------------------------
 static ECU_Init_Status_T ECU_Init_System3(void)
 {
-  logPrintS(&mLog, "###### ECU_Init_System3 ######\n", LOGGING_DEFAULT_BUFF_LEN);
+  Log_Print(&mLog, "###### ECU_Init_System3 ######\n");
 
   // Not configured in this release
 
@@ -131,7 +131,7 @@ static ECU_Init_Status_T ECU_Init_System3(void)
 //------------------------------------------------------------------------------
 static ECU_Init_Status_T ECU_Init_App1(void)
 {
-  logPrintS(&mLog, "###### ECU_Init_App2 ######\n", LOGGING_DEFAULT_BUFF_LEN);
+  Log_Print(&mLog, "###### ECU_Init_App2 ######\n");
   
   // Not configured in this release
 
@@ -141,7 +141,7 @@ static ECU_Init_Status_T ECU_Init_App1(void)
 //------------------------------------------------------------------------------
 static ECU_Init_Status_T ECU_Init_App2(void)
 {
-  logPrintS(&mLog, "###### ECU_Init_App1 ######\n", LOGGING_DEFAULT_BUFF_LEN);
+  Log_Print(&mLog, "###### ECU_Init_App1 ######\n");
 
   // Not configured in this release
 
@@ -151,12 +151,12 @@ static ECU_Init_Status_T ECU_Init_App2(void)
 //------------------------------------------------------------------------------
 static ECU_Init_Status_T ECU_Init_App3(void)
 {
-  logPrintS(&mLog, "###### ECU_Init_App3 ######\n", LOGGING_DEFAULT_BUFF_LEN);
+  Log_Print(&mLog, "###### ECU_Init_App3 ######\n");
 
   // Watchdog Trigger
   mWdtTrigger.blinkLED = &Mapping_GPIO_LED;
   if (WatchdogTrigger_Init(&mLog, &mWdtTrigger) != WATCHDOGTRIGGER_STATUS_OK) {
-    logPrintS(&mLog, "Watchdog Trigger initialization error\n", LOGGING_DEFAULT_BUFF_LEN);
+    Log_Print(&mLog, "Watchdog Trigger initialization error\n");
     return ECU_INIT_ERROR;
   }
 

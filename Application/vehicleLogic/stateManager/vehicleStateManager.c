@@ -38,7 +38,7 @@ static void StateManagerProcessing_Task(void* pvParameters)
 VehicleStateManager_Status_T VehicleStateManager_Init(Logging_T* logger, VehicleStateManager_T* sm)
 {
   mLog = logger;
-  logPrintS(mLog, "VehicleStateManager_Init begin\n", LOGGING_DEFAULT_BUFF_LEN);
+  Log_Print(mLog, "VehicleStateManager_Init begin\n");
 
   sm->vsm.inputState = sm->inputState;
   sm->vsm.control = sm->control;
@@ -64,6 +64,6 @@ VehicleStateManager_Status_T VehicleStateManager_Init(Logging_T* logger, Vehicle
     return STATEMANAGER_STATUS_ERROR_INIT;
   }
 
-  logPrintS(mLog, "VehicleStateManager_Init complete\n", LOGGING_DEFAULT_BUFF_LEN);
+  Log_Print(mLog, "VehicleStateManager_Init complete\n");
   return STATEMANAGER_STATUS_OK;
 }
