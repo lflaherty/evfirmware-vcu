@@ -148,7 +148,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 CAN_Status_T CAN_Init(Logging_T* logger)
 {
   logging = logger;
-  logPrintS(logging, "CAN_Init begin\n", LOGGING_DEFAULT_BUFF_LEN);
+  Log_Print(logging, "CAN_Init begin\n");
   // Initialize mem to 0
   memset(&canBusInfo, 0, sizeof(canBusInfo));
 
@@ -169,7 +169,7 @@ CAN_Status_T CAN_Init(Logging_T* logger)
       canBusTask.xTask,
       &canBusTask.xTaskBuffer);
 
-  logPrintS(logging, "CAN_Init complete\n", LOGGING_DEFAULT_BUFF_LEN);
+  Log_Print(logging, "CAN_Init complete\n");
   return CAN_STATUS_OK;
 }
 
@@ -177,7 +177,7 @@ CAN_Status_T CAN_Init(Logging_T* logger)
 // Rename to CAN_Start
 CAN_Status_T CAN_Config(CAN_HandleTypeDef* handle)
 {
-  logPrintS(logging, "CAN_Config begin\n", LOGGING_DEFAULT_BUFF_LEN);
+  Log_Print(logging, "CAN_Config begin\n");
 
   // Filter config
   CAN_FilterTypeDef  sFilterConfig;
@@ -207,7 +207,7 @@ CAN_Status_T CAN_Config(CAN_HandleTypeDef* handle)
     return CAN_STATUS_ERROR_START_NOTIFY;
   }
 
-  logPrintS(logging, "CAN_Config complete\n", LOGGING_DEFAULT_BUFF_LEN);
+  Log_Print(logging, "CAN_Config complete\n");
   return CAN_STATUS_OK;
 }
 

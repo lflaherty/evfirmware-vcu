@@ -20,11 +20,11 @@ static Logging_T* log;
 RTC_Status_T RTC_Init(Logging_T* logger)
 {
   log = logger;
-  logPrintS(log, "RTC_Init begin\n", LOGGING_DEFAULT_BUFF_LEN);
+  Log_Print(log, "RTC_Init begin\n");
 
   // Nothing to do here
 
-  logPrintS(log, "RTC_Init complete\n", LOGGING_DEFAULT_BUFF_LEN);
+  Log_Print(log, "RTC_Init complete\n");
   return RTC_STATUS_OK;
 }
 

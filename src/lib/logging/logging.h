@@ -14,7 +14,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-#define LOGGING_DEFAULT_BUFF_LEN 256
+#define LOGGING_MAX_MSG_LEN 256
 
 /**
  * These error statuses are arranged to be bit fields.
@@ -74,24 +74,6 @@ Logging_Status_T Log_EnableSWO(Logging_T* log);
  * @param msg Char array of message.
  */
 void Log_Print(Logging_T* log, const char* msg);
-
-/**
- * Log a message
- * @param logData Log config
- * @param message Log text
- * @param len Length of message
- * @return Success/fail status
- */
-Logging_Status_T logPrint(Logging_T* logData, const char* message, const size_t len);
-
-/**
- * Print a string, and determine it's size (up to bufferLen)
- * @param logData Log config
- * @param message Log text
- * @param bufferLen Length of buffer that stores the string
- * @return Success/fail status
- */
-Logging_Status_T logPrintS(Logging_T* logData, const char* message, const size_t bufferLen);
 
 /**
  * strlen with a max iteration length

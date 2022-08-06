@@ -167,7 +167,7 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 UART_Status_T UART_Init(Logging_T* logger)
 {
   mLog = logger;
-  logPrintS(mLog, "UART_Init begin\n", LOGGING_DEFAULT_BUFF_LEN);
+  Log_Print(mLog, "UART_Init begin\n");
   isReady = false;
 
   // Initialize mem to 0
@@ -192,19 +192,19 @@ UART_Status_T UART_Init(Logging_T* logger)
 
   isReady = true;
 
-  logPrintS(mLog, "UART_Init complete\n", LOGGING_DEFAULT_BUFF_LEN);
+  Log_Print(mLog, "UART_Init complete\n");
   return UART_STATUS_OK;
 }
 
 //------------------------------------------------------------------------------
 UART_Status_T UART_Config(UART_HandleTypeDef* handle)
 {
-  logPrintS(mLog, "UART_Config begin\n", LOGGING_DEFAULT_BUFF_LEN);
+  Log_Print(mLog, "UART_Config begin\n");
 
   HAL_UART_Receive_DMA(handle, uartDmaData, 2);
   // TODO is this needed?
 
-  logPrintS(mLog, "UART_Config complete\n", LOGGING_DEFAULT_BUFF_LEN);
+  Log_Print(mLog, "UART_Config complete\n");
   return UART_STATUS_OK;
 }
 

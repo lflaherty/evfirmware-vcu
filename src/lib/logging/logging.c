@@ -72,10 +72,10 @@ void Log_Print(Logging_T* log, const char* msg)
     return;
   }
 
-  size_t len = strnlen(msg, LOGGING_DEFAULT_BUFF_LEN);
+  size_t len = strnlen(msg, LOGGING_MAX_MSG_LEN);
 
   if (log->enableSWO) {
-    if (LOGGING_DEFAULT_BUFF_LEN == len) {
+    if (LOGGING_MAX_MSG_LEN == len) {
       printf("[Skipping truncated message on SWO]\n");
     } else {
       printf("%s", msg);
@@ -87,40 +87,6 @@ void Log_Print(Logging_T* log, const char* msg)
   }
 
   xSemaphoreGive(log->mutex);
-}
-
-//------------------------------------------------------------------------------
-Logging_Status_T logPrint(Logging_T* log, const char* message, const size_t len)
-{
-  Logging_Status_T status = LOGGING_STATUS_OK;
-
-  (void)len;
-
-  if (log->enableSWO) {
-    printf("%s", message);
-  }
-
-  if (log->enableSerial) {
-    if (pdTRUE == xSemaphoreTake(log->mutex, pdMS_TO_TICKS(100))) {
-      xStreamBufferSend(log->serialOutputStream, (void*)message, len, 0U);
-      xSemaphoreGive(log->mutex);
-    }
-  }
-
-  return status;
-}
-
-//------------------------------------------------------------------------------
-Logging_Status_T logPrintS(Logging_T* logData, const char* message, const size_t maxBufferLen)
-{
-  size_t len = strnlen(message, maxBufferLen);
-  Logging_Status_T ret = logPrint(logData, message, len);
-
-  if (maxBufferLen == len) {
-    logPrint(logData, "Warning: truncated log message\n", LOGGING_DEFAULT_BUFF_LEN);
-  }
-
-  return ret;
 }
 
 //------------------------------------------------------------------------------

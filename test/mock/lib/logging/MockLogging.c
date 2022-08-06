@@ -8,29 +8,21 @@
 #include "MockLogging.h"
 
 #include <stdio.h>
+#include <assert.h>
 #include <string.h>
 
 static char mockLogBuffer[MOCK_LOG_BUFFER_LEN]; // stores the last entry that was printed
 static size_t offset = 0;
 
-Logging_Status_T stubLogPrint(Logging_T* logData, const char* message, const size_t len)
+void stubLogPrint(Logging_T* logData, const char* message)
 {
     (void)logData;
 
-    memcpy(mockLogBuffer+offset, message, len*sizeof(char));
-    offset += strnlen(message, len);
+    size_t len = strnlen(message, LOGGING_MAX_MSG_LEN);
+    assert(len + offset + 1U <= MOCK_LOG_BUFFER_LEN);
 
-    return LOGGING_STATUS_OK;
-}
-
-Logging_Status_T stubLogPrintS(Logging_T* logData, const char* message, const size_t bufferLen)
-{
-    (void)logData;
-
-    memcpy(mockLogBuffer+offset, message, strnlen(message, bufferLen)+1);
-    offset += strnlen(message, bufferLen);
-
-    return LOGGING_STATUS_OK;
+    memcpy(mockLogBuffer+offset, message, len + 1U);
+    offset += len;
 }
 
 void mockLogClear(void)

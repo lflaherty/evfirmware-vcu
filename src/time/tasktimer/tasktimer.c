@@ -38,7 +38,7 @@ static TIM_HandleTypeDef* timHandle;
 TaskTimer_Status_T TaskTimer_Init(Logging_T* logger, TIM_HandleTypeDef* htim)
 {
   mLog = logger;
-  logPrintS(mLog, "TaskTimer_Init begin\n", LOGGING_DEFAULT_BUFF_LEN);
+  Log_Print(mLog, "TaskTimer_Init begin\n");
 
   // Init data
   memset(&taskData, 0, sizeof(taskData));
@@ -49,7 +49,7 @@ TaskTimer_Status_T TaskTimer_Init(Logging_T* logger, TIM_HandleTypeDef* htim)
     return TASKTIMER_STATUS_ERROR_TIMER;
   }
 
-  logPrintS(mLog, "TaskTimer_Init complete\n", LOGGING_DEFAULT_BUFF_LEN);
+  Log_Print(mLog, "TaskTimer_Init complete\n");
   return TASKTIMER_STATUS_OK;
 }
 

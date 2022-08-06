@@ -63,7 +63,7 @@ static bool adcInitialized = false;
 ADC_Status_T ADC_Init(Logging_T* logger, const uint16_t numChannelsUsed, const uint16_t numSampleAvg)
 {
   logging = logger;
-  logPrintS(logging, "ADC_Init begin\n", LOGGING_DEFAULT_BUFF_LEN);
+  Log_Print(logging, "ADC_Init begin\n");
 
   if (numChannelsUsed > ADC_MAX_NUM_CHANNELS) {
     return ADC_STATUS_ERROR_CHANNEL_COUNT;
@@ -83,14 +83,14 @@ ADC_Status_T ADC_Init(Logging_T* logger, const uint16_t numChannelsUsed, const u
 
   adcInitialized = true;
 
-  logPrintS(logging, "ADC_Init complete\n", LOGGING_DEFAULT_BUFF_LEN);
+  Log_Print(logging, "ADC_Init complete\n");
   return ADC_STATUS_OK;
 }
 
 //------------------------------------------------------------------------------
 ADC_Status_T ADC_Config(ADC_HandleTypeDef* handle)
 {
-  logPrintS(logging, "ADC_Config begin\n", LOGGING_DEFAULT_BUFF_LEN);
+  Log_Print(logging, "ADC_Config begin\n");
   // TODO: this only works for ADC1 (with multiple channels), expand to ADCx
 
   // just need to start DMA
@@ -98,7 +98,7 @@ ADC_Status_T ADC_Config(ADC_HandleTypeDef* handle)
     return ADC_STATUS_ERROR_DMA;
   }
 
-  logPrintS(logging, "ADC_Config complete\n", LOGGING_DEFAULT_BUFF_LEN);
+  Log_Print(logging, "ADC_Config complete\n");
   return ADC_STATUS_OK;
 }
 

@@ -103,7 +103,7 @@ static SPI_Index_T getSPIBusIndex(SPI_TypeDef* spiBus) {
  */
 static void SPI_RxTask(void* pvParameters)
 {
-  logPrintS(log, "SPI_RxTask begin\n", LOGGING_DEFAULT_BUFF_LEN);
+  Log_Print(log, "SPI_RxTask begin\n");
 
   const TickType_t blockTime = 500 / portTICK_PERIOD_MS; // 500ms
   uint32_t notifiedValue;
@@ -180,7 +180,7 @@ void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
 SPI_Status_T SPI_Init(Logging_T* logger)
 {
   log = logger;
-  logPrintS(log, "SPI_Init begin\n", LOGGING_DEFAULT_BUFF_LEN);
+  Log_Print(log, "SPI_Init begin\n");
 
   // Initialize spiDevices
   for (uint8_t i = 0; i < SPI_NUM_BUSSES; ++i) {
@@ -221,7 +221,7 @@ SPI_Status_T SPI_Init(Logging_T* logger)
       spiBusTask.xTask,
       &spiBusTask.xTaskBuffer);
 
-  logPrintS(log, "SPI_Init complete\n", LOGGING_DEFAULT_BUFF_LEN);
+  Log_Print(log, "SPI_Init complete\n");
   return SPI_STATUS_OK;
 }
 

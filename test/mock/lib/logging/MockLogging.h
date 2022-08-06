@@ -10,8 +10,7 @@
 
 #include <stdio.h>
 
-#define logPrint stubLogPrint
-#define logPrintS stubLogPrintS
+#define Log_Print stubLogPrint
 
 // Bring in header to be mocked 
 #include "lib/logging/logging.h"
