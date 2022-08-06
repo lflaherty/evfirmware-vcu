@@ -24,7 +24,7 @@ done
 lcov --directory . --zerocounters -q
 
 echo Running tests
-./run_tests
+./run_tests -v
 echo
 
 echo Generating report
