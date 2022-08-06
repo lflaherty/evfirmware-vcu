@@ -29,10 +29,10 @@ echo
 
 echo Generating report
 # Create report for all files
-lcov --directory . -c -o main_coverage.info
+lcov --directory . -c -o main_coverage.info > /dev/null
 # Only include directories requested
 echo "${SRC_LIST[*]}" | xargs lcov -o main_coverage.info --extract main_coverage.info
 
 # Create report webpage
 rm -rf ../coverage_report
-genhtml main_coverage.info --output-directory coverage_report
+genhtml main_coverage.info --output-directory coverage_report > /dev/null
