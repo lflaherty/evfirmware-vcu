@@ -51,6 +51,13 @@ void mockSetStreamBufferData(const void* data, const size_t dataSize);
 void mockClearStreamBufferData(void);
 
 /**
+ * @brief Gets the number of elements sent to stream buffer.
+ * 
+ * @return size_t Number of items in stream buffer.
+ */
+size_t mockGetStreamBufferLen(void);
+
+/**
  * @brief Gets the data item currently in stream_buffer
  * @param data Pointer to location to copy data to
  * @param dataSize size of data. Note that this will be used to copy the data.

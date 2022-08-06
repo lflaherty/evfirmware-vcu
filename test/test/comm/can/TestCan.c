@@ -53,9 +53,8 @@ TEST_GROUP(COMM_CAN);
 
 TEST_SETUP(COMM_CAN)
 {
-    mLog.enableLogToDebug = true;
-    mLog.enableLogToLogFile = false;
-    mLog.enableLogToSerial = false;
+    TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, Log_Init(&mLog));
+    TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, Log_EnableSWO(&mLog));
     mockLogClear();
     mockSet_HAL_CAN_AllStatus(HAL_OK);
     

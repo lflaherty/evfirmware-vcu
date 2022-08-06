@@ -29,9 +29,8 @@ TEST_GROUP(TIME_TASKTIMER);
 
 TEST_SETUP(TIME_TASKTIMER)
 {
-    testLog.enableLogToDebug = true;
-    testLog.enableLogToLogFile = false;
-    testLog.enableLogToSerial = false;
+    TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, Log_Init(&testLog));
+    TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, Log_EnableSWO(&testLog));
     mockLogClear();
 }
 

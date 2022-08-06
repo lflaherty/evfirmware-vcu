@@ -14,8 +14,8 @@
 #include <stdbool.h>
 
 // ------------------- Static data -------------------
-#define MOCK_STREAMBUFFER_ITEM_SIZE 8192 /* something large enough to put anything from the tests in */
-static uint8_t mStreamBufferData[MOCK_STREAMBUFFER_ITEM_SIZE]; // single data entry in stream_buffer
+#define MOCK_STREAMBUFFER_SIZE 8192 /* something large enough to put anything from the tests in */
+static uint8_t mStreamBufferData[MOCK_STREAMBUFFER_SIZE]; // single data entry in stream_buffer
 static size_t start = 0;
 static size_t end = 0;
 
@@ -43,7 +43,7 @@ size_t xStreamBufferSend( StreamBufferHandle_t xStreamBuffer,
     (void)xStreamBuffer;
     (void)xTicksToWait;
 
-    size_t mockBufferAvailBytes = MOCK_STREAMBUFFER_ITEM_SIZE - end;
+    size_t mockBufferAvailBytes = MOCK_STREAMBUFFER_SIZE - end;
     assert(mockBufferAvailBytes >= xDataLengthBytes);
 
     memcpy(mStreamBufferData + end, pvTxData, xDataLengthBytes);
@@ -54,7 +54,7 @@ size_t xStreamBufferSend( StreamBufferHandle_t xStreamBuffer,
 
 void mockSetStreamBufferData(const void* data, const size_t dataSize)
 {
-    assert(dataSize <= MOCK_STREAMBUFFER_ITEM_SIZE);
+    assert(dataSize <= MOCK_STREAMBUFFER_SIZE);
 
     start = 0;
     end = dataSize;
@@ -67,10 +67,15 @@ void mockClearStreamBufferData(void)
     end = 0;
 }
 
-bool mockGetStreamBufferData(void* data, const size_t dataSize)
+size_t mockGetStreamBufferLen(void)
 {
     size_t size = end - start;
-    assert(size == dataSize);
+    return size;
+}
+
+bool mockGetStreamBufferData(void* data, const size_t dataSize)
+{
+    assert(end + dataSize <= MOCK_STREAMBUFFER_SIZE);
 
     memcpy(data, mStreamBufferData + start, dataSize);
     return true;

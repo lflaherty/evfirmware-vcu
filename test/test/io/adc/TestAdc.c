@@ -29,9 +29,8 @@ TEST_GROUP(IO_ADC);
 
 TEST_SETUP(IO_ADC)
 {
-    mLog.enableLogToDebug = true;
-    mLog.enableLogToLogFile = false;
-    mLog.enableLogToSerial = false;
+    TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, Log_Init(&mLog));
+    TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, Log_EnableSWO(&mLog));
     mockLogClear();
     mockSet_HAL_ADC_Start_DMA_Status(HAL_OK);
 }
