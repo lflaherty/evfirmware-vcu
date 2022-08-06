@@ -30,9 +30,8 @@ TEST_GROUP(VEHICLEINTERFACE_VEHICLESTATE);
 
 TEST_SETUP(VEHICLEINTERFACE_VEHICLESTATE)
 {
-    testLog.enableLogToDebug = true;
-    testLog.enableLogToLogFile = false;
-    testLog.enableLogToSerial = false;
+    TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, Log_Init(&testLog));
+    TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, Log_EnableSWO(&testLog));
     mockLogClear();
     mockSet_TaskTimer_Init_Status(TASKTIMER_STATUS_OK);
     mockSet_TaskTimer_RegisterTask_Status(TASKTIMER_STATUS_OK);
@@ -53,6 +52,7 @@ TEST_SETUP(VEHICLEINTERFACE_VEHICLESTATE)
 
 TEST_TEAR_DOWN(VEHICLEINTERFACE_VEHICLESTATE)
 {
+    TEST_ASSERT_FALSE(mockSempahoreGetLocked());
     mockLogClear();
 }
 
@@ -174,6 +174,8 @@ TEST(VEHICLEINTERFACE_VEHICLESTATE, CopyStateFail)
     VehicleState_Data_T destData;
     bool status = VehicleState_CopyState(&mState, &destData);
     TEST_ASSERT_FALSE(status);
+
+    mockSemaphoreSetLocked(false);
 }
 
 TEST(VEHICLEINTERFACE_VEHICLESTATE, AccessAcquire)
@@ -184,6 +186,8 @@ TEST(VEHICLEINTERFACE_VEHICLESTATE, AccessAcquire)
 
     TEST_ASSERT_FALSE(VehicleState_AccessAcquire(&mState));
     TEST_ASSERT_TRUE(mockSempahoreGetLocked());
+
+    mockSemaphoreSetLocked(false);
 }
 
 TEST(VEHICLEINTERFACE_VEHICLESTATE, AccessRelease)

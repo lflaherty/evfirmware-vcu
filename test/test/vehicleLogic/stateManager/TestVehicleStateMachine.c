@@ -83,9 +83,8 @@ TEST_GROUP(VEHICLELOGIC_STATEMACHINE);
 
 TEST_SETUP(VEHICLELOGIC_STATEMACHINE)
 {
-    testLog.enableLogToDebug = true;
-    testLog.enableLogToLogFile = false;
-    testLog.enableLogToSerial = false;
+    TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, Log_Init(&testLog));
+    TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, Log_EnableSWO(&testLog));
     mockLogClear();
 
     // set LV error since system should start this way

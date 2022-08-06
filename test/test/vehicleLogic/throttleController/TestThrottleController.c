@@ -34,9 +34,8 @@ TEST_GROUP(VEHICLELOGIC_THROTTLECONTROLLER);
 
 TEST_SETUP(VEHICLELOGIC_THROTTLECONTROLLER)
 {
-    testLog.enableLogToDebug = true;
-    testLog.enableLogToLogFile = false;
-    testLog.enableLogToSerial = false;
+    TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, Log_Init(&testLog));
+    TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, Log_EnableSWO(&testLog));
     mockLogClear();
     mockSet_TaskTimer_Init_Status(TASKTIMER_STATUS_OK);
     mockSet_TaskTimer_RegisterTask_Status(TASKTIMER_STATUS_OK);
@@ -66,6 +65,7 @@ TEST_SETUP(VEHICLELOGIC_THROTTLECONTROLLER)
 
 TEST_TEAR_DOWN(VEHICLELOGIC_THROTTLECONTROLLER)
 {
+    TEST_ASSERT_FALSE(mockSempahoreGetLocked());
     mockLogClear();
 }
 
@@ -223,6 +223,8 @@ TEST(VEHICLELOGIC_THROTTLECONTROLLER, SetTorqueEnabled)
     TEST_ASSERT_EQUAL(THROTTLECONTROLLER_STATUS_ERROR_MUTEX, status);
     TEST_ASSERT_TRUE(mThrottleController.enabled); // still true despite trying to set it false
     TEST_ASSERT_TRUE(mockSempahoreGetLocked());
+
+    mockSemaphoreSetLocked(false);
 }
 
 TEST(VEHICLELOGIC_THROTTLECONTROLLER, SetMotorDirection)
@@ -240,6 +242,8 @@ TEST(VEHICLELOGIC_THROTTLECONTROLLER, SetMotorDirection)
     TEST_ASSERT_EQUAL(THROTTLECONTROLLER_STATUS_ERROR_MUTEX, status);
     TEST_ASSERT_EQUAL(VEHICLESTATE_INVERTER_FORWARD, mThrottleController.direction); // still true despite trying to set it false
     TEST_ASSERT_TRUE(mockSempahoreGetLocked());
+
+    mockSemaphoreSetLocked(false);
 }
 
 TEST_GROUP_RUNNER(VEHICLELOGIC_THROTTLECONTROLLER)

@@ -31,9 +31,8 @@ TEST_GROUP(DEVICE_PCDEBUG);
 
 TEST_SETUP(DEVICE_PCDEBUG)
 {
-    testLog.enableLogToDebug = true;
-    testLog.enableLogToLogFile = false;
-    testLog.enableLogToSerial = false;
+    TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, Log_Init(&testLog));
+    TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, Log_EnableSWO(&testLog));
     mockLogClear();
     mockSet_TaskTimer_Init_Status(TASKTIMER_STATUS_OK);
     mockSet_TaskTimer_RegisterTask_Status(TASKTIMER_STATUS_OK);

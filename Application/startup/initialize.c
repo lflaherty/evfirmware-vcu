@@ -73,10 +73,16 @@ ECU_Init_Status_T ECU_Init(void)
 static ECU_Init_Status_T ECU_Init_System1(void)
 {
   // Set up logging
-  mLog.enableLogToDebug = true;
-  mLog.enableLogToSerial = false;
-  mLog.enableLogToLogFile = false;
-  mLog.handleSerial = NULL;
+  Logging_Status_T statusLog;
+  statusLog = Log_Init(&mLog);
+  if (LOGGING_STATUS_OK != statusLog) {
+    return ECU_INIT_ERROR;
+  }
+
+  statusLog = Log_EnableSWO(&mLog);
+  if (LOGGING_STATUS_OK != statusLog) {
+    return ECU_INIT_ERROR;
+  }
 
   logPrintS(&mLog, "###### ECU_Init_System1 ######\n", LOGGING_DEFAULT_BUFF_LEN);
 
@@ -84,8 +90,7 @@ static ECU_Init_Status_T ECU_Init_System1(void)
   // Not configured in this release
 
   // enable serial logging
-  mLog.enableLogToSerial = true;
-  mLog.handleSerial = Mapping_GetUART1();
+  // TODO
 
   return ECU_INIT_OK;
 }

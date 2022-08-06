@@ -26,9 +26,8 @@ TEST_GROUP(VEHICLEINTERFACE_VEHICLECONTROL);
 
 TEST_SETUP(VEHICLEINTERFACE_VEHICLECONTROL)
 {
-    testLog.enableLogToDebug = true;
-    testLog.enableLogToLogFile = false;
-    testLog.enableLogToSerial = false;
+    TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, Log_Init(&testLog));
+    TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, Log_EnableSWO(&testLog));
     mockLogClear();
 
     memset(&mVehicleControl, 0, sizeof(VehicleControl_T));
