@@ -13,15 +13,8 @@
 #include <assert.h>
 #include <string.h>
 
-// This code must go before other includes
-#define PRINTF_BUFFER_LEN 257
-static char printfOut[PRINTF_BUFFER_LEN];
-static int printfOutSize = 0;
-
-#define printf(format, args...) \
-    printfOutSize += snprintf(printfOut + printfOutSize, PRINTF_BUFFER_LEN, format, ## args);
-
 // Mocks for code under test (replaces stubs)
+#include "std/MockStdio.h"
 #include "stm32_hal/MockStm32f7xx_hal.h"
 #include "FreeRTOS.h"
 #include "task.h"
@@ -35,18 +28,11 @@ static StreamBufferHandle_t mSerialStream;
 
 #define STREAM_BUFFER_MAX_LEN 512
 
-// Helper methods
-void printfBufClear(void)
-{
-    printfOutSize = 0U;
-    memset(printfOut, 0U, sizeof(printfOut) / sizeof(char));
-}
-
 TEST_GROUP(LIB_LOGGING);
 
 TEST_SETUP(LIB_LOGGING)
 {
-    printfBufClear();
+    mockClearPrintf();
     mockClearStreamBufferData();
     mockSemaphoreSetLocked(false);
 

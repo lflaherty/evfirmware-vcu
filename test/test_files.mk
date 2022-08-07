@@ -4,6 +4,7 @@ COMMON_MOCKS=\
 	mock/FreeRTOS/mockStreamBuffer.c \
 	mock/FreeRTOS/mockTask.c \
 	mock/FreeRTOS/mockSemphr.c \
+	mock/std/MockStdio.c \
 	mock/stm32_hal/MockStm32f7xx_hal.c \
 	mock/stm32_hal/MockStm32f7xx_hal_can.c \
 	mock/stm32_hal/MockStm32f7xx_hal_adc.c \
