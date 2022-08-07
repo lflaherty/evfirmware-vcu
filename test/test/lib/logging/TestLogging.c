@@ -83,7 +83,7 @@ TEST(LIB_LOGGING, TestLogSWO)
     Log_Print(&mLog, "Log message\n");
 
     TEST_ASSERT_EQUAL(sampleMsgLen, printfOutSize);
-    TEST_ASSERT_EQUAL_CHAR_ARRAY(sampleMsg, printfOut, sampleMsgLen);
+    TEST_ASSERT_EQUAL_STRING(sampleMsg, printfOut);
     TEST_ASSERT_EQUAL(0U, mockGetStreamBufferLen());
 }
 
@@ -103,7 +103,7 @@ TEST(LIB_LOGGING, TestLogSerial)
 
     char streamBufferData[STREAM_BUFFER_MAX_LEN] = {0};
     mockGetStreamBufferData((char*)streamBufferData, STREAM_BUFFER_MAX_LEN);
-    TEST_ASSERT_EQUAL_CHAR_ARRAY(sampleMsg, streamBufferData, sampleMsgLen);
+    TEST_ASSERT_EQUAL_STRING(sampleMsg, streamBufferData);
 }
 
 TEST(LIB_LOGGING, TestEnableSWOBusy)
@@ -159,7 +159,7 @@ TEST(LIB_LOGGING, TestLogLongMessages)
     char expectedPrintf[] = "[Skipping truncated message on SWO]\n";
     size_t expectedPrintfLen = sizeof(expectedPrintf) - 1U;
     TEST_ASSERT_EQUAL(expectedPrintfLen, printfOutSize);
-    TEST_ASSERT_EQUAL_CHAR_ARRAY(expectedPrintf, printfOut, expectedPrintfLen);
+    TEST_ASSERT_EQUAL_STRING(expectedPrintf, printfOut);
 
     // Serial
     TEST_ASSERT_EQUAL(256, mockGetStreamBufferLen());
