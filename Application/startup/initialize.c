@@ -92,6 +92,8 @@ static ECU_Init_Status_T ECU_Init_System1(void)
   // enable serial logging
   // TODO
 
+  Log_Print(&mLog, "Serial logging enabled\n");
+
   return ECU_INIT_OK;
 }
 

@@ -23,17 +23,15 @@ typedef enum
 
 #define PCDEBUG_STACK_SIZE 2000U
 #define PCDEBUG_TASK_PRIORITY 3U
+#define PCDEBUG_LOG_STREAM_SIZE_BYTES 2048U
+#define PCDEBUG_LOG_STREAM_TRIGGER_LEVEL_BYTES 1U
 
 typedef struct
 {
-  // Config
-  // TODO UART object
-
   // ******* Internal use *******
   uint16_t counter;
 
   // Mutex lock
-  // TODO assess whether this is used
   SemaphoreHandle_t mutex;
   StaticSemaphore_t mutexBuffer;
 
@@ -41,6 +39,11 @@ typedef struct
   TaskHandle_t taskHandle;
   StaticTask_t taskBuffer;
   StackType_t taskStack[PCDEBUG_STACK_SIZE];
+
+  // Stream buffer objects
+  uint8_t logStreamStorage[PCDEBUG_LOG_STREAM_SIZE_BYTES];
+  StaticStreamBuffer_t logStreamStruct;
+  StreamBufferHandle_t logStreamHandle;
 } PCDebug_T;
 
 /**

@@ -62,6 +62,11 @@ PCDebug_Status_T PCDebug_Init(
   }
 
   // Register to receive logging data
+  pcdebug->logStreamHandle = xStreamBufferCreateStatic(
+      PCDEBUG_LOG_STREAM_SIZE_BYTES,
+      PCDEBUG_LOG_STREAM_TRIGGER_LEVEL_BYTES,
+      pcdebug->logStreamStorage,
+      &pcdebug->logStreamStruct);
 
   Log_Print(mLog, "PCDebug_Init complete\n");
   return PCDEBUG_STATUS_OK;
