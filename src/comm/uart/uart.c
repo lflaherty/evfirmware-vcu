@@ -12,154 +12,121 @@
 #include <stdbool.h>
 #include "FreeRTOS.h"
 #include "task.h"
-#include "queue.h"
+#include "stream_buffer.h"
 
 // ------------------- Private data -------------------
 static Logging_T* mLog;
 
-static bool isReady;
+static bool isReady = false;
 
-typedef struct {
-  USART_TypeDef* uartInstance;
-  UART_Callback_Method callback;
-} UART_Callback_T;
+// uart operating info
+struct uartInfo {
+  // output stream buffer
+  bool outputSbEnabled;
+  StreamBufferHandle_t outputSb;
 
-static struct {
-  uint8_t numCallbacks;   // stores how many callbacks are currently registered
-  UART_Callback_T callbacks[UART_NUM_CALLBACKS];
-} uartInfo;
+  // DMA buffers
+  uint8_t uartDmaRx[UART_MAX_DMA_LEN];
+  uint8_t uartDmaTx[UART_MAX_DMA_LEN];
 
-static uint8_t uartDmaData[2];
+  // tx info
+  volatile bool txInProgress;
+  uint8_t txPendingStorage[UART_MAX_DMA_LEN];
+  StaticStreamBuffer_t txPendingStreamStruct;
+  StreamBufferHandle_t txPendingStreamHandle;
+};
 
-/* ========= Rx Task definitions ========= */
-static struct {
-  // Task handle for Rx task
-  TaskHandle_t uartTaskHandle;
-
-  // Holds the TCB for the UART Rx callback thread
-  StaticTask_t xTaskBuffer;
-
-  // Callback thread will this this as it's stack
-  StackType_t xTask[UART_STACK_SIZE];
-} uartRxTask;
-
-/* ========= ISR -> Thread queue ========= */
-#define UART_QUEUE_ITEM_SIZE   sizeof(USART_Data_T)
-
-static struct {
-  // Handle for queue
-  QueueHandle_t uartDataQueue;
-
-  // Used to hold queue's data structure
-  StaticQueue_t uartDataStaticQueue;
-
-  // Used as the queue's storage area.
-  uint8_t uartDataQueueStorageArea[UART_QUEUE_LENGTH*UART_QUEUE_ITEM_SIZE];
-} uartQueue;
-
-// ------------------- Private methods -------------------
-/**
- * Task code for UART Rx callback thread
- */
-static void UART_RxTask(void* pvParameters)
-{
-  (void)pvParameters; // Unused parameter
-
-  const TickType_t blockTime = 500 / portTICK_PERIOD_MS; // 500ms
-  uint32_t notifiedValue;
-
-  while (1) {
-    // wait for notification from ISR
-    notifiedValue = ulTaskNotifyTake(pdFALSE, blockTime);
-
-    while (notifiedValue > 0) {
-      // process callbacks
-
-      // Receive data from the queue (and don't block)
-      USART_Data_T uartData;
-      BaseType_t recvStatus = xQueueReceive(uartQueue.uartDataQueue, &uartData, 0);
-
-      if (recvStatus == pdTRUE) {
-        // Call the UART callback methods
-
-        uint8_t numCallbacks = uartInfo.numCallbacks;
-        for (uint8_t i = 0; i < numCallbacks; ++i) {
-          // check the UART instance
-          if (uartInfo.callbacks[i].uartInstance == uartData.uartInstance) {
-            // invoke the callback
-            // passing the pointer to local variable is ok -
-            // it will exist in the local stack frame for the life of the callback
-            uartInfo.callbacks[i].callback(&uartData);
-          }
-        }
-
-        notifiedValue--; // one less notification to process
-      } else {
-        break; // exit loop processing all notifications
-      }
-
-    }
-  }
-}
+static struct uartInfo usart1;
 
 /**
  * @brief UART DMA Rx interrupt
- * First byte
  *
  * @brief huart UART handle provided by interrupt
  */
-void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef* huart)
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t size)
 {
-  // Get data
-  USART_Data_T uartData;
-  uartData.uartInstance = huart->Instance;
-  uartData.data = uartDmaData[0];
-
-  // add to queue and notify
-  BaseType_t higherPriorityTaskWoken = pdFALSE;
-  BaseType_t status = xQueueSendToBackFromISR(uartQueue.uartDataQueue, &uartData, &higherPriorityTaskWoken);
-  portYIELD_FROM_ISR(higherPriorityTaskWoken);
-
-  if (pdPASS == status) {
-    higherPriorityTaskWoken = pdFALSE;
-    vTaskNotifyGiveFromISR(uartRxTask.uartTaskHandle, &higherPriorityTaskWoken);
-    portYIELD_FROM_ISR(higherPriorityTaskWoken);
+  if (!isReady) {
+    return;
   }
-}
 
-/**
- * @brief UART DMA Rx interrupt
- * Second byte
- *
- * @brief huart UART handle provided by interrupt
- */
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart)
-{
-  // Get data
-  USART_Data_T uartData;
-  uartData.uartInstance = huart->Instance;
-  uartData.data = uartDmaData[1];
+  struct uartInfo* uartDev;
+  if (USART1 == huart->Instance) {
+    uartDev = &usart1;
+  } else {
+    // uart instance not implemented
+    return;
+  }
 
-  // add to queue and notify
   BaseType_t higherPriorityTaskWoken = pdFALSE;
-  BaseType_t status = xQueueSendToBackFromISR(uartQueue.uartDataQueue, &uartData, &higherPriorityTaskWoken);
-  portYIELD_FROM_ISR(higherPriorityTaskWoken);
-
-  if (pdPASS == status) {
-    higherPriorityTaskWoken = pdFALSE;
-    vTaskNotifyGiveFromISR(uartRxTask.uartTaskHandle, &higherPriorityTaskWoken);
-    portYIELD_FROM_ISR(higherPriorityTaskWoken);
+  if (uartDev->outputSbEnabled) {
+    xStreamBufferSendFromISR(uartDev->outputSb, uartDev->uartDmaRx, size,
+                             &higherPriorityTaskWoken);
   }
 
   // start the next DMA transfer
-  HAL_UART_Receive_DMA(huart, uartDmaData, 2);
-  // TODO is this needed?
+  HAL_UARTEx_ReceiveToIdle_DMA(huart, usart1.uartDmaRx, UART_MAX_DMA_LEN);
+
+  portYIELD_FROM_ISR(higherPriorityTaskWoken);
+}
+
+/**
+ * @brief UART DMA Tx complete interrupt
+ * 
+ * @param huart UART handle provided by interrupt
+ */
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef* huart)
+{
+  if (!isReady) {
+    return;
+  }
+
+  struct uartInfo* uartDev;
+  if (USART1 == huart->Instance) {
+    uartDev = &usart1;
+  } else {
+    // uart instance not implemented
+    return;
+  }
+
+  BaseType_t higherPriorityTaskWoken = pdFALSE;
+
+  // check whether there is more data to transmit
+  if (pdTRUE == xStreamBufferIsEmpty(uartDev->txPendingStreamHandle)) {
+    uartDev->txInProgress = false;
+  } else {
+    uint16_t numSending = (uint16_t)xStreamBufferReceiveFromISR(
+        uartDev->txPendingStreamHandle, uartDev->uartDmaTx, UART_MAX_DMA_LEN,
+        &higherPriorityTaskWoken);
+
+    HAL_StatusTypeDef txStatus = HAL_UART_Transmit_DMA(
+        huart, uartDev->uartDmaTx, numSending);
+    if (HAL_OK != txStatus) {
+      // drop the failed bytes
+      uartDev->txInProgress = false;
+    }
+  }
+
+  portYIELD_FROM_ISR(higherPriorityTaskWoken);
 }
 
 void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 {
-    HAL_UART_DeInit(huart);
-    HAL_UART_Receive_DMA(huart, uartDmaData, 2);
+  if (!isReady) {
+    return;
+  }
+
+  struct uartInfo* uartDev;
+  if (USART1 == huart->Instance) {
+    uartDev = &usart1;
+  } else {
+    // uart instance not implemented
+    return;
+  }
+
+  uartDev->txInProgress = false;
+
+  HAL_UART_DeInit(huart);
+  HAL_UARTEx_ReceiveToIdle_DMA(huart, uartDev->uartDmaRx, UART_MAX_DMA_LEN);
 }
 
 
@@ -168,27 +135,15 @@ UART_Status_T UART_Init(Logging_T* logger)
 {
   mLog = logger;
   Log_Print(mLog, "UART_Init begin\n");
-  isReady = false;
 
-  // Initialize mem to 0
-  memset(&uartInfo, 0, sizeof(uartInfo));
-
-  // Create the ISR -> task data queue
-  uartQueue.uartDataQueue = xQueueCreateStatic(
-      UART_QUEUE_LENGTH,
-      UART_QUEUE_ITEM_SIZE,
-      uartQueue.uartDataQueueStorageArea,
-      &uartQueue.uartDataStaticQueue);
-
-  // create thread for processing the callbacks outside of an iterrupt
-  uartRxTask.uartTaskHandle = xTaskCreateStatic(
-      UART_RxTask,
-      "UART_RXCallback",
-      UART_STACK_SIZE,
-      NULL,                 // Parameters to pass to the task
-      UART_CALLBACK_PRIORITY,
-      uartRxTask.xTask,
-      &uartRxTask.xTaskBuffer);
+  // USART1
+  usart1.txInProgress = false;
+  usart1.outputSbEnabled = false;
+  usart1.txPendingStreamHandle = xStreamBufferCreateStatic(
+      UART_MAX_DMA_LEN,
+      1U,
+      usart1.txPendingStorage,
+      &usart1.txPendingStreamStruct);
 
   isReady = true;
 
@@ -201,32 +156,42 @@ UART_Status_T UART_Config(UART_HandleTypeDef* handle)
 {
   Log_Print(mLog, "UART_Config begin\n");
 
-  HAL_UART_Receive_DMA(handle, uartDmaData, 2);
-  // TODO is this needed?
+  struct uartInfo* uartDev;
+  if (USART1 == handle->Instance) {
+    uartDev = &usart1;
+  } else {
+    // uart instance not implemented
+    return UART_STATUS_ERROR_NOT_SUPPORTED;
+  }
+
+  // Turn off half transfer interrupt
+  __HAL_DMA_ENABLE_IT(handle, DMA_IT_HT);
+
+  HAL_UARTEx_ReceiveToIdle_DMA(handle, uartDev->uartDmaRx, UART_MAX_DMA_LEN);
 
   Log_Print(mLog, "UART_Config complete\n");
   return UART_STATUS_OK;
 }
 
 //------------------------------------------------------------------------------
-UART_Status_T UART_RegisterCallback(
+UART_Status_T UART_SetRecvStream(
     const UART_HandleTypeDef* handle,
-    const UART_Callback_Method method)
+    const StreamBufferHandle_t sb)
 {
   if (!isReady) {
     return UART_STATUS_NOT_READY;
   }
 
-  // Store callback
-  if (UART_NUM_CALLBACKS == uartInfo.numCallbacks) {
-    // the callback array is already full
-    return UART_STATUS_ERROR_CALLBACK_FULL;
+  struct uartInfo* uartDev;
+  if (USART1 == handle->Instance) {
+    uartDev = &usart1;
+  } else {
+    // uart instance not implemented
+    return UART_STATUS_ERROR_NOT_SUPPORTED;
   }
 
-  // before incrementing, numCallbacks stores the next index we could add to
-  uartInfo.callbacks[uartInfo.numCallbacks].uartInstance = handle->Instance;
-  uartInfo.callbacks[uartInfo.numCallbacks].callback = method;
-  uartInfo.numCallbacks++;
+  uartDev->outputSb = sb;
+  uartDev->outputSbEnabled = true;
 
   return UART_STATUS_OK;
 }
@@ -238,10 +203,31 @@ UART_Status_T UART_SendMessage(UART_HandleTypeDef* handle, uint8_t* data, uint16
     return UART_STATUS_NOT_READY;
   }
 
-  HAL_StatusTypeDef ret = HAL_UART_Transmit_DMA(handle, data, len);
-  if (HAL_OK != ret) {
-    return UART_STATUS_ERROR_TX;
+  struct uartInfo* uartDev;
+  if (USART1 == handle->Instance) {
+    uartDev = &usart1;
+  } else {
+    // uart instance not implemented
+    return UART_STATUS_ERROR_NOT_SUPPORTED;
   }
 
-  return UART_STATUS_OK;
+  UART_Status_T ret = UART_STATUS_OK;
+
+  if (uartDev->txInProgress) {
+    // append to the stream buffer
+    // TODO txInProgress may have a race condition here...
+    xStreamBufferSend(uartDev->txPendingStreamHandle, (void*)data, len, pdMS_TO_TICKS(100U));
+  } else {
+    // directly initiate transfer
+    uartDev->txInProgress = true;
+    memcpy(uartDev->uartDmaTx, data, len);
+
+    HAL_StatusTypeDef txStatus = HAL_UART_Transmit_DMA(handle, uartDev->uartDmaTx, len);
+    if (HAL_OK != txStatus) {
+      uartDev->txInProgress = false;
+      ret = UART_STATUS_ERROR_TX;
+    }
+  }
+
+  return ret;
 }

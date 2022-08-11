@@ -12,6 +12,7 @@
 #include <string.h>
 #include <assert.h>
 #include <stdbool.h>
+#include <stdio.h>
 
 // ------------------- Static data -------------------
 #define MOCK_STREAMBUFFER_SIZE 8192 /* something large enough to put anything from the tests in */
@@ -52,6 +53,51 @@ size_t xStreamBufferSend( StreamBufferHandle_t xStreamBuffer,
     return xDataLengthBytes;
 }
 
+size_t xStreamBufferSendFromISR(
+        StreamBufferHandle_t xStreamBuffer,
+        const void *pvTxData,
+        size_t xDataLengthBytes,
+        BaseType_t *pxHigherPriorityTaskWoken)
+{
+    *pxHigherPriorityTaskWoken = pdFALSE;
+    return xStreamBufferSend(xStreamBuffer, pvTxData, xDataLengthBytes, 0U);
+}
+
+size_t xStreamBufferReceive(
+    StreamBufferHandle_t xStreamBuffer,
+    void* pvRxData,
+    size_t xBufferLengthBytes,
+    TickType_t xTicksToWait)
+{
+    (void)xStreamBuffer;
+    (void)xTicksToWait;
+
+    size_t contentsSize = end - start;
+    size_t numCopyBytes = (contentsSize > xBufferLengthBytes) ?
+                           xBufferLengthBytes : contentsSize;
+
+    memcpy(pvRxData, mStreamBufferData, numCopyBytes);
+    return numCopyBytes;
+}
+
+size_t xStreamBufferReceiveFromISR(
+    StreamBufferHandle_t xStreamBuffer,
+    void* pvRxData,
+    size_t xBufferLengthBytes,
+    BaseType_t* pxHigherPriorityTaskWoken)
+{
+    *pxHigherPriorityTaskWoken = pdFALSE;
+    return xStreamBufferReceive(xStreamBuffer, pvRxData, xBufferLengthBytes, 0U);
+}
+
+BaseType_t xStreamBufferIsEmpty(StreamBufferHandle_t xStreamBuffer)
+{
+    (void)xStreamBuffer;
+
+    size_t size = end - start;
+    return size > 0 ? pdFALSE : pdTRUE;
+}
+
 void mockSetStreamBufferData(const void* data, const size_t dataSize)
 {
     assert(dataSize <= MOCK_STREAMBUFFER_SIZE);
@@ -73,10 +119,11 @@ size_t mockGetStreamBufferLen(void)
     return size;
 }
 
-bool mockGetStreamBufferData(void* data, const size_t dataSize)
+bool mockGetStreamBufferData(void* data, const size_t maxSize)
 {
-    assert(end + dataSize <= MOCK_STREAMBUFFER_SIZE);
+    size_t size = end - start;
+    assert(maxSize >= size);
 
-    memcpy(data, mStreamBufferData + start, dataSize);
+    memcpy(data, mStreamBufferData + start, size);
     return true;
 }

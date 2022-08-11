@@ -5,6 +5,8 @@
  *      Author: Liam Flaherty
  */
 #include "MockStm32f7xx_hal_uart.h"
+#include <string.h>
+#include <assert.h>
 
 // ------------------- Static data -------------------
 static HAL_StatusTypeDef mStatusInit = HAL_OK;
@@ -24,6 +26,11 @@ static HAL_StatusTypeDef mStatusAbortReceive = HAL_OK;
 static HAL_StatusTypeDef mStatusAbort_IT = HAL_OK;
 static HAL_StatusTypeDef mStatusAbortTransmit_IT = HAL_OK;
 static HAL_StatusTypeDef mStatusAbortReceive_IT = HAL_OK;
+static HAL_StatusTypeDef mStatusReceiveToIdle_DMA = HAL_OK;
+
+#define MOCK_UART_BUFFER_SIZE 8192 /* something large enough to put anything from the tests in */
+static uint8_t uartDataBuf[MOCK_UART_BUFFER_SIZE] = { 0 };
+static size_t uartDataBufLen = 0U;
 
 // ------------------- Methods -------------------
 HAL_StatusTypeDef stubHAL_UART_Init(UART_HandleTypeDef *huart)
@@ -81,8 +88,10 @@ HAL_StatusTypeDef stubHAL_UART_Receive_IT(UART_HandleTypeDef *huart, uint8_t *pD
 HAL_StatusTypeDef stubHAL_UART_Transmit_DMA(UART_HandleTypeDef *huart, uint8_t *pData, uint16_t Size)
 {
     (void)huart;
-    (void)pData;
-    (void)Size;
+
+    assert(Size <= MOCK_UART_BUFFER_SIZE);
+    memcpy(uartDataBuf, pData, Size);
+    uartDataBufLen = Size;
 
     return mStatusTransmit_DMA;
 }
@@ -159,6 +168,15 @@ HAL_StatusTypeDef stubHAL_UART_AbortReceive_IT(UART_HandleTypeDef *huart)
     return mStatusAbortReceive_IT;
 }
 
+HAL_StatusTypeDef stubHAL_UARTEx_ReceiveToIdle_DMA(UART_HandleTypeDef *huart, uint8_t *pData, uint16_t rxBufSize)
+{
+    (void)huart;
+    (void)pData;
+    (void)rxBufSize;
+
+    return mStatusReceiveToIdle_DMA;
+}
+
 void mockSet_HAL_UART_All_Status(HAL_StatusTypeDef status)
 {
     mStatusInit = status;
@@ -178,6 +196,7 @@ void mockSet_HAL_UART_All_Status(HAL_StatusTypeDef status)
     mStatusAbort_IT = status;
     mStatusAbortTransmit_IT = status;
     mStatusAbortReceive_IT = status;
+    mStatusReceiveToIdle_DMA = status;
 }
 
 void mockSet_HAL_UART_Init_Status(HAL_StatusTypeDef status)
@@ -265,3 +284,29 @@ void mockSet_HAL_UART_AbortReceive_IT_Status(HAL_StatusTypeDef status)
     mStatusAbortReceive_IT = status;
 }
 
+void mockSet_HAL_UARTEx_ReceiveToIdle_DMA_Status(HAL_StatusTypeDef status)
+{
+    mStatusReceiveToIdle_DMA = status;
+}
+
+void mockSet_HAL_UART_Data(const void* data, const size_t dataSize)
+{
+    assert(dataSize <= MOCK_UART_BUFFER_SIZE);
+    memcpy(uartDataBuf, data, dataSize);
+    uartDataBufLen = dataSize;
+}
+
+void mockClear_HAL_UART_Data(void)
+{
+    uartDataBufLen = 0U;
+}
+
+size_t mockGet_HAL_UART_Len(void)
+{
+    return uartDataBufLen;
+}
+
+uint8_t* mockGet_HAL_UART_Data(void)
+{
+    return uartDataBuf;
+}

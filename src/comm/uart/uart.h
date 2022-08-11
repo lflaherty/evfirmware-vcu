@@ -9,43 +9,23 @@
 #define COMM_UART_UART_H_
 
 #include "stm32f7xx_hal.h"
+#include "FreeRTOS.h"
+#include "stream_buffer.h"
 #include <stdint.h>
 
 #include "lib/logging/logging.h"
 
-#define UART_QUEUE_LENGTH 128     /* 128 bytes */
 #define UART_NUM_CALLBACKS 16     /* Max number of UART callbacks on any device */
-
-#define UART_CALLBACK_PRIORITY 3
-
-/**
- * Stack size for UART Rx callback thread.
- * Note the units of this: words
- * The STM32 has a 32-bit word size.
- * I.e. 200 word stack size => 200*32bit = 800 Bytes
- * This will be the same stack in the call-back methods
- */
-#define UART_STACK_SIZE 2000
+#define UART_MAX_DMA_LEN 128   /* Max number of bytes in one message */
 
 typedef enum
 {
-  UART_STATUS_OK        = 0x00U,
-  UART_STATUS_NOT_READY = 0x01U,
-  UART_STATUS_ERROR_TX  = 0x02U,
-  UART_STATUS_ERROR_CALLBACK_FULL = 0x03U
+  UART_STATUS_OK                  = 0x00U,
+  UART_STATUS_NOT_READY           = 0x01U,
+  UART_STATUS_ERROR_TX            = 0x02U,
+  UART_STATUS_ERROR_SB_FULL       = 0x03U,
+  UART_STATUS_ERROR_NOT_SUPPORTED = 0x04U
 } UART_Status_T;
-
-typedef struct {
-  USART_TypeDef* uartInstance;
-  uint8_t data;
-} USART_Data_T;
-
-/**
- * @brief Callback method typedef
- * Params:
- *    New USART data byte
- */
-typedef void (*UART_Callback_Method)(const USART_Data_T*);
 
 /**
  * @brief Initialize UART driver interface
@@ -62,16 +42,15 @@ UART_Status_T UART_Init(Logging_T* logger);
 UART_Status_T UART_Config(UART_HandleTypeDef* handle);
 
 /**
- * @biref Adds a method to the callback list. Method will be invoked when a
- * UART byte is received.
+ * @biref Sets the output stream buffer for a particular UART device
  *
  * @param handle UART device handle
- * @param callback Method to call during callback
+ * @param sb Stream buffer to send data to. (Note: This type is a pointer)
  * @return Return status. UART_STATUS_OK for success. See UART_Status_T for more.
  */
-UART_Status_T UART_RegisterCallback(
+UART_Status_T UART_SetRecvStream(
     const UART_HandleTypeDef* handle,
-    const UART_Callback_Method callback);
+    const StreamBufferHandle_t sb);
 
 /**
  * @brief Send a serial message
