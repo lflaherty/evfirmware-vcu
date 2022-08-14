@@ -164,9 +164,6 @@ UART_Status_T UART_Config(UART_HandleTypeDef* handle)
     return UART_STATUS_ERROR_NOT_SUPPORTED;
   }
 
-  // Turn off half transfer interrupt
-  __HAL_DMA_ENABLE_IT(handle, DMA_IT_HT);
-
   HAL_UARTEx_ReceiveToIdle_DMA(handle, uartDev->uartDmaRx, UART_MAX_DMA_LEN);
 
   Log_Print(mLog, "UART_Config complete\n");
