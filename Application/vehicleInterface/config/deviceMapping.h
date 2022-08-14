@@ -56,11 +56,12 @@ extern GPIO_T Mapping_GPIO_LED;
  * Getters for device handles
  */
 TIM_HandleTypeDef* Mapping_GetTaskTimer(void);
-UART_HandleTypeDef* Mapping_GetUART1(void);
+UART_HandleTypeDef* Mapping_GetPCDebugUart(void);
 RTC_HandleTypeDef* Mapping_GetRTC(void);
 ADC_HandleTypeDef* Mapping_GetADC(void);
 CAN_HandleTypeDef* Mapping_GetCAN1(void);
 CAN_HandleTypeDef* Mapping_GetCAN2(void);
 CAN_HandleTypeDef* Mapping_GetCAN3(void);
+CRC_HandleTypeDef* Mapping_GetCRC(void);
 
 #endif /* VEHICLEINTERFACE_CONFIG_DEVICEMAPPING_H_ */

@@ -19,6 +19,8 @@ extern CAN_HandleTypeDef hcan1;
 extern CAN_HandleTypeDef hcan2;
 extern CAN_HandleTypeDef hcan3;
 
+extern CRC_HandleTypeDef hcrc;
+
 extern I2C_HandleTypeDef hi2c2;
 extern I2C_HandleTypeDef hi2c4;
 
@@ -38,7 +40,7 @@ TIM_HandleTypeDef* Mapping_GetTaskTimer(void)
   return &htim2;
 }
 
-UART_HandleTypeDef* Mapping_GetUART1(void)
+UART_HandleTypeDef* Mapping_GetPCDebugUart(void)
 {
   return &huart1;
 }
@@ -67,4 +69,9 @@ CAN_HandleTypeDef* Mapping_GetCAN2(void)
 CAN_HandleTypeDef* Mapping_GetCAN3(void)
 {
   return &hcan3;
+}
+
+CRC_HandleTypeDef* Mapping_GetCRC(void)
+{
+  return &hcrc;
 }

@@ -13,8 +13,11 @@
 
 #include "lib/logging/logging.h"
 #include "time/tasktimer/tasktimer.h"
+#include "comm/uart/uart.h"
 
 #include "vehicleInterface/config/deviceMapping.h"
+
+#include "device/pcdebug/pcdebug.h"
 
 #include "vehicleLogic/watchdogTrigger/watchdogTrigger.h"
 
@@ -23,6 +26,7 @@ static Logging_T mLog;
 
 // ------------------- Module structures -------------------
 static WatchdogTrigger_T mWdtTrigger;
+static PCDebug_T mPCDebug;
 
 // ------------------- Private prototypes -------------------
 static ECU_Init_Status_T ECU_Init_System1(void);  // Init basics for logging
@@ -87,10 +91,27 @@ static ECU_Init_Status_T ECU_Init_System1(void)
   Log_Print(&mLog, "###### ECU_Init_System1 ######\n");
 
   // UART
-  // Not configured in this release
+  UART_Status_T statusUart;
+  statusUart = UART_Init(&mLog);
+  if (UART_STATUS_OK != statusUart) {
+    Log_Print(&mLog, "UART initialization error\n");
+    return ECU_INIT_ERROR;
+  }
 
-  // enable serial logging
-  // TODO
+  statusUart = UART_Config(Mapping_GetPCDebugUart());
+  if (UART_STATUS_OK != statusUart) {
+    Log_Print(&mLog, "USART1 (PCDebug) config error\n");
+    return ECU_INIT_ERROR;
+  }
+
+  // Create PC Debug driver
+  mPCDebug.huart = Mapping_GetPCDebugUart();
+  mPCDebug.hcrc = Mapping_GetCRC();
+  PCDebug_Status_T statusPcDebug = PCDebug_Init(&mLog, &mPCDebug);
+  if (PCDEBUG_STATUS_OK != statusPcDebug) {
+    Log_Print(&mLog, "PCDebug initialization error\n");
+    return ECU_INIT_ERROR;
+  }
 
   Log_Print(&mLog, "Serial logging enabled\n");
 
