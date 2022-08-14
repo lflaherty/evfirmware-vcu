@@ -6,6 +6,7 @@
  */
 #include "pcdebug.h"
 
+#include <stdio.h> // for snprintf
 #include "time/tasktimer/tasktimer.h"
 #include "comm/uart/uart.h"
 
@@ -38,13 +39,27 @@ static void PCDebug_TaskMethod(PCDebug_T* pcdebug)
   // Wait for notification to wake up
   uint32_t notifiedValue = ulTaskNotifyTake(pdTRUE, mBlockTime);
   if (notifiedValue > 0) {
-    pcdebug->counter++;
+    // Handle received data
+    if (pdFALSE == xStreamBufferIsEmpty(pcdebug->recvStreamHandle)) {
+      // For now just print them to log...
+      Log_Print(mLog, "Recevied serial bytes: ");
+      while (!xStreamBufferIsEmpty(pcdebug->recvStreamHandle)) {
+        uint8_t recvByte = 0;
+        xStreamBufferReceive(pcdebug->recvStreamHandle, &recvByte, 1U, mBlockTime);
 
-    if (10U == pcdebug->counter) {
+        char logBuffer[LOGGING_MAX_MSG_LEN] = { 0 };
+        snprintf(logBuffer, LOGGING_MAX_MSG_LEN, "0x%02x ", recvByte);
+        Log_Print(mLog, logBuffer);
+      }
+      Log_Print(mLog, "\n");
+    }
+
+    pcdebug->logCounter++;
+    if (10U == pcdebug->logCounter) {
       // Flush log messages every 100ms
       flushLogMessage(pcdebug);
 
-      pcdebug->counter = 0U;
+      pcdebug->logCounter = 0U;
     }
   }
 }
@@ -66,7 +81,7 @@ PCDebug_Status_T PCDebug_Init(
   mLog = logger;
   Log_Print(mLog, "PCDebug_Init begin\n");
 
-  pcdebug->counter = 0U;
+  pcdebug->logCounter = 0U;
 
   // Set up message frames
   pcdebug->mfLogData.hcrc = pcdebug->hcrc;
@@ -102,11 +117,21 @@ PCDebug_Status_T PCDebug_Init(
       PCDEBUG_LOG_STREAM_TRIGGER_LEVEL_BYTES,
       pcdebug->logStreamStorage,
       &pcdebug->logStreamStruct);
-
-  // Register to receive logging data
   Logging_Status_T logStatus =
       Log_SetSerialStream(mLog, pcdebug->logStreamHandle);
   if (LOGGING_STATUS_OK != logStatus) {
+    return PCDEBUG_STATUS_ERROR_INIT;
+  }
+
+  // Register to receive serial data
+  pcdebug->recvStreamHandle = xStreamBufferCreateStatic(
+      PCDEBUG_RECV_STREAM_SIZE_BYTES,
+      PCDEBUG_RECV_STREAM_TRIGGER_LEVEL_BYTES,
+      pcdebug->recvStreamStorage,
+      &pcdebug->recvStreamStruct);
+  UART_Status_T uartStatus =
+      UART_SetRecvStream(pcdebug->huart, pcdebug->recvStreamHandle);
+  if (UART_STATUS_OK != uartStatus) {
     return PCDEBUG_STATUS_ERROR_INIT;
   }
 

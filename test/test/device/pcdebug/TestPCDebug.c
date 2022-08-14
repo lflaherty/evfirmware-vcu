@@ -130,14 +130,14 @@ TEST(DEVICE_PCDEBUG, TestNoMessages)
 
     // First 200ms will attempt to print twice...
     for (uint16_t i = 0; i < 20U; ++i) {
-        TEST_ASSERT_EQUAL(i % 10, mPCDebug.counter);
+        TEST_ASSERT_EQUAL(i % 10, mPCDebug.logCounter);
         mockSetTaskNotifyValue(1); // to wake up
         PCDebug_TaskMethod(&mPCDebug);
         TEST_ASSERT_EQUAL(0U, mockGet_HAL_UART_Len());
     }
 }
 
-TEST(DEVICE_PCDEBUG, TestShortMsg)
+TEST(DEVICE_PCDEBUG, TestLogSerialShortMsg)
 {
     const char simpleMsg[] = "Hello!\n"; // less than 32 data chars
     assert(sizeof(simpleMsg) <= 32U);
@@ -173,7 +173,7 @@ TEST(DEVICE_PCDEBUG, TestShortMsg)
     TEST_ASSERT_EQUAL_UINT8_ARRAY(expectedUart, mockGet_HAL_UART_Data(), PCDEBUG_MSG_LOG_MSGLEN);
 }
 
-TEST(DEVICE_PCDEBUG, TestLongMsg)
+TEST(DEVICE_PCDEBUG, TestLogSerialLongMsg)
 {
     // A log message that needs to be split into two message (i.e. longer than 32)
     const char longMsg[] = "Never gonna give you up\n"
@@ -206,7 +206,6 @@ TEST(DEVICE_PCDEBUG, TestLongMsg)
     // Stepping through to 100ms should trigger transmission
     for (uint16_t i = 0; i < 10; ++i) {
         mockSetTaskNotifyValue(1); // to wake up
-
         PCDebug_TaskMethod(&mPCDebug);
     }
 
@@ -226,11 +225,37 @@ TEST(DEVICE_PCDEBUG, TestLongMsg)
     TEST_ASSERT_EQUAL_UINT8_ARRAY(expectedUart2, mockGet_HAL_UART_Data(), PCDEBUG_MSG_LOG_MSGLEN);
 }
 
+TEST(DEVICE_PCDEBUG, TestSerialRecv)
+{
+    uint8_t recvBytes[] = {0x01, 0x2, 0xAA, 0xBB};
+    uint16_t recvBytesLen = sizeof(recvBytes);
+
+    const char expectedLog[] = "Recevied serial bytes: 0x01 0x02 0xaa 0xbb \n";
+    size_t expectedLogLen = sizeof(expectedLog) - 1U; // -1 because logging skips null char
+
+    // Nothing should be printed before there is data...
+    mockSetTaskNotifyValue(1); // to wake up
+    PCDebug_TaskMethod(&mPCDebug);
+    TEST_ASSERT_EQUAL(0U, printfOutSize);
+
+    // UART recieve on DMA:
+    memcpy(usart1.uartDmaRx, recvBytes, recvBytesLen); // copy into DMA buffer
+    HAL_UARTEx_RxEventCallback(&husart1, recvBytesLen);
+    TEST_ASSERT_EQUAL(recvBytesLen, mockGetStreamBufferLen(mPCDebug.recvStreamHandle));
+
+    // Driver should just log these bytes
+    mockSetTaskNotifyValue(1); // to wake up
+    PCDebug_TaskMethod(&mPCDebug);
+    TEST_ASSERT_EQUAL_STRING(expectedLog, printfOut);
+    TEST_ASSERT_EQUAL(expectedLogLen, printfOutSize);
+}
+
 TEST_GROUP_RUNNER(DEVICE_PCDEBUG)
 {
     RUN_TEST_CASE(DEVICE_PCDEBUG, InitOk);
     RUN_TEST_CASE(DEVICE_PCDEBUG, InitTaskRegisterError);
     RUN_TEST_CASE(DEVICE_PCDEBUG, TestNoMessages);
-    RUN_TEST_CASE(DEVICE_PCDEBUG, TestShortMsg);
-    RUN_TEST_CASE(DEVICE_PCDEBUG, TestLongMsg);
+    RUN_TEST_CASE(DEVICE_PCDEBUG, TestLogSerialShortMsg);
+    RUN_TEST_CASE(DEVICE_PCDEBUG, TestLogSerialLongMsg);
+    RUN_TEST_CASE(DEVICE_PCDEBUG, TestSerialRecv);
 }

@@ -27,6 +27,8 @@ typedef enum
 #define PCDEBUG_TASK_PRIORITY 3U
 #define PCDEBUG_LOG_STREAM_SIZE_BYTES 2048U
 #define PCDEBUG_LOG_STREAM_TRIGGER_LEVEL_BYTES 1U
+#define PCDEBUG_RECV_STREAM_SIZE_BYTES 2048U
+#define PCDEBUG_RECV_STREAM_TRIGGER_LEVEL_BYTES 1U
 
 #define PCDEBUG_MSG_DESTADDR 0x02
 
@@ -40,7 +42,7 @@ typedef struct
   CRC_HandleTypeDef* hcrc;
 
   // ******* Internal use *******
-  uint16_t counter;
+  uint16_t logCounter;
 
   // Mutex lock
   SemaphoreHandle_t mutex;
@@ -55,6 +57,11 @@ typedef struct
   uint8_t logStreamStorage[PCDEBUG_LOG_STREAM_SIZE_BYTES];
   StaticStreamBuffer_t logStreamStruct;
   StreamBufferHandle_t logStreamHandle;
+
+  // Stream buffer objects for receiving uart bytes
+  uint8_t recvStreamStorage[PCDEBUG_RECV_STREAM_SIZE_BYTES];
+  StaticStreamBuffer_t recvStreamStruct;
+  StreamBufferHandle_t recvStreamHandle;
 
   // Message frames for encoding
   MsgFrameEncode_T mfLogData;
