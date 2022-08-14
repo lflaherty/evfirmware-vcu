@@ -7,6 +7,7 @@
 #include "pcdebug.h"
 
 #include <stdio.h> // for snprintf
+#include <string.h>
 #include "time/tasktimer/tasktimer.h"
 #include "comm/uart/uart.h"
 
