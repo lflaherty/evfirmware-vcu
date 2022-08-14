@@ -15,6 +15,8 @@
 #include "task.h"
 #include "semphr.h"
 
+#include "comm/uart/msgframeencode.h"
+
 typedef enum
 {
   PCDEBUG_STATUS_OK         = 0x00,
@@ -26,8 +28,17 @@ typedef enum
 #define PCDEBUG_LOG_STREAM_SIZE_BYTES 2048U
 #define PCDEBUG_LOG_STREAM_TRIGGER_LEVEL_BYTES 1U
 
+#define PCDEBUG_MSG_DESTADDR 0x02
+
+#define PCDEBUG_MSG_LOG_FUNCTION 0x02
+#define PCDEBUG_MSG_LOG_DATALEN  32U
+#define PCDEBUG_MSG_LOG_MSGLEN   43U
+
 typedef struct
 {
+  UART_HandleTypeDef* huart;
+  CRC_HandleTypeDef* hcrc;
+
   // ******* Internal use *******
   uint16_t counter;
 
@@ -40,10 +51,14 @@ typedef struct
   StaticTask_t taskBuffer;
   StackType_t taskStack[PCDEBUG_STACK_SIZE];
 
-  // Stream buffer objects
+  // Stream buffer objects for receiving logs
   uint8_t logStreamStorage[PCDEBUG_LOG_STREAM_SIZE_BYTES];
   StaticStreamBuffer_t logStreamStruct;
   StreamBufferHandle_t logStreamHandle;
+
+  // Message frames for encoding
+  MsgFrameEncode_T mfLogData;
+  uint8_t mfLogDataBuffer[PCDEBUG_MSG_LOG_MSGLEN];
 } PCDebug_T;
 
 /**
