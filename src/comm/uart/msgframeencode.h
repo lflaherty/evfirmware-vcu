@@ -40,7 +40,7 @@ typedef struct {
  * @return Pointer to data contents in message.
  *         Will be a pointer to within mf->buffer
  */
-uint8_t* MsgFrameEncode_InitBuffer(MsgFrameEncode_T* mf);
+uint8_t* MsgFrameEncode_InitFrame(MsgFrameEncode_T* mf);
 
 /**
  * @brief Add the CRC bytes to the message.

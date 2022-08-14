@@ -10,10 +10,14 @@
 #include <assert.h>
 #include <string.h>
 
+// Number of bytes that make up:
+// start byte, end bytes, addr, function, crc
+#define MSGFRAME_NUM_FRAME_BYTES 11U
+
 uint8_t* MsgFrameEncode_InitFrame(MsgFrameEncode_T* mf)
 {
-  assert(mf->msgLen >= 11U);
-  assert(mf->msgLen - 11U == mf->dataLen);
+  assert(mf->msgLen >= MSGFRAME_NUM_FRAME_BYTES);
+  assert(mf->msgLen - MSGFRAME_NUM_FRAME_BYTES == mf->dataLen);
 
   mf->buffer[0] = ':';
   mf->buffer[mf->msgLen - 2U] = '\r';
@@ -33,6 +37,7 @@ uint8_t* MsgFrameEncode_InitFrame(MsgFrameEncode_T* mf)
 void MsgFrameEncode_UpdateCRC(MsgFrameEncode_T* mf)
 {
   // This required for the (void*) cast to work
+  assert(NULL != mf->hcrc);
   assert(CRC_INPUTDATA_FORMAT_BYTES == mf->hcrc->InputDataFormat);
 
   size_t crcOffset = mf->msgLen - 6U;
