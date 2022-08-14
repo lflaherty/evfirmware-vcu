@@ -21,6 +21,11 @@
 struct StreamBufferDef_t
 {
     size_t itemSize;
+
+    // mock buffer data for tests:
+    uint8_t streamBufferData[MOCK_STREAMBUFFER_SIZE];
+    size_t start;
+    size_t end;
     // must be kept the same as StaticStreamBuffer_t in FreeRTOS.h
 };
 typedef struct StreamBufferDef_t* StreamBufferHandle_t;
@@ -63,20 +68,23 @@ BaseType_t xStreamBufferIsEmpty(StreamBufferHandle_t xStreamBuffer);
  * @param data Pointer to data to use
  * @param dataSize size of data. Note that this will be used to copy the data.
  */
-void mockSetStreamBufferData(const void* data, const size_t dataSize);
+void mockSetStreamBufferData(
+    StreamBufferHandle_t xStreamBuffer,
+    const void* data,
+    const size_t dataSize);
 
 /**
  * @brief Sets the contents of the stream buffer mock to empty.
  * 
  */
-void mockClearStreamBufferData(void);
+void mockClearStreamBufferData(StreamBufferHandle_t xStreamBuffer);
 
 /**
  * @brief Gets the number of elements sent to stream buffer.
  * 
  * @return size_t Number of items in stream buffer.
  */
-size_t mockGetStreamBufferLen(void);
+size_t mockGetStreamBufferLen(StreamBufferHandle_t xStreamBuffer);
 
 /**
  * @brief Gets the data item currently in stream_buffer
@@ -84,6 +92,9 @@ size_t mockGetStreamBufferLen(void);
  * @param maxSize Size of copy out buffer.
  * @returns True if data is present.
  */
-bool mockGetStreamBufferData(void* data, const size_t maxSize);
+bool mockGetStreamBufferData(
+    StreamBufferHandle_t xStreamBuffer,
+    void* data,
+    const size_t maxSize);
 
 #endif

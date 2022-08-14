@@ -26,9 +26,15 @@ typedef struct xSTATIC_QUEUE
     // Must be kept the same as QueueDefinition in queue.h
 } StaticQueue_t;
 
+#define MOCK_STREAMBUFFER_SIZE 8192 /* something large enough to put anything from the tests in */
 typedef struct
 {
     size_t itemSize;
+
+    // mock buffer data for tests:
+    uint8_t streamBufferData[MOCK_STREAMBUFFER_SIZE];
+    size_t start;
+    size_t end;
     // Must be kept the same as StreamBufferDef_t in stream_buffer.h
 } StaticStreamBuffer_t;
 

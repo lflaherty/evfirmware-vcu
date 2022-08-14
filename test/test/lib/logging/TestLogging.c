@@ -24,7 +24,8 @@
 #include "lib/logging/logging.c"
 
 static Logging_T mLog;
-static StreamBufferHandle_t mSerialStream;
+static StaticStreamBuffer_t mStreamBufStatic;
+static StreamBufferHandle_t mSerialStream = (StreamBufferHandle_t)&mStreamBufStatic;
 
 #define STREAM_BUFFER_MAX_LEN 512
 
@@ -33,7 +34,7 @@ TEST_GROUP(LIB_LOGGING);
 TEST_SETUP(LIB_LOGGING)
 {
     mockClearPrintf();
-    mockClearStreamBufferData();
+    mockClearStreamBufferData(mSerialStream);
     mockSemaphoreSetLocked(false);
 
     Logging_Status_T status = Log_Init(&mLog);
@@ -55,7 +56,7 @@ TEST(LIB_LOGGING, TestNoLog)
     // No output streams
     Log_Print(&mLog, "Log message\n");
     TEST_ASSERT_EQUAL(0U, printfOutSize);
-    TEST_ASSERT_EQUAL(0U, mockGetStreamBufferLen());
+    TEST_ASSERT_EQUAL(0U, mockGetStreamBufferLen(mSerialStream));
 }
 
 TEST(LIB_LOGGING, TestLogSWO)
@@ -70,7 +71,7 @@ TEST(LIB_LOGGING, TestLogSWO)
 
     TEST_ASSERT_EQUAL(sampleMsgLen, printfOutSize);
     TEST_ASSERT_EQUAL_STRING(sampleMsg, printfOut);
-    TEST_ASSERT_EQUAL(0U, mockGetStreamBufferLen());
+    TEST_ASSERT_EQUAL(0U, mockGetStreamBufferLen(mSerialStream));
 }
 
 TEST(LIB_LOGGING, TestLogSerial)
@@ -85,10 +86,10 @@ TEST(LIB_LOGGING, TestLogSerial)
     Log_Print(&mLog, "Log message\n");
 
     TEST_ASSERT_EQUAL(0U, printfOutSize);
-    TEST_ASSERT_EQUAL(sampleMsgLen, mockGetStreamBufferLen());
+    TEST_ASSERT_EQUAL(sampleMsgLen, mockGetStreamBufferLen(mSerialStream));
 
     char streamBufferData[STREAM_BUFFER_MAX_LEN] = {0};
-    mockGetStreamBufferData((char*)streamBufferData, STREAM_BUFFER_MAX_LEN);
+    mockGetStreamBufferData(mSerialStream, (char*)streamBufferData, STREAM_BUFFER_MAX_LEN);
     TEST_ASSERT_EQUAL_STRING(sampleMsg, streamBufferData);
 }
 
@@ -120,7 +121,7 @@ TEST(LIB_LOGGING, TestLogBusy)
     // No data outputs, despite output enabled
     Log_Print(&mLog, "Log message\n");
     TEST_ASSERT_EQUAL(0U, printfOutSize);
-    TEST_ASSERT_EQUAL(0U, mockGetStreamBufferLen());
+    TEST_ASSERT_EQUAL(0U, mockGetStreamBufferLen(mSerialStream));
 
     mockSemaphoreSetLocked(false);
 }
@@ -148,9 +149,9 @@ TEST(LIB_LOGGING, TestLogLongMessages)
     TEST_ASSERT_EQUAL_STRING(expectedPrintf, printfOut);
 
     // Serial
-    TEST_ASSERT_EQUAL(256, mockGetStreamBufferLen());
+    TEST_ASSERT_EQUAL(256, mockGetStreamBufferLen(mSerialStream));
     char streamBufferData[STREAM_BUFFER_MAX_LEN] = {0};
-    mockGetStreamBufferData((char*)streamBufferData, STREAM_BUFFER_MAX_LEN);
+    mockGetStreamBufferData(mSerialStream, (char*)streamBufferData, STREAM_BUFFER_MAX_LEN);
     TEST_ASSERT_EQUAL_CHAR_ARRAY(longMessage, streamBufferData, 256);
 }
 

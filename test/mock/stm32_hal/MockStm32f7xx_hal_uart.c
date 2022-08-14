@@ -298,6 +298,7 @@ void mockSet_HAL_UART_Data(const void* data, const size_t dataSize)
 
 void mockClear_HAL_UART_Data(void)
 {
+    memset(uartDataBuf, 0U, MOCK_UART_BUFFER_SIZE);
     uartDataBufLen = 0U;
 }
 

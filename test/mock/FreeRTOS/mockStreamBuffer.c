@@ -15,17 +15,14 @@
 #include <stdio.h>
 
 // ------------------- Static data -------------------
-#define MOCK_STREAMBUFFER_SIZE 8192 /* something large enough to put anything from the tests in */
-static uint8_t mStreamBufferData[MOCK_STREAMBUFFER_SIZE]; // single data entry in stream_buffer
-static size_t start = 0;
-static size_t end = 0;
+
 
 // ------------------- Methods -------------------
 StreamBufferHandle_t xStreamBufferCreateStatic(
-    size_t xBufferSizeBytes,
-    size_t xTriggerLevelBytes,
-    uint8_t *pucStreamBufferStorageArea,
-    StaticStreamBuffer_t *pxStaticStreamBuffer)
+        size_t xBufferSizeBytes,
+        size_t xTriggerLevelBytes,
+        uint8_t *pucStreamBufferStorageArea,
+        StaticStreamBuffer_t *pxStaticStreamBuffer)
 {
     (void)xBufferSizeBytes;
     (void)xTriggerLevelBytes;
@@ -36,19 +33,20 @@ StreamBufferHandle_t xStreamBufferCreateStatic(
     return handle;
 }
 
-size_t xStreamBufferSend( StreamBufferHandle_t xStreamBuffer,
-                          const void *pvTxData,
-                          size_t xDataLengthBytes,
-                          TickType_t xTicksToWait)
+size_t xStreamBufferSend(
+        StreamBufferHandle_t xStreamBuffer,
+        const void *pvTxData,
+        size_t xDataLengthBytes,
+        TickType_t xTicksToWait)
 {
     (void)xStreamBuffer;
     (void)xTicksToWait;
 
-    size_t mockBufferAvailBytes = MOCK_STREAMBUFFER_SIZE - end;
+    size_t mockBufferAvailBytes = MOCK_STREAMBUFFER_SIZE - xStreamBuffer->end;
     assert(mockBufferAvailBytes >= xDataLengthBytes);
 
-    memcpy(mStreamBufferData + end, pvTxData, xDataLengthBytes);
-    end += xDataLengthBytes;
+    memcpy(xStreamBuffer->streamBufferData + xStreamBuffer->end, pvTxData, xDataLengthBytes);
+    xStreamBuffer->end += xDataLengthBytes;
 
     return xDataLengthBytes;
 }
@@ -64,27 +62,29 @@ size_t xStreamBufferSendFromISR(
 }
 
 size_t xStreamBufferReceive(
-    StreamBufferHandle_t xStreamBuffer,
-    void* pvRxData,
-    size_t xBufferLengthBytes,
-    TickType_t xTicksToWait)
+        StreamBufferHandle_t xStreamBuffer,
+        void* pvRxData,
+        size_t xBufferLengthBytes,
+        TickType_t xTicksToWait)
 {
     (void)xStreamBuffer;
     (void)xTicksToWait;
 
-    size_t contentsSize = end - start;
+    size_t contentsSize = xStreamBuffer->end - xStreamBuffer->start;
     size_t numCopyBytes = (contentsSize > xBufferLengthBytes) ?
                            xBufferLengthBytes : contentsSize;
 
-    memcpy(pvRxData, mStreamBufferData, numCopyBytes);
+    memcpy(pvRxData, xStreamBuffer->streamBufferData + xStreamBuffer->start, numCopyBytes);
+
+    xStreamBuffer->start += numCopyBytes;
     return numCopyBytes;
 }
 
 size_t xStreamBufferReceiveFromISR(
-    StreamBufferHandle_t xStreamBuffer,
-    void* pvRxData,
-    size_t xBufferLengthBytes,
-    BaseType_t* pxHigherPriorityTaskWoken)
+        StreamBufferHandle_t xStreamBuffer,
+        void* pvRxData,
+        size_t xBufferLengthBytes,
+        BaseType_t* pxHigherPriorityTaskWoken)
 {
     *pxHigherPriorityTaskWoken = pdFALSE;
     return xStreamBufferReceive(xStreamBuffer, pvRxData, xBufferLengthBytes, 0U);
@@ -94,36 +94,42 @@ BaseType_t xStreamBufferIsEmpty(StreamBufferHandle_t xStreamBuffer)
 {
     (void)xStreamBuffer;
 
-    size_t size = end - start;
+    size_t size = xStreamBuffer->end - xStreamBuffer->start;
     return size > 0 ? pdFALSE : pdTRUE;
 }
 
-void mockSetStreamBufferData(const void* data, const size_t dataSize)
+void mockSetStreamBufferData(
+        StreamBufferHandle_t xStreamBuffer,
+        const void* data,
+        const size_t dataSize)
 {
     assert(dataSize <= MOCK_STREAMBUFFER_SIZE);
 
-    start = 0;
-    end = dataSize;
-    memcpy(mStreamBufferData, data, dataSize);
+    xStreamBuffer->start = 0;
+    xStreamBuffer->end = dataSize;
+    memcpy(xStreamBuffer->streamBufferData, data, dataSize);
 }
 
-void mockClearStreamBufferData(void)
+void mockClearStreamBufferData(StreamBufferHandle_t xStreamBuffer)
 {
-    start = 0;
-    end = 0;
+    xStreamBuffer->start = 0;
+    xStreamBuffer->end = 0;
 }
 
-size_t mockGetStreamBufferLen(void)
+size_t mockGetStreamBufferLen(StreamBufferHandle_t xStreamBuffer)
 {
-    size_t size = end - start;
+    size_t size = xStreamBuffer->end - xStreamBuffer->start;
     return size;
 }
 
-bool mockGetStreamBufferData(void* data, const size_t maxSize)
+bool mockGetStreamBufferData(
+        StreamBufferHandle_t xStreamBuffer,
+        void* data,
+        const size_t maxSize)
 {
-    size_t size = end - start;
+    size_t size = xStreamBuffer->end - xStreamBuffer->start;
     assert(maxSize >= size);
 
-    memcpy(data, mStreamBufferData + start, size);
+    memcpy(data, xStreamBuffer->streamBufferData + xStreamBuffer->start, size);
     return true;
 }

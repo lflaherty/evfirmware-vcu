@@ -23,9 +23,6 @@
 static Logging_T testLog;
 static UART_HandleTypeDef husart1;
 
-static StaticStreamBuffer_t mStreamBufStatic;
-static StreamBufferHandle_t mStreamBuf = (StreamBufferHandle_t)&mStreamBufStatic;
-
 TEST_GROUP(COMM_UART);
 
 TEST_SETUP(COMM_UART)
@@ -33,7 +30,6 @@ TEST_SETUP(COMM_UART)
     mockSet_HAL_DMA_IT_Enabled(true);
     mockSet_HAL_UART_All_Status(HAL_OK);
     mockClear_HAL_UART_Data();
-    mockClearStreamBufferData();
 
     TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, Log_Init(&testLog));
     TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, Log_EnableSWO(&testLog));
@@ -56,6 +52,7 @@ TEST_SETUP(COMM_UART)
 
     // clear again for the following test
     mockLogClear();
+    mockClearStreamBufferData(usart1.txPendingStreamHandle);
 }
 
 TEST_TEAR_DOWN(COMM_UART)
@@ -91,7 +88,7 @@ TEST(COMM_UART, TestTx)
     TEST_ASSERT_TRUE(usart1.txInProgress);
     TEST_ASSERT_EQUAL(msg1Len, mockGet_HAL_UART_Len());
     TEST_ASSERT_EQUAL_UINT8_ARRAY(msg1, mockGet_HAL_UART_Data(), msg1Len);
-    TEST_ASSERT_EQUAL(0U, mockGetStreamBufferLen());
+    TEST_ASSERT_EQUAL(0U, mockGetStreamBufferLen(usart1.txPendingStreamHandle));
 
     // Allow the DMA tx to complete
     mockClear_HAL_UART_Data();
@@ -99,7 +96,7 @@ TEST(COMM_UART, TestTx)
 
     // Transfer should be complete
     TEST_ASSERT_FALSE(usart1.txInProgress);
-    TEST_ASSERT_EQUAL(0U, mockGetStreamBufferLen());
+    TEST_ASSERT_EQUAL(0U, mockGetStreamBufferLen(usart1.txPendingStreamHandle));
 
     // Send a second message
     TEST_ASSERT_EQUAL(UART_STATUS_OK, UART_SendMessage(&husart1, msg2, msg2Len));
@@ -108,21 +105,21 @@ TEST(COMM_UART, TestTx)
     TEST_ASSERT_TRUE(usart1.txInProgress);
     TEST_ASSERT_EQUAL(msg2Len, mockGet_HAL_UART_Len());
     TEST_ASSERT_EQUAL_UINT8_ARRAY(msg2, mockGet_HAL_UART_Data(), msg2Len);
-    TEST_ASSERT_EQUAL(0U, mockGetStreamBufferLen());
+    TEST_ASSERT_EQUAL(0U, mockGetStreamBufferLen(usart1.txPendingStreamHandle));
 
     // Sending a new message while DMA is still going should enqueue it
     TEST_ASSERT_EQUAL(UART_STATUS_OK, UART_SendMessage(&husart1, msg3, msg3Len));
     TEST_ASSERT_TRUE(usart1.txInProgress);
     TEST_ASSERT_EQUAL(msg2Len, mockGet_HAL_UART_Len());
     TEST_ASSERT_EQUAL_UINT8_ARRAY(msg2, mockGet_HAL_UART_Data(), msg2Len);
-    TEST_ASSERT_EQUAL(msg3Len, mockGetStreamBufferLen());
-    mockGetStreamBufferData(streamBufferData, streamBufferDataLen);
+    TEST_ASSERT_EQUAL(msg3Len, mockGetStreamBufferLen(usart1.txPendingStreamHandle));
+    mockGetStreamBufferData(usart1.txPendingStreamHandle, streamBufferData, streamBufferDataLen);
     TEST_ASSERT_EQUAL_UINT8_ARRAY(msg3, streamBufferData, msg3Len);
 
     // Allow the 2nd DMA tx to complete
     mockClear_HAL_UART_Data();
     HAL_UART_TxCpltCallback(&husart1);
-    mockClearStreamBufferData();
+    mockClearStreamBufferData(usart1.txPendingStreamHandle);
 
     // data in stream buffer should send now
     TEST_ASSERT_TRUE(usart1.txInProgress);
@@ -147,7 +144,7 @@ TEST(COMM_UART, TestTxFail)
     TEST_ASSERT_EQUAL(UART_STATUS_ERROR_TX, UART_SendMessage(&husart1, msg1, msg1Len));
 
     TEST_ASSERT_FALSE(usart1.txInProgress);
-    TEST_ASSERT_EQUAL(0U, mockGetStreamBufferLen());
+    TEST_ASSERT_EQUAL(0U, mockGetStreamBufferLen(usart1.txPendingStreamHandle));
     TEST_ASSERT_EQUAL(msg1Len, mockGet_HAL_UART_Len());
 
     // Now test queued data fails (let first message go through)
@@ -155,14 +152,14 @@ TEST(COMM_UART, TestTxFail)
     TEST_ASSERT_EQUAL(UART_STATUS_OK, UART_SendMessage(&husart1, msg2, msg2Len));
 
     TEST_ASSERT_TRUE(usart1.txInProgress);
-    TEST_ASSERT_EQUAL(0U, mockGetStreamBufferLen());
+    TEST_ASSERT_EQUAL(0U, mockGetStreamBufferLen(usart1.txPendingStreamHandle));
     TEST_ASSERT_EQUAL(msg2Len, mockGet_HAL_UART_Len());
 
     // Add the queued data
     TEST_ASSERT_EQUAL(UART_STATUS_OK, UART_SendMessage(&husart1, msg3, msg3Len));
 
     TEST_ASSERT_TRUE(usart1.txInProgress);
-    TEST_ASSERT_EQUAL(msg3Len, mockGetStreamBufferLen());
+    TEST_ASSERT_EQUAL(msg3Len, mockGetStreamBufferLen(usart1.txPendingStreamHandle));
     TEST_ASSERT_EQUAL(msg2Len, mockGet_HAL_UART_Len());
 
     // Handle a failed send from the ISR...
@@ -185,24 +182,24 @@ TEST(COMM_UART, TestRx)
     uint16_t msg2Len = sizeof(msg2);
     uint16_t msg1_2CombinedLen = sizeof(msg1_2Combined);
 
-    TEST_ASSERT_EQUAL(UART_STATUS_OK, UART_SetRecvStream(&husart1, mStreamBuf));
+    TEST_ASSERT_EQUAL(UART_STATUS_OK, UART_SetRecvStream(&husart1, usart1.txPendingStreamHandle));
 
-    TEST_ASSERT_EQUAL(0U, mockGetStreamBufferLen());
+    TEST_ASSERT_EQUAL(0U, mockGetStreamBufferLen(usart1.txPendingStreamHandle));
     
     // Receive first message
     memcpy(usart1.uartDmaRx, msg1, msg1Len); // copy into DMA buffer
     HAL_UARTEx_RxEventCallback(&husart1, msg1Len);
 
-    TEST_ASSERT_EQUAL(msg1Len, mockGetStreamBufferLen());
-    mockGetStreamBufferData(mockStreamBufferData, mockStreamBufferDataLen);
+    TEST_ASSERT_EQUAL(msg1Len, mockGetStreamBufferLen(usart1.txPendingStreamHandle));
+    mockGetStreamBufferData(usart1.txPendingStreamHandle, mockStreamBufferData, mockStreamBufferDataLen);
     TEST_ASSERT_EQUAL_UINT8_ARRAY(msg1, mockStreamBufferData, msg1Len);
 
     // Receive second message
     memcpy(usart1.uartDmaRx, msg2, msg2Len);
     HAL_UARTEx_RxEventCallback(&husart1, msg2Len);
 
-    TEST_ASSERT_EQUAL(msg1_2CombinedLen, mockGetStreamBufferLen());
-    mockGetStreamBufferData(mockStreamBufferData, mockStreamBufferDataLen);
+    TEST_ASSERT_EQUAL(msg1_2CombinedLen, mockGetStreamBufferLen(usart1.txPendingStreamHandle));
+    mockGetStreamBufferData(usart1.txPendingStreamHandle, mockStreamBufferData, mockStreamBufferDataLen);
     TEST_ASSERT_EQUAL_UINT8_ARRAY(msg1_2Combined, mockStreamBufferData, msg1_2CombinedLen);
 }
 
