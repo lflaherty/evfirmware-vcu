@@ -39,7 +39,6 @@ static void PCDebug_TaskMethod(PCDebug_T* pcdebug)
   // Wait for notification to wake up
   uint32_t notifiedValue = ulTaskNotifyTake(pdTRUE, mBlockTime);
   if (notifiedValue > 0) {
-    // Handle received data
     if (pdFALSE == xStreamBufferIsEmpty(pcdebug->recvStreamHandle)) {
       // For now just print them to log...
       Log_Print(mLog, "Recevied serial bytes: ");
@@ -54,13 +53,7 @@ static void PCDebug_TaskMethod(PCDebug_T* pcdebug)
       Log_Print(mLog, "\n");
     }
 
-    pcdebug->logCounter++;
-    if (10U == pcdebug->logCounter) {
-      // Flush log messages every 100ms
-      flushLogMessage(pcdebug);
-
-      pcdebug->logCounter = 0U;
-    }
+    flushLogMessage(pcdebug);
   }
 }
 
@@ -80,8 +73,6 @@ PCDebug_Status_T PCDebug_Init(
 {
   mLog = logger;
   Log_Print(mLog, "PCDebug_Init begin\n");
-
-  pcdebug->logCounter = 0U;
 
   // Set up message frames
   pcdebug->mfLogData.hcrc = pcdebug->hcrc;

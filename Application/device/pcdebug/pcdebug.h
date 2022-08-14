@@ -42,8 +42,6 @@ typedef struct
   CRC_HandleTypeDef* hcrc;
 
   // ******* Internal use *******
-  uint16_t logCounter;
-
   // Mutex lock
   SemaphoreHandle_t mutex;
   StaticSemaphore_t mutexBuffer;

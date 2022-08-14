@@ -128,9 +128,8 @@ TEST(DEVICE_PCDEBUG, TestNoMessages)
 
     // With no log messages, nothing should happen
 
-    // First 200ms will attempt to print twice...
-    for (uint16_t i = 0; i < 20U; ++i) {
-        TEST_ASSERT_EQUAL(i % 10, mPCDebug.logCounter);
+    // First 500ms will attempt to print twice...
+    for (uint16_t i = 0; i < 5U; ++i) {
         mockSetTaskNotifyValue(1); // to wake up
         PCDebug_TaskMethod(&mPCDebug);
         TEST_ASSERT_EQUAL(0U, mockGet_HAL_UART_Len());
@@ -157,14 +156,7 @@ TEST(DEVICE_PCDEBUG, TestLogSerialShortMsg)
 
     Log_Print(&testLog, simpleMsg);
 
-    // First 9 steps (90ms) should do nothing
-    for (uint16_t i = 0; i < 9; ++i) {
-        mockSetTaskNotifyValue(1); // to wake up
-        PCDebug_TaskMethod(&mPCDebug);
-        TEST_ASSERT_EQUAL(0U, mockGet_HAL_UART_Len());
-    }
-
-    // At 100ms, serial should be flushed
+    // serial should be flushed
     mockSetTaskNotifyValue(1); // to wake up
     PCDebug_TaskMethod(&mPCDebug);
 
