@@ -197,7 +197,7 @@ TEST(DEVICE_PCDEBUG, TestLongMsg)
 
     // construst msg2 expect from buffer
     memcpy(expectedUart2, expectedUart1, PCDEBUG_MSG_LOG_MSGLEN);
-    memset(expectedUart2, 0U, PCDEBUG_MSG_LOG_DATALEN); // clear data
+    memset(expectedUart2 + 5, 0U, PCDEBUG_MSG_LOG_DATALEN); // clear data
     size_t remainingBytes = sizeof(longMsg) - 32;
     memcpy(expectedUart2 + 5, longMsg + 32, remainingBytes);
 
