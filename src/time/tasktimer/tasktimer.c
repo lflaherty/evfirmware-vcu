@@ -32,6 +32,7 @@ static struct {
 } taskData;
 
 static TIM_HandleTypeDef* timHandle;
+static bool isInitialized = false;
 
 
 // ------------------- Public methods -------------------
@@ -43,6 +44,8 @@ TaskTimer_Status_T TaskTimer_Init(Logging_T* logger, TIM_HandleTypeDef* htim)
   // Init data
   memset(&taskData, 0, sizeof(taskData));
   timHandle = htim;
+
+  isInitialized = true;
 
   // Just start the timer
   if (HAL_OK != HAL_TIM_Base_Start_IT(htim)) {
@@ -81,6 +84,11 @@ TaskTimer_Status_T TaskTimer_RegisterTask(TaskHandle_t* task, uint32_t divider)
 //------------------------------------------------------------------------------
 void TaskTimer_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
 {
+  if (!isInitialized)
+  {
+    return;
+  }
+
   // Check that this is the right timer
   if (htim->Instance == timHandle->Instance) {
     // Determine what notifications to send
