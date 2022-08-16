@@ -26,8 +26,6 @@ extern I2C_HandleTypeDef hi2c4;
 
 extern RTC_HandleTypeDef hrtc;
 
-extern SD_HandleTypeDef hsd1;
-
 extern TIM_HandleTypeDef htim2;
 
 extern UART_HandleTypeDef huart1;
