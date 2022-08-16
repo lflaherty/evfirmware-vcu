@@ -21,14 +21,31 @@
 
 #include "vehicleLogic/watchdogTrigger/watchdogTrigger.h"
 
+
+typedef enum
+{
+  ECU_INIT_OK     = 0x00U,
+  ECU_INIT_ERROR  = 0x01
+} ECU_Init_Status_T;
+
 // ------------------- Private data -------------------
 static Logging_T mLog;
+
+#define INIT_STACK_SIZE 1500U
+#define INIT_TASK_PRIORITY 15U
+struct InitTask {
+  TaskHandle_t taskHandle;
+  StaticTask_t taskBuffer;
+  StackType_t taskStack[INIT_STACK_SIZE];
+};
+static struct InitTask initTask;
 
 // ------------------- Module structures -------------------
 static WatchdogTrigger_T mWdtTrigger;
 static PCDebug_T mPCDebug;
 
 // ------------------- Private prototypes -------------------
+static void ECU_Init_Task(void* pvParameters);  // RTOS task method for init
 static ECU_Init_Status_T ECU_Init_System1(void);  // Init basics for logging
 static ECU_Init_Status_T ECU_Init_System2(void);  // Init remaining internal peripherals
 static ECU_Init_Status_T ECU_Init_System3(void);  // Init external peripherals
@@ -46,8 +63,27 @@ void ECU_Init_Hang(void)
 }
 
 //------------------------------------------------------------------------------
-ECU_Init_Status_T ECU_Init(void)
+void ECU_Init(void)
 {
+  // Add init task
+  initTask.taskHandle = xTaskCreateStatic(
+      ECU_Init_Task,
+      "init",
+      INIT_STACK_SIZE,
+      NULL,
+      INIT_TASK_PRIORITY,
+      initTask.taskStack,
+      &initTask.taskBuffer);
+
+  // Start RTOS
+  vTaskStartScheduler();
+}
+
+//------------------------------------------------------------------------------
+void ECU_Init_Task(void* pvParameters)
+{
+  (void)pvParameters;
+
   // Initialize components
   if (ECU_INIT_OK != ECU_Init_System1()) {
     ECU_Init_Hang();
@@ -69,8 +105,8 @@ ECU_Init_Status_T ECU_Init(void)
   }
 
   Log_Print(&mLog, "ECU_Init complete\n");
-
-  return ECU_INIT_OK;
+  Log_Print(&mLog, "ECU_Init deleting init task\n");
+  vTaskDelete(NULL);
 }
 
 //------------------------------------------------------------------------------

@@ -8,17 +8,12 @@
 #ifndef INC_INITIALIZE_H_
 #define INC_INITIALIZE_H_
 
-
-typedef enum
-{
-  ECU_INIT_OK     = 0x00U,
-  ECU_INIT_ERROR  = 0x01
-} ECU_Init_Status_T;
-
 /**
- * @brief Initializes "System" and "Application" components for this ECU
+ * @brief Initializes "System" and "Application" components for this ECU and
+ * starts scheduling.
+ * This method invokes the RTOS scheduler, and should never exit.
  */
-ECU_Init_Status_T ECU_Init(void);
+void ECU_Init(void);
 
 
 #endif /* INC_INITIALIZE_H_ */

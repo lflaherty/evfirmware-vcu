@@ -74,7 +74,6 @@ DMA_HandleTypeDef hdma_usart1_rx;
 DMA_HandleTypeDef hdma_usart1_tx;
 
 /* USER CODE BEGIN PV */
-static bool isInitialized = false;
 
 /* USER CODE END PV */
 
@@ -149,18 +148,8 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   printf("\n");
-  printf("Main initialize...\n");
-  ECU_Init_Status_T initStatus = ECU_Init();
-  if (initStatus != ECU_INIT_OK) {
-    printf("Initialization error, halting\n");
-    Error_Handler();
-  }
-
-  isInitialized = true;
-
-  // start RTOS
-  printf("Starting scheduler...\n");
-  vTaskStartScheduler();
+  printf("Entering ECU_Init...\n");
+  ECU_Init();
 
   /* USER CODE END 2 */
 
@@ -1025,9 +1014,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   /* USER CODE BEGIN Callback 1 */
 
   // Advance the TaskTimer
-  if (isInitialized) {
-    TaskTimer_TIM_PeriodElapsedCallback(htim);
-  }
+  TaskTimer_TIM_PeriodElapsedCallback(htim);
 
   /* USER CODE END Callback 1 */
 }
