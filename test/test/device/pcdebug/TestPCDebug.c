@@ -123,9 +123,6 @@ TEST(DEVICE_PCDEBUG, InitTaskRegisterError)
 
 TEST(DEVICE_PCDEBUG, TestNoMessages)
 {
-    const char simpleMsg[] = "Hello!\n"; // less than 32 data chars
-    assert(sizeof(simpleMsg) <= 32U);
-
     // With no log messages, nothing should happen
 
     // First 500ms will attempt to print twice...
