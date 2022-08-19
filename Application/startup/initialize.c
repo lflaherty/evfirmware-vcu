@@ -45,8 +45,8 @@ static WatchdogTrigger_T mWdtTrigger;
 static PCDebug_T mPCDebug;
 
 // ------------------- Private prototypes -------------------
-static void ECU_Init_Task(void* pvParameters);  // RTOS task method for init
-static ECU_Init_Status_T ECU_Init_System1(void);  // Init basics for logging
+static void ECU_Init_Task(void* pvParameters);    // RTOS task method for init
+static ECU_Init_Status_T ECU_Init_System1(void);  // Init basics for logging and running modules
 static ECU_Init_Status_T ECU_Init_System2(void);  // Init remaining internal peripherals
 static ECU_Init_Status_T ECU_Init_System3(void);  // Init external peripherals
 static ECU_Init_Status_T ECU_Init_App1(void);     // Init application vehicle interface (devices depends on this to push data)
@@ -119,12 +119,18 @@ static ECU_Init_Status_T ECU_Init_System1(void)
     return ECU_INIT_ERROR;
   }
 
+  Log_Print(&mLog, "###### ECU_Init_System1 ######\n");
+
+  // Timers
+  if (TaskTimer_Init(&mLog, Mapping_GetTaskTimer()) != TASKTIMER_STATUS_OK) {
+    Log_Print(&mLog, "Task Timer initialization error\n");
+    return ECU_INIT_ERROR;
+  }
+
   statusLog = Log_EnableSWO(&mLog);
   if (LOGGING_STATUS_OK != statusLog) {
     return ECU_INIT_ERROR;
   }
-
-  Log_Print(&mLog, "###### ECU_Init_System1 ######\n");
 
   // UART
   UART_Status_T statusUart;
@@ -164,12 +170,6 @@ static ECU_Init_Status_T ECU_Init_System2(void)
 
   // ADC
   // Not configured in this release
-
-  // Timers
-  if (TaskTimer_Init(&mLog, Mapping_GetTaskTimer()) != TASKTIMER_STATUS_OK) {
-    Log_Print(&mLog, "Task Timer initialization error\n");
-    return ECU_INIT_ERROR;
-  }
 
   // RTC
   // Not configured in this release
