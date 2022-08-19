@@ -29,7 +29,7 @@ int _write(int file, char *ptr, int len)
 //------------------------------------------------------------------------------
 Logging_Status_T Log_Init(Logging_T* log)
 {
-  log->mutex = xSemaphoreCreateBinaryStatic(&log->mutexBuffer);
+  log->mutex = xSemaphoreCreateMutexStatic(&log->mutexBuffer);
   log->enableSerial = false;
   log->enableSWO = false;
 

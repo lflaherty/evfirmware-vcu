@@ -22,6 +22,7 @@ typedef QueueHandle_t SemaphoreHandle_t; // this is how FreeRTOS defines it, so 
 
 // ================== Define methods ==================
 SemaphoreHandle_t xSemaphoreCreateBinaryStatic(StaticSemaphore_t* staticSemaphore);
+SemaphoreHandle_t xSemaphoreCreateMutexStatic(StaticSemaphore_t* staticSemaphore);
 BaseType_t xSemaphoreTake(SemaphoreHandle_t xQueue, TickType_t xTicksToWait);
 BaseType_t xSemaphoreGive(SemaphoreHandle_t xQueue);
 

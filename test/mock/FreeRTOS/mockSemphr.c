@@ -24,6 +24,14 @@ SemaphoreHandle_t xSemaphoreCreateBinaryStatic(StaticSemaphore_t* staticSemaphor
     return handle;
 }
 
+SemaphoreHandle_t xSemaphoreCreateMutexStatic(StaticSemaphore_t* staticSemaphore)
+{
+    (void)staticSemaphore;
+
+    SemaphoreHandle_t handle = (SemaphoreHandle_t)staticSemaphore;
+    return handle;
+}
+
 BaseType_t xSemaphoreTake(SemaphoreHandle_t xQueue, TickType_t xTicksToWait)
 {
     (void)xQueue;
