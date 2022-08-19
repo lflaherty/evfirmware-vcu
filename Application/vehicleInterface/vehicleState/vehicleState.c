@@ -66,7 +66,7 @@ VehicleState_Status_T VehicleState_Init(Logging_T* logger, VehicleState_T* state
       &state->dataQueueBuffer);
 
   // Create mutex lock
-  state->mutex = xSemaphoreCreateBinaryStatic(&state->mutexBuffer);
+  state->mutex = xSemaphoreCreateMutexStatic(&state->mutexBuffer);
 
   // create main task
   state->taskHandle = xTaskCreateStatic(

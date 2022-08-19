@@ -88,7 +88,7 @@ ThrottleController_Status_T ThrottleController_Init(
   throttleControl->direction = VEHICLESTATE_INVERTER_FORWARD;
 
   // Create mutex lock
-  throttleControl->mutex = xSemaphoreCreateBinaryStatic(&throttleControl->mutexBuffer);
+  throttleControl->mutex = xSemaphoreCreateMutexStatic(&throttleControl->mutexBuffer);
 
   // create main task
   throttleControl->taskHandle = xTaskCreateStatic(

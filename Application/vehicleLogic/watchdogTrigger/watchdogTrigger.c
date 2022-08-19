@@ -51,7 +51,7 @@ WatchdogTrigger_Status_T WatchdogTrigger_Init(
   wdtTrigger->counter = 0U;
 
   // Create mutex lock
-  wdtTrigger->mutex = xSemaphoreCreateBinaryStatic(&wdtTrigger->mutexBuffer);
+  wdtTrigger->mutex = xSemaphoreCreateMutexStatic(&wdtTrigger->mutexBuffer);
 
   // create main task
   wdtTrigger->taskHandle = xTaskCreateStatic(

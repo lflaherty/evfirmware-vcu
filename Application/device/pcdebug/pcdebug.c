@@ -14,7 +14,7 @@
 // ------------------- Private data -------------------
 static Logging_T* mLog;
 static const TickType_t mBlockTime = 100 / portTICK_PERIOD_MS; // 100ms
-static const uint32_t tickRateMs = 10U;
+static const uint32_t tickRateMs = 100U; // 100 ms
 
 // ------------------- Private methods -------------------
 /**
@@ -84,7 +84,7 @@ PCDebug_Status_T PCDebug_Init(
   pcdebug->mfLogData.buffer = pcdebug->mfLogDataBuffer;
 
   // Create mutex lock
-  pcdebug->mutex = xSemaphoreCreateBinaryStatic(&pcdebug->mutexBuffer);
+  pcdebug->mutex = xSemaphoreCreateMutexStatic(&pcdebug->mutexBuffer);
 
   // create main task
   pcdebug->taskHandle = xTaskCreateStatic(
