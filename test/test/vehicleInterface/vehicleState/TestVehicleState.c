@@ -33,6 +33,7 @@ TEST_SETUP(VEHICLEINTERFACE_VEHICLESTATE)
     TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, Log_Init(&testLog));
     TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, Log_EnableSWO(&testLog));
     mockLogClear();
+    mockClearQueueData();
     mockSet_TaskTimer_Init_Status(TASKTIMER_STATUS_OK);
     mockSet_TaskTimer_RegisterTask_Status(TASKTIMER_STATUS_OK);
     
@@ -54,6 +55,7 @@ TEST_TEAR_DOWN(VEHICLEINTERFACE_VEHICLESTATE)
 {
     TEST_ASSERT_FALSE(mockSempahoreGetLocked());
     mockLogClear();
+    mockClearQueueData();
 }
 
 TEST(VEHICLEINTERFACE_VEHICLESTATE, InitOk)
@@ -109,8 +111,12 @@ TEST(VEHICLEINTERFACE_VEHICLESTATE, PushFieldQueueFull)
     uint32_t value1 = 0x0AA0U;
     uint32_t value2 = 0x0AB0U;
     VehicleState_Status_T status;
-    status = VehicleState_PushField(&mState, &mState.data.inverter.runFaults, &value1, sizeof(uint32_t));
-    TEST_ASSERT_EQUAL(status, VEHICLESTATE_STATUS_OK);
+
+    // Fill up queue
+    for (uint32_t i = 0; i < VEHICLESTATE_QUEUE_LENGTH; ++i) {
+        status = VehicleState_PushField(&mState, &mState.data.inverter.runFaults, &value1, sizeof(uint32_t));
+        TEST_ASSERT_EQUAL(status, VEHICLESTATE_STATUS_OK);
+    }
 
     status = VehicleState_PushField(&mState, &mState.data.inverter.runFaults, &value2, sizeof(uint32_t));
     TEST_ASSERT_EQUAL(status, VEHICLESTATE_STATUS_ERROR_QUEUE);
@@ -142,8 +148,12 @@ TEST(VEHICLEINTERFACE_VEHICLESTATE, PushFieldfQueueFull)
     float value1 = 420.0f;
     float value2 = 422.0f;
     VehicleState_Status_T status;
-    status = VehicleState_PushFieldf(&mState, &mState.data.motor.calculatedTorque, value1);
-    TEST_ASSERT_EQUAL(status, VEHICLESTATE_STATUS_OK);
+
+    // Fill up queue
+    for (uint32_t i = 0; i < VEHICLESTATE_QUEUE_LENGTH; ++i) {
+        status = VehicleState_PushFieldf(&mState, &mState.data.motor.calculatedTorque, value1);
+        TEST_ASSERT_EQUAL(status, VEHICLESTATE_STATUS_OK);
+    }
 
     status = VehicleState_PushFieldf(&mState, &mState.data.motor.calculatedTorque, value2);
     TEST_ASSERT_EQUAL(status, VEHICLESTATE_STATUS_ERROR_QUEUE);
