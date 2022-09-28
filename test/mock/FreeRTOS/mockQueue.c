@@ -8,7 +8,7 @@
 
 #include "FreeRTOS.h"
 #include "queue.h"
-
+#include <stdio.h>
 #include <string.h>
 #include <assert.h>
 #include <stdbool.h>
@@ -27,6 +27,7 @@ QueueHandle_t xQueueCreateStatic(const UBaseType_t uxQueueLength, const UBaseTyp
 
     QueueHandle_t handle = (QueueHandle_t)pxStaticQueue;
     handle->itemSize = uxItemSize;
+    handle->queueLen = uxQueueLength;
 
     return handle;
 }
@@ -35,15 +36,15 @@ BaseType_t xQueueReceive(QueueHandle_t xQueue, void* const pvBuffer, TickType_t 
 {
     (void)xTicksToWait;
 
-    size_t remainingSize = end - start;
+    size_t remainingSize = mockGetQueueSize();
     if (remainingSize < xQueue->itemSize) {
-        return pdFAIL;
+        return pdFALSE;
     }
 
     memcpy(pvBuffer, mQueueData + start, xQueue->itemSize);
     start += xQueue->itemSize;
 
-    return pdPASS;
+    return pdTRUE;
 }
 
 BaseType_t xQueueReceiveFromISR(QueueHandle_t xQueue, void *pvBuffer, BaseType_t *pxHigherPriorityTaskWoken)
@@ -55,14 +56,20 @@ BaseType_t xQueueReceiveFromISR(QueueHandle_t xQueue, void *pvBuffer, BaseType_t
 BaseType_t xQueueSendToBack(QueueHandle_t xQueue, const void* const pvItemToQueue, TickType_t ticksToWait)
 {
     (void)ticksToWait;
-    
+
     size_t freeSpace = MOCK_QUEUE_SIZE - end;
     assert(freeSpace >= xQueue->itemSize);
+    assert(xQueue->queueLen > 0);
+
+    size_t queueNumElements = mockGetQueueSize() / xQueue->itemSize;
+    if (queueNumElements >= xQueue->queueLen) {
+        return pdFALSE;
+    }
 
     memcpy(mQueueData + end, pvItemToQueue, xQueue->itemSize);
     end += xQueue->itemSize;
 
-    return pdPASS;
+    return pdTRUE;
 }
 
 BaseType_t xQueueSendToBackFromISR(QueueHandle_t xQueue, const void* const pvItemToQueue, BaseType_t* const pxHigherPriorityTaskWoken)

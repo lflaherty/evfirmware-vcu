@@ -23,8 +23,10 @@
  
 static Logging_T testLog;
 
+static const size_t recvQueueLen = 128;
+static QueueHandle_t recvQueue;
 static StaticQueue_t recvQueueBuffer;
-static QueueHandle_t recvQueue = (QueueHandle_t)&recvQueueBuffer;
+static uint8_t recvQueueStorageArea[recvQueueLen];
 
 // ISR
 extern void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef* hcan);
@@ -33,11 +35,16 @@ TEST_GROUP(COMM_CAN);
 
 TEST_SETUP(COMM_CAN)
 {
-    recvQueue->itemSize = sizeof(CAN_DataFrame_T);
+    recvQueue = xQueueCreateStatic(
+        recvQueueLen,
+        sizeof(CAN_DataFrame_T),
+        recvQueueStorageArea,
+        &recvQueueBuffer);
 
     TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, Log_Init(&testLog));
     TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, Log_EnableSWO(&testLog));
     mockLogClear();
+    mockClearQueueData();
     mockSet_HAL_CAN_AllStatus(HAL_OK);
     mockClear_HAL_CAN_TxMailboxes();
     mockClear_HAL_CAN_RxFifo();

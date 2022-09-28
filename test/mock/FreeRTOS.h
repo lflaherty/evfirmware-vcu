@@ -23,6 +23,7 @@ typedef struct
 typedef struct xSTATIC_QUEUE
 {
     size_t itemSize;
+    size_t queueLen;
     // Must be kept the same as QueueDefinition in queue.h
 } StaticQueue_t;
 
