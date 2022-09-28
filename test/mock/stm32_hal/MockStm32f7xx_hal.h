@@ -23,6 +23,11 @@
 uint32_t stubITM_SendChar(uint32_t ch);
 #define ITM_SendChar stubITM_SendChar
 
+// Peripherals
+#define CAN1    ((CAN_TypeDef*) 0UL)
+#define CAN2    ((CAN_TypeDef*) 1UL)
+#define CAN3    ((CAN_TypeDef*) 2UL)
+
 // DMA
 #define DMA_IT_TC   0x00000001U
 #define DMA_IT_HT   0x00000002U

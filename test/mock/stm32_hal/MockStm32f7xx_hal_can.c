@@ -6,7 +6,10 @@
  */
 #include "MockStm32f7xx_hal_can.h"
 
+#include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
+#include <assert.h>
 
 // ------------------- Static data -------------------
 static HAL_StatusTypeDef mStatusGetRxMessage = HAL_OK;
@@ -15,19 +18,59 @@ static HAL_StatusTypeDef mStatusStart = HAL_OK;
 static HAL_StatusTypeDef mStatusActivateNotification = HAL_OK;
 static HAL_StatusTypeDef mStatusAddTxMessage = HAL_OK;
 
-static void* mMsgData; // data to use for CAN message
-static CAN_RxHeaderTypeDef mRxHeaderData;
-static CAN_TxHeaderTypeDef mTxHeaderData;
+// Tx
+#define NUM_MAILBOXES 3U
+static bool txMailboxInUse[NUM_MAILBOXES] = { 0 };
+static uint8_t mTxMsgData[NUM_MAILBOXES][8]; // data to use for CAN message
+static CAN_TxHeaderTypeDef mTxHeaderData[NUM_MAILBOXES];
+
+// Rx
+#define RECV_FIFO_SIZE 32U
+static uint32_t mRxNext = 0U;
+static uint32_t mRxPending = 0U;
+static uint8_t mRxMsgData[NUM_MAILBOXES][8]; // data to use for CAN message
+static CAN_RxHeaderTypeDef mRxHeaderData[RECV_FIFO_SIZE];
+
+// ------------------- Helpers -------------------
+size_t getFirstFreeTxMailboxIndex(void)
+{
+    for (size_t i = 0; i < NUM_MAILBOXES; ++i) {
+        if (false == txMailboxInUse[i]) {
+            return i;
+        }
+    }
+
+    assert(false); // this is only reached if there's a programming error
+    return 0;
+}
+
+uint32_t numFreeMailboxes(void)
+{
+    uint32_t n = 0;
+    for (size_t i = 0; i < NUM_MAILBOXES; ++i) {
+        if (txMailboxInUse[i] == false) {
+            n++;
+        }
+    }
+    
+    return n;
+}
 
 // ------------------- Methods -------------------
 HAL_StatusTypeDef stubHAL_CAN_GetRxMessage(CAN_HandleTypeDef *hcan, uint32_t RxFifo, CAN_RxHeaderTypeDef *pHeader, uint8_t aData[])
 {
     (void)hcan;
     (void)RxFifo;
-    
-    *pHeader = mRxHeaderData;
-    memcpy(aData, mMsgData, mRxHeaderData.DLC);
 
+    if (mRxNext == mRxPending) {
+        // No more data in FIFO
+        return HAL_ERROR;
+    }
+
+    *pHeader = mRxHeaderData[mRxNext];
+    memcpy(aData, mTxMsgData[mRxNext], mRxHeaderData[mRxNext].DLC);
+
+    mRxNext++;
     return mStatusGetRxMessage;
 }
 
@@ -56,31 +99,49 @@ HAL_StatusTypeDef stubHAL_CAN_AddTxMessage(CAN_HandleTypeDef *hcan, CAN_TxHeader
     (void)hcan;
     (void)pTxMailbox;
 
-    mMsgData = aData;
-    mTxHeaderData = *pHeader;
+    if (0U == numFreeMailboxes()) {
+        return HAL_ERROR;
+    }
 
-    mRxHeaderData.StdId = mTxHeaderData.StdId;
-    mRxHeaderData.ExtId = mTxHeaderData.ExtId;
-    mRxHeaderData.IDE = mTxHeaderData.IDE;
-    mRxHeaderData.RTR = mTxHeaderData.RTR;
-    mRxHeaderData.DLC = mTxHeaderData.DLC;
-    mRxHeaderData.Timestamp = 0;
-    mRxHeaderData.FilterMatchIndex = 0;
+    size_t mailbox = getFirstFreeTxMailboxIndex();
+    txMailboxInUse[mailbox] = true;
+
+    memcpy(mTxMsgData[mailbox], aData, pHeader->DLC);
+    mTxHeaderData[mailbox] = *pHeader;
 
     return mStatusAddTxMessage;
 }
 
-void mockSetHALCANMessage(void* data, CAN_RxHeaderTypeDef* header)
+uint32_t stubHAL_CAN_GetTxMailboxesFreeLevel(const CAN_HandleTypeDef *hcan)
 {
-    mMsgData = data;
-    mRxHeaderData = *header;
+    (void)hcan;
+    return numFreeMailboxes();
+}
 
-    mTxHeaderData.StdId = mRxHeaderData.StdId;
-    mTxHeaderData.ExtId = mRxHeaderData.ExtId;
-    mTxHeaderData.IDE = mRxHeaderData.IDE;
-    mTxHeaderData.RTR = mRxHeaderData.RTR;
-    mTxHeaderData.DLC = mRxHeaderData.DLC;
-    mTxHeaderData.TransmitGlobalTime = 0;
+uint32_t stubHAL_CAN_GetRxFifoFillLevel(const CAN_HandleTypeDef *hcan, uint32_t RxFifo)
+{
+    (void)hcan;
+    (void)RxFifo;
+
+    return (mRxPending - mRxNext);
+}
+
+void mockAddHALCANRxMessage(
+        uint32_t msgId,
+        uint8_t* data,
+        uint32_t dlc)
+{
+    assert(mRxPending < RECV_FIFO_SIZE);
+
+    memcpy(mRxMsgData[mRxPending], data, dlc);
+    mRxHeaderData[mRxPending].StdId = msgId;
+    mRxHeaderData[mRxPending].ExtId = msgId;
+    mRxHeaderData[mRxPending].RTR = CAN_RTR_DATA;
+    mRxHeaderData[mRxPending].IDE = CAN_ID_STD;
+    mRxHeaderData[mRxPending].DLC = dlc;
+    mRxHeaderData[mRxPending].Timestamp = 0U;
+    mRxHeaderData[mRxPending].FilterMatchIndex = 0U;
+    mRxPending++;
 }
 
 void mockSet_HAL_CAN_AllStatus(HAL_StatusTypeDef status)
@@ -115,4 +176,33 @@ void mockSet_HAL_CAN_ActivateNotification_Status(HAL_StatusTypeDef status)
 void mockSet_HAL_CAN_AddTxMessage_Status(HAL_StatusTypeDef status)
 {
     mStatusAddTxMessage = status;
+}
+
+uint32_t mockGet_HAL_CAN_NumTxMailboxesInUse(void)
+{
+    return NUM_MAILBOXES - numFreeMailboxes();
+}
+
+CAN_TxHeaderTypeDef* mockGet_HAL_CAN_TxHeader(uint32_t mailbox)
+{
+    assert(mailbox < NUM_MAILBOXES);
+    return &mTxHeaderData[mailbox];
+}
+
+uint8_t* mockGet_HAL_CAN_TxData(uint32_t mailbox)
+{
+    return mTxMsgData[mailbox];
+}
+
+void mockClear_HAL_CAN_TxMailboxes(void)
+{
+    for (size_t i = 0; i < NUM_MAILBOXES; ++i) {
+        txMailboxInUse[i] = false;
+    }
+}
+
+void mockClear_HAL_CAN_RxFifo(void)
+{
+    mRxNext = 0U;
+    mRxPending = 0U;
 }

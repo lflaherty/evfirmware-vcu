@@ -137,6 +137,16 @@ typedef struct
   */
 
 
+/** @defgroup CAN_Tx_Mailboxes CAN Tx Mailboxes
+  * @{
+  */
+#define CAN_TX_MAILBOX0             (0x00000001U)  /*!< Tx Mailbox 0  */
+#define CAN_TX_MAILBOX1             (0x00000002U)  /*!< Tx Mailbox 1  */
+#define CAN_TX_MAILBOX2             (0x00000004U)  /*!< Tx Mailbox 2  */
+/**
+  * @}
+  */
+
 /* Transmit Interrupt */
 #define CAN_IT_TX_MAILBOX_EMPTY     ((uint32_t)0)
 
@@ -149,13 +159,14 @@ typedef struct
 #define CAN_IT_RX_FIFO1_OVERRUN     ((uint32_t)6)
 
 
-
 // ================== Define methods ==================
 HAL_StatusTypeDef stubHAL_CAN_GetRxMessage(CAN_HandleTypeDef *hcan, uint32_t RxFifo, CAN_RxHeaderTypeDef *pHeader, uint8_t aData[]);
 HAL_StatusTypeDef stubHAL_CAN_ConfigFilter(CAN_HandleTypeDef *hcan, CAN_FilterTypeDef *sFilterConfig);
 HAL_StatusTypeDef stubHAL_CAN_Start(CAN_HandleTypeDef *hcan);
 HAL_StatusTypeDef stubHAL_CAN_ActivateNotification(CAN_HandleTypeDef *hcan, uint32_t ActiveITs);
 HAL_StatusTypeDef stubHAL_CAN_AddTxMessage(CAN_HandleTypeDef *hcan, CAN_TxHeaderTypeDef *pHeader, uint8_t aData[], uint32_t *pTxMailbox);
+uint32_t stubHAL_CAN_GetTxMailboxesFreeLevel(const CAN_HandleTypeDef *hcan);
+uint32_t stubHAL_CAN_GetRxFifoFillLevel(const CAN_HandleTypeDef *hcan, uint32_t RxFifo);
 
 // Replace real methods with mock stubs
 #define HAL_CAN_GetRxMessage stubHAL_CAN_GetRxMessage
@@ -163,13 +174,17 @@ HAL_StatusTypeDef stubHAL_CAN_AddTxMessage(CAN_HandleTypeDef *hcan, CAN_TxHeader
 #define HAL_CAN_Start stubHAL_CAN_Start
 #define HAL_CAN_ActivateNotification stubHAL_CAN_ActivateNotification
 #define HAL_CAN_AddTxMessage stubHAL_CAN_AddTxMessage
+#define HAL_CAN_GetTxMailboxesFreeLevel stubHAL_CAN_GetTxMailboxesFreeLevel
+#define HAL_CAN_GetRxFifoFillLevel stubHAL_CAN_GetRxFifoFillLevel
 
 // ================== Mock control methods ==================
 /**
- * @brief Sets the queue to return this data upon next xQueueReceive
- * @param data Pointer to data to use. This will be used to control size of data copying
+ * @brief Adds more data to be received
  */
-void mockSetHALCANMessage(void* data, CAN_RxHeaderTypeDef* header);
+void mockAddHALCANRxMessage(
+    uint32_t msgId,
+    uint8_t* data,
+    uint32_t dlc);
 
 void mockSet_HAL_CAN_AllStatus(HAL_StatusTypeDef status);
 void mockSet_HAL_CAN_GetRxMessage_Status(HAL_StatusTypeDef status);
@@ -177,5 +192,10 @@ void mockSet_HAL_CAN_ConfigFilter_Status(HAL_StatusTypeDef status);
 void mockSet_HAL_CAN_Start_Status(HAL_StatusTypeDef status);
 void mockSet_HAL_CAN_ActivateNotification_Status(HAL_StatusTypeDef status);
 void mockSet_HAL_CAN_AddTxMessage_Status(HAL_StatusTypeDef status);
+uint32_t mockGet_HAL_CAN_NumTxMailboxesInUse(void);
+CAN_TxHeaderTypeDef* mockGet_HAL_CAN_TxHeader(uint32_t mailbox);
+uint8_t* mockGet_HAL_CAN_TxData(uint32_t mailbox);
+void mockClear_HAL_CAN_TxMailboxes(void);
+void mockClear_HAL_CAN_RxFifo(void);
 
 #endif

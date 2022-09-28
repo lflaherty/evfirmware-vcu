@@ -13,19 +13,17 @@
 
 #include "lib/logging/logging.h"
 
-#define CAN_QUEUE_LENGTH  50       /* 50 messages */
-#define CAN_NUM_CALLBACKS 16       /* Max number of CAN callbacks on any bus */
+#define CAN_NUM_INSTANCES 3
 
-#define CAN_CALLBACK_PRIORITY 4
+typedef enum
+{
+  CAN_DEV1 = 0x00U,
+  CAN_DEV2 = 0x01U,
+  CAN_DEV3 = 0x02U
+} CAN_Device_T;
 
-/**
- * Stack size for CAN Rx callback thread.
- * Note the units of this: words
- * The STM32 has a 32-bit word size.
- * I.e. 200 word stack size => 200*32bit = 800 Bytes
- * This will be the same stack in the call-back methods
- */
-#define CAN_STACK_SIZE 2000
+#define CAN_MAX_RECV_QUEUES 8  // queues per CAN bus instance
+#define CAN_MAX_PENDING_MSGS 64 // messages that can pend at once
 
 typedef enum
 {
@@ -35,26 +33,18 @@ typedef enum
   CAN_STATUS_ERROR_START         = 0x03U,
   CAN_STATUS_ERROR_START_NOTIFY  = 0x04U,
   CAN_STATUS_ERROR_INVALID_BUS   = 0x05U,
-  CAN_STATUS_ERROR_CALLBACK_FULL = 0x06U
+  CAN_STATUS_ERROR_MAX_QUEUES    = 0x06U
 } CAN_Status_T;
 
 /**
  * @brief Data structure used to store CAN frames
  */
 typedef struct {
-  CAN_TypeDef* busInstance;
+  CAN_Device_T busInstance;
   uint32_t msgId;
   uint8_t data[8];
   uint32_t dlc;
 } CAN_DataFrame_T;
-
-/**
- * @brief Callback method typedef
- * Params:
- *    CAN data frame
- *    Param to pass to callback
- */
-typedef void (*CAN_Callback_Method)(const CAN_DataFrame_T*, const void*);
 
 /**
  * @brief Initialize CAN driver interface
@@ -63,38 +53,52 @@ CAN_Status_T CAN_Init(Logging_T* logger);
 
 /**
  * @brief Configure CAN bus
- * This should be called from main. Main will retain ownership of handle ptr.
  *
+ * @param device Name of CAN instance
+ * @param handle STM HAL handle for device
  * @return Return status. CAN_STATUS_OK for success. See CAN_Status_T for more.
  */
-CAN_Status_T CAN_Config(CAN_HandleTypeDef* handle);
+CAN_Status_T CAN_Config(CAN_Device_T device, CAN_HandleTypeDef* handle);
 
 /**
- * @brief Adds a method to the callback list. Method will be invoked when a
- * CAN frame is received.
- *
- * @param handle CAN Bus device handle
- * @param msgId message ID
- * @param callback Method to call during callback
- * @param param Constant parameter to pass to the callback
- * @return Return status. CAN_STATUS_OK for success. See CAN_Status_T for more.
+ * @brief Adds a queue to send data to.
+ * Will send data to this queue if (msg id & deviceIdMask) == deviceId
+ * 
+ * E.g.:
+ * A message ID may be: 0x4A1, where the 0x4 signifies the device, and the
+ * 0xA1 signifies a message ID from that device.
+ * To capture this, use:
+ *    deviceId      = 0x400
+ *    deviceIdMask  = 0xF00
+ * The deviceIdMask should be selected that it also covers the number of bits
+ * used by other devices on the bus.
+ * 
+ * @param canInstance CAN Bus device instance
+ * @param deviceId ID of device with zero offset.
+ * @param deviceIdMask Mask that will cause msg id to match device id when applied.
+ * @param outQueue Queue to send data to
+ * @return CAN_STATUS_OK if successful.
  */
-CAN_Status_T CAN_RegisterCallback(
-    const CAN_HandleTypeDef* handle,
-    const uint32_t msgId,
-    const CAN_Callback_Method callback,
-    void* param);
+CAN_Status_T CAN_RegisterQueue(
+    const CAN_Device_T canInstance,
+    const uint32_t deviceId,
+    const uint32_t deviceIdMask,
+    QueueHandle_t outQueue);
 
 /**
  * @brief Send a message on the CAN bus
  *
- * @param handle CAN Bus device handle
+ * @param canInstance CAN Bus device instance
  * @param msgId CAN Frame ID
  * @param data Array of data to send
  * @param n Length of data array. Max 8.
  * @return Return status. CAN_STATUS_OK for success. See CAN_Status_T for more.
  * handle->ErrorCode may provide more detailed error information.
  */
-CAN_Status_T CAN_SendMessage(CAN_HandleTypeDef* handle, uint32_t msgId, uint8_t* data, uint32_t n);
+CAN_Status_T CAN_SendMessage(
+    const CAN_Device_T canInstance,
+    uint32_t msgId,
+    uint8_t* data,
+    uint32_t n);
 
 #endif /* COMM_CAN_CAN_H_ */
