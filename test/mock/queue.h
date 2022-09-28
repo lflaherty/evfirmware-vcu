@@ -27,8 +27,16 @@ typedef struct QueueDefinition* QueueHandle_t;
 // ================== Define methods ==================
 QueueHandle_t xQueueCreateStatic(const UBaseType_t uxQueueLength, const UBaseType_t uxItemSize, uint8_t* pucQueueStorage, StaticQueue_t* pxStaticQueue);
 BaseType_t xQueueReceive(QueueHandle_t xQueue, void* const pvBuffer, TickType_t xTicksToWait);
+BaseType_t xQueueReceiveFromISR(QueueHandle_t xQueue, void *pvBuffer, BaseType_t *pxHigherPriorityTaskWoken);
 BaseType_t xQueueSendToBack(QueueHandle_t xQueue, const void* const pvItemToQueue, TickType_t ticksToWait);
 BaseType_t xQueueSendToBackFromISR(QueueHandle_t xQueue, const void* const pvItemToQueue, BaseType_t* const pxHigherPriorityTaskWoken);
+BaseType_t xQueueIsQueueEmptyFromISR(const QueueHandle_t xQueue);
+
+/**
+ * @brief Empty the mock queue.
+ * 
+ */
+void mockClearQueueData(void);
 
 /**
  * @brief Sets the queue to return this data upon next xQueueReceive
@@ -36,6 +44,13 @@ BaseType_t xQueueSendToBackFromISR(QueueHandle_t xQueue, const void* const pvIte
  * @param dataSize size of data. Note that this will be used to copy the data.
  */
 void mockSetQueueData(void* data, size_t dataSize);
+
+/**
+ * @brief Returns the number of items in the queue.
+ * 
+ * @return size_t Size of queue.
+ */
+size_t mockGetQueueSize(void);
 
 /**
  * @brief Gets the data item currently in queue
