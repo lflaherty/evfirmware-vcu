@@ -140,9 +140,15 @@ static ECU_Init_Status_T ECU_Init_System1(void)
     return ECU_INIT_ERROR;
   }
 
-  statusUart = UART_Config(Mapping_GetPCDebugUart());
+  statusUart = UART_Config(Mapping_GetPCDebugUartA());
   if (UART_STATUS_OK != statusUart) {
-    Log_Print(&mLog, "USART1 (PCDebug) config error\n");
+    Log_Print(&mLog, "USART1 (PCDebug A) config error\n");
+    return ECU_INIT_ERROR;
+  }
+
+  statusUart = UART_Config(Mapping_GetPCDebugUartB());
+  if (UART_STATUS_OK != statusUart) {
+    Log_Print(&mLog, "USART1 (PCDebug B) config error\n");
     return ECU_INIT_ERROR;
   }
 
