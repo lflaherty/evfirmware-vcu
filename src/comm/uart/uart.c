@@ -37,6 +37,25 @@ struct uartInfo {
 };
 
 static struct uartInfo usart1;
+static struct uartInfo usart3;
+
+/**
+ * @brief Get the Uart Dev object for the provided port.
+ * 
+ * @param huart 
+ * @return uartInfo pointer. NULL if invalid port.
+ */
+static struct uartInfo* getUartDev(const UART_HandleTypeDef* huart)
+{
+  if (USART1 == huart->Instance) {
+    return &usart1;
+  } else if (USART3 == huart->Instance) {
+    return &usart3;
+  } else {
+    // uart instance not implemented
+    return NULL;
+  }
+}
 
 /**
  * @brief UART DMA Rx interrupt
@@ -49,11 +68,8 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t size)
     return;
   }
 
-  struct uartInfo* uartDev;
-  if (USART1 == huart->Instance) {
-    uartDev = &usart1;
-  } else {
-    // uart instance not implemented
+  struct uartInfo* uartDev = getUartDev(huart);
+  if (!uartDev) {
     return;
   }
 
@@ -64,7 +80,7 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t size)
   }
 
   // start the next DMA transfer
-  HAL_UARTEx_ReceiveToIdle_DMA(huart, usart1.uartDmaRx, UART_MAX_DMA_LEN);
+  HAL_UARTEx_ReceiveToIdle_DMA(huart, uartDev->uartDmaRx, UART_MAX_DMA_LEN);
 
   portYIELD_FROM_ISR(higherPriorityTaskWoken);
 }
@@ -80,11 +96,8 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef* huart)
     return;
   }
 
-  struct uartInfo* uartDev;
-  if (USART1 == huart->Instance) {
-    uartDev = &usart1;
-  } else {
-    // uart instance not implemented
+  struct uartInfo* uartDev = getUartDev(huart);
+  if (!uartDev) {
     return;
   }
 
@@ -115,17 +128,13 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
     return;
   }
 
-  struct uartInfo* uartDev;
-  if (USART1 == huart->Instance) {
-    uartDev = &usart1;
-  } else {
-    // uart instance not implemented
+  struct uartInfo* uartDev = getUartDev(huart);
+  if (!uartDev) {
     return;
   }
 
   uartDev->txInProgress = false;
 
-  HAL_UART_DeInit(huart);
   HAL_UARTEx_ReceiveToIdle_DMA(huart, uartDev->uartDmaRx, UART_MAX_DMA_LEN);
 }
 
@@ -145,6 +154,15 @@ UART_Status_T UART_Init(Logging_T* logger)
       usart1.txPendingStorage,
       &usart1.txPendingStreamStruct);
 
+  // USART3
+  usart3.txInProgress = false;
+  usart3.outputSbEnabled = false;
+  usart3.txPendingStreamHandle = xStreamBufferCreateStatic(
+      UART_MAX_DMA_LEN,
+      1U,
+      usart3.txPendingStorage,
+      &usart3.txPendingStreamStruct);
+
   isReady = true;
 
   Log_Print(mLog, "UART_Init complete\n");
@@ -156,11 +174,8 @@ UART_Status_T UART_Config(UART_HandleTypeDef* handle)
 {
   Log_Print(mLog, "UART_Config begin\n");
 
-  struct uartInfo* uartDev;
-  if (USART1 == handle->Instance) {
-    uartDev = &usart1;
-  } else {
-    // uart instance not implemented
+  struct uartInfo* uartDev = getUartDev(handle);
+  if (!uartDev) {
     return UART_STATUS_ERROR_NOT_SUPPORTED;
   }
 
@@ -179,11 +194,8 @@ UART_Status_T UART_SetRecvStream(
     return UART_STATUS_NOT_READY;
   }
 
-  struct uartInfo* uartDev;
-  if (USART1 == handle->Instance) {
-    uartDev = &usart1;
-  } else {
-    // uart instance not implemented
+  struct uartInfo* uartDev = getUartDev(handle);
+  if (!uartDev) {
     return UART_STATUS_ERROR_NOT_SUPPORTED;
   }
 
@@ -200,11 +212,8 @@ UART_Status_T UART_SendMessage(UART_HandleTypeDef* handle, uint8_t* data, uint16
     return UART_STATUS_NOT_READY;
   }
 
-  struct uartInfo* uartDev;
-  if (USART1 == handle->Instance) {
-    uartDev = &usart1;
-  } else {
-    // uart instance not implemented
+  struct uartInfo* uartDev = getUartDev(handle);
+  if (!uartDev) {
     return UART_STATUS_ERROR_NOT_SUPPORTED;
   }
 

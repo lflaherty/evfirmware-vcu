@@ -28,6 +28,7 @@ typedef struct
 // of the mock, unique numbers cast to a pointer will work fine.
 // Don't dereference them...
 #define USART1 ((USART_TypeDef*)0x1)
+#define USART3 ((USART_TypeDef*)0x3)
 
 // ================== Define methods ==================
 HAL_StatusTypeDef stubHAL_UART_Init(UART_HandleTypeDef *huart);
