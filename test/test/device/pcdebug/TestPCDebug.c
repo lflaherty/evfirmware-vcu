@@ -45,7 +45,8 @@
 
 static Logging_T testLog;
 static CRC_HandleTypeDef hcrc;
-static UART_HandleTypeDef husart1;
+static UART_HandleTypeDef husartA;
+static UART_HandleTypeDef husartB;
 static PCDebug_T mPCDebug;
 
 // Helper macro for changing endianness
@@ -71,16 +72,18 @@ TEST_SETUP(DEVICE_PCDEBUG)
     hcrc.InputDataFormat = CRC_INPUTDATA_FORMAT_BYTES;
 
     // Init UART
-    husart1.Instance = USART1;
+    husartA.Instance = USART1;
+    husartB.Instance = USART3;
     TEST_ASSERT_EQUAL(UART_STATUS_OK, UART_Init(&testLog));
-    TEST_ASSERT_EQUAL(UART_STATUS_OK, UART_Config(&husart1));
+    TEST_ASSERT_EQUAL(UART_STATUS_OK, UART_Config(&husartA));
 
     // clear to only capture PC debug prints
     mockClearPrintf();
     
     // Init PC Debug
     memset(&mPCDebug, 0U, sizeof(PCDebug_T));
-    mPCDebug.huart = &husart1;
+    mPCDebug.huartA = &husartA;
+    mPCDebug.huartB = &husartB;
     mPCDebug.hcrc = &hcrc;
 
     PCDebug_Status_T status = PCDebug_Init(&testLog, &mPCDebug);
@@ -205,7 +208,7 @@ TEST(DEVICE_PCDEBUG, TestLogSerialLongMsg)
 
     // Prompt UART to send next message...
     mockClear_HAL_UART_Data();
-    HAL_UART_TxCpltCallback(&husart1);
+    HAL_UART_TxCpltCallback(&husartA);
     mockClearStreamBufferData(usart1.txPendingStreamHandle);
 
     // 2nd message should be on UART now, with no further queued messages
@@ -229,7 +232,7 @@ TEST(DEVICE_PCDEBUG, TestSerialRecv)
 
     // UART recieve on DMA:
     memcpy(usart1.uartDmaRx, recvBytes, recvBytesLen); // copy into DMA buffer
-    HAL_UARTEx_RxEventCallback(&husart1, recvBytesLen);
+    HAL_UARTEx_RxEventCallback(&husartA, recvBytesLen);
     TEST_ASSERT_EQUAL(recvBytesLen, mockGetStreamBufferLen(mPCDebug.recvStreamHandle));
 
     // Driver should just log these bytes

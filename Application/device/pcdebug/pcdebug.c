@@ -31,7 +31,9 @@ static void flushLogMessage(PCDebug_T* pcdebug)
     xStreamBufferReceive(pcdebug->logStreamHandle, msgData, PCDEBUG_MSG_LOG_DATALEN, mBlockTime);
     MsgFrameEncode_UpdateCRC(&pcdebug->mfLogData);
 
-    UART_SendMessage(pcdebug->huart, pcdebug->mfLogDataBuffer, PCDEBUG_MSG_LOG_MSGLEN);
+    // Duplicate the data on both ports (hardware probing is easier this way)
+    UART_SendMessage(pcdebug->huartA, pcdebug->mfLogDataBuffer, PCDEBUG_MSG_LOG_MSGLEN);
+    UART_SendMessage(pcdebug->huartB, pcdebug->mfLogDataBuffer, PCDEBUG_MSG_LOG_MSGLEN);
   }
 }
 
@@ -121,9 +123,10 @@ PCDebug_Status_T PCDebug_Init(
       PCDEBUG_RECV_STREAM_TRIGGER_LEVEL_BYTES,
       pcdebug->recvStreamStorage,
       &pcdebug->recvStreamStruct);
-  UART_Status_T uartStatus =
-      UART_SetRecvStream(pcdebug->huart, pcdebug->recvStreamHandle);
-  if (UART_STATUS_OK != uartStatus) {
+  if (UART_STATUS_OK != UART_SetRecvStream(pcdebug->huartA, pcdebug->recvStreamHandle)) {
+    return PCDEBUG_STATUS_ERROR_INIT;
+  }
+  if (UART_STATUS_OK != UART_SetRecvStream(pcdebug->huartB, pcdebug->recvStreamHandle)) {
     return PCDEBUG_STATUS_ERROR_INIT;
   }
 

@@ -147,7 +147,8 @@ static ECU_Init_Status_T ECU_Init_System1(void)
   }
 
   // Create PC Debug driver
-  mPCDebug.huart = Mapping_GetPCDebugUart();
+  mPCDebug.huartA = Mapping_GetPCDebugUartA();
+  mPCDebug.huartB = Mapping_GetPCDebugUartB();
   mPCDebug.hcrc = Mapping_GetCRC();
   PCDebug_Status_T statusPcDebug = PCDebug_Init(&mLog, &mPCDebug);
   if (PCDEBUG_STATUS_OK != statusPcDebug) {

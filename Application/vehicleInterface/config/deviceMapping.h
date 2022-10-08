@@ -56,7 +56,8 @@ extern GPIO_T Mapping_GPIO_LED;
  * Getters for device handles
  */
 TIM_HandleTypeDef* Mapping_GetTaskTimer(void);
-UART_HandleTypeDef* Mapping_GetPCDebugUart(void);
+UART_HandleTypeDef* Mapping_GetPCDebugUartA(void);
+UART_HandleTypeDef* Mapping_GetPCDebugUartB(void); // Second port for ease of debugging
 RTC_HandleTypeDef* Mapping_GetRTC(void);
 ADC_HandleTypeDef* Mapping_GetADC(void);
 CAN_HandleTypeDef* Mapping_GetCAN1(void);

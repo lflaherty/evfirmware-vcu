@@ -38,7 +38,8 @@ typedef enum
 
 typedef struct
 {
-  UART_HandleTypeDef* huart;
+  UART_HandleTypeDef* huartA;
+  UART_HandleTypeDef* huartB;
   CRC_HandleTypeDef* hcrc;
 
   // ******* Internal use *******

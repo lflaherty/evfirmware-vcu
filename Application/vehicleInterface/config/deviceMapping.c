@@ -38,9 +38,14 @@ TIM_HandleTypeDef* Mapping_GetTaskTimer(void)
   return &htim2;
 }
 
-UART_HandleTypeDef* Mapping_GetPCDebugUart(void)
+UART_HandleTypeDef* Mapping_GetPCDebugUartA(void)
 {
   return &huart1;
+}
+
+UART_HandleTypeDef* Mapping_GetPCDebugUartB(void)
+{
+  return &huart3;
 }
 
 
