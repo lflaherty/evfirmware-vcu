@@ -10,6 +10,7 @@
 #include <string.h>
 #include "time/tasktimer/tasktimer.h"
 #include "comm/uart/uart.h"
+#include "comm/can/can.h"
 
 // ------------------- Private data -------------------
 static Logging_T* mLog;
@@ -42,6 +43,28 @@ static void PCDebug_TaskMethod(PCDebug_T* pcdebug)
   // Wait for notification to wake up
   uint32_t notifiedValue = ulTaskNotifyTake(pdTRUE, mBlockTime);
   if (notifiedValue > 0) {
+    pcdebug->counter++;
+
+    uint32_t msgId = 0xAF;
+    uint8_t data[8] = {0};
+    uint32_t dlc = 8;
+
+    // populate data with counter
+    data[7] = 0x69;
+    data[3] = (pcdebug->counter >> 24U) & 0xFF;
+    data[2] = (pcdebug->counter >> 16U) & 0xFF;
+    data[1] = (pcdebug->counter >>  8U) & 0xFF;
+    data[0] = (pcdebug->counter >>  0U) & 0xFF;
+
+    CAN_Status_T status = CAN_SendMessage(CAN_DEV1, msgId, data, dlc);
+    if (status != CAN_STATUS_OK) {
+      Log_Print(mLog, "PCDebug: CAN Error\n");
+    }
+
+    // Sample message
+    Log_Print(mLog, "nice\n");
+
+    // Dump received data
     if (pdFALSE == xStreamBufferIsEmpty(pcdebug->recvStreamHandle)) {
       // For now just print them to log...
       Log_Print(mLog, "Recevied serial bytes: ");
@@ -76,6 +99,8 @@ PCDebug_Status_T PCDebug_Init(
 {
   mLog = logger;
   Log_Print(mLog, "PCDebug_Init begin\n");
+
+  pcdebug->counter = 0U;
 
   // Set up message frames
   pcdebug->mfLogData.hcrc = pcdebug->hcrc;

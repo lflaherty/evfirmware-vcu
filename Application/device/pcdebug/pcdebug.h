@@ -43,6 +43,8 @@ typedef struct
   CRC_HandleTypeDef* hcrc;
 
   // ******* Internal use *******
+  uint32_t counter;
+
   // Mutex lock
   SemaphoreHandle_t mutex;
   StaticSemaphore_t mutexBuffer;
