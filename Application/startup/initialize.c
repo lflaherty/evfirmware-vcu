@@ -14,6 +14,7 @@
 #include "lib/logging/logging.h"
 #include "time/tasktimer/tasktimer.h"
 #include "comm/uart/uart.h"
+#include "comm/can/can.h"
 
 #include "vehicleInterface/config/deviceMapping.h"
 
@@ -173,7 +174,18 @@ static ECU_Init_Status_T ECU_Init_System2(void)
   Log_Print(&mLog, "###### ECU_Init_System2 ######\n");
 
   // CAN bus
-  // Not configured in this release
+  CAN_Status_T statusCan;
+  statusCan = CAN_Init(&mLog);
+  if (CAN_STATUS_OK != statusCan) {
+    Log_Print(&mLog, "CAN initialization error\n");
+    return ECU_INIT_ERROR;
+  }
+
+  statusCan = CAN_Config(CAN_DEV1, Mapping_GetCAN1());
+  if (CAN_STATUS_OK != statusCan) {
+    Log_Print(&mLog, "CAN1 config error\n");
+    return ECU_INIT_ERROR;
+  }
 
   // ADC
   // Not configured in this release
