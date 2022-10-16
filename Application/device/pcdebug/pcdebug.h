@@ -44,6 +44,7 @@ typedef struct
 
   // ******* Internal use *******
   uint32_t counter;
+  uint32_t canErrorCounter;
 
   // Mutex lock
   SemaphoreHandle_t mutex;

@@ -58,11 +58,11 @@ static void PCDebug_TaskMethod(PCDebug_T* pcdebug)
 
     CAN_Status_T status = CAN_SendMessage(CAN_DEV1, msgId, data, dlc);
     if (status != CAN_STATUS_OK) {
-      Log_Print(mLog, "PCDebug: CAN Error\n");
+      if (pcdebug->canErrorCounter % 10 == 0) {
+        Log_Print(mLog, "PCDebug: CAN Error\n");
+      }
+      pcdebug->canErrorCounter++;
     }
-
-    // Sample message
-    Log_Print(mLog, "nice\n");
 
     // Dump received data
     if (pdFALSE == xStreamBufferIsEmpty(pcdebug->recvStreamHandle)) {
@@ -101,6 +101,7 @@ PCDebug_Status_T PCDebug_Init(
   Log_Print(mLog, "PCDebug_Init begin\n");
 
   pcdebug->counter = 0U;
+  pcdebug->canErrorCounter = 0U;
 
   // Set up message frames
   pcdebug->mfLogData.hcrc = pcdebug->hcrc;
