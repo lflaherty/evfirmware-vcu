@@ -49,12 +49,6 @@ static UART_HandleTypeDef husartA;
 static UART_HandleTypeDef husartB;
 static PCDebug_T mPCDebug;
 
-// Helper macro for changing endianness
-#define BIG_TO_LITTLE_ENDIAN_U32(x) (((x >> 24) & 0xff) | \
-                                     ((x << 8) & 0xff0000) | \
-                                     ((x >> 8) & 0xff00) | \
-                                     ((x << 24) & 0xff000000))
-
 TEST_GROUP(DEVICE_PCDEBUG);
 
 TEST_SETUP(DEVICE_PCDEBUG)
@@ -141,7 +135,7 @@ TEST(DEVICE_PCDEBUG, TestLogSerialShortMsg)
     const char simpleMsg[] = "Hello!\n"; // less than 32 data chars
     assert(sizeof(simpleMsg) <= 32U);
 
-    mockSet_CRC(BIG_TO_LITTLE_ENDIAN_U32(0xAABBCCDD));
+    mockSet_CRC(0xAABBCCDD);
     const uint8_t expectedUart[PCDEBUG_MSG_LOG_MSGLEN] = {
         ':',  // Start byte
         0x00, 0x02,     // Receiver address: Debug PC
@@ -172,7 +166,7 @@ TEST(DEVICE_PCDEBUG, TestLogSerialLongMsg)
                            "Never gonna let you down\n";
     assert(sizeof(longMsg) > 32U);
 
-    mockSet_CRC(BIG_TO_LITTLE_ENDIAN_U32(0xAABBCCDD));
+    mockSet_CRC(0xAABBCCDD);
     uint8_t expectedUart1[PCDEBUG_MSG_LOG_MSGLEN] = { 0 };
     uint8_t expectedUart2[PCDEBUG_MSG_LOG_MSGLEN] = { 0 };
 
