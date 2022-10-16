@@ -41,8 +41,15 @@ void MsgFrameEncode_UpdateCRC(MsgFrameEncode_T* mf)
   assert(CRC_INPUTDATA_FORMAT_BYTES == mf->hcrc->InputDataFormat);
 
   size_t crcOffset = mf->msgLen - 6U;
-  memset(mf->buffer + crcOffset, 0U, sizeof(uint32_t));
+  mf->buffer[crcOffset + 0U] = 0U;
+  mf->buffer[crcOffset + 1U] = 0U;
+  mf->buffer[crcOffset + 2U] = 0U;
+  mf->buffer[crcOffset + 3U] = 0U;
 
   uint32_t calcCrc = HAL_CRC_Calculate(mf->hcrc, (void*)mf->buffer, mf->msgLen);
-  memcpy(mf->buffer + crcOffset, &calcCrc, sizeof(uint32_t));
+
+  mf->buffer[crcOffset + 0U] = (calcCrc >> 24U) & 0xFF;
+  mf->buffer[crcOffset + 1U] = (calcCrc >> 16U) & 0xFF;
+  mf->buffer[crcOffset + 2U] = (calcCrc >> 8U) & 0xFF;
+  mf->buffer[crcOffset + 3U] = (calcCrc >> 0U) & 0xFF;
 }

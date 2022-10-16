@@ -19,12 +19,6 @@ static const uint16_t DATA_LEN = 4U;
 
 static CRC_HandleTypeDef hcrc;
 
-// Helper macro for changing endianness
-#define BIG_TO_LITTLE_ENDIAN_U32(x) (((x >> 24) & 0xff) | \
-                                     ((x << 8) & 0xff0000) | \
-                                     ((x >> 8) & 0xff00) | \
-                                     ((x << 24) & 0xff000000))
-
 TEST_GROUP(COMM_MSGFRAMEENCODE);
 
 TEST_SETUP(COMM_MSGFRAMEENCODE)
@@ -72,7 +66,7 @@ TEST(COMM_MSGFRAMEENCODE, TestUpdateCrc)
     msg.buffer = msgBuffer;
     msg.hcrc = &hcrc;
 
-    mockSet_CRC(BIG_TO_LITTLE_ENDIAN_U32(0x4019276DU));
+    mockSet_CRC(0x4019276DU);
     uint8_t expectedMsgBuffer[MSG_LEN] = 
         {':', 0x01, 0x02, 0x03, 0x04, 0x00, 0x00, 0x00, 0x00, 0x40, 0x19, 0x27, 0x6D, '\r', '\n'};
         //    ^--Func--^  ^--Addr--^  ^--------Data--------^  ^---------CRC--------^  ^msg end-^

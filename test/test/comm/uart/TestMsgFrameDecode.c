@@ -19,12 +19,6 @@ static const uint16_t MSG_LEN = 11U;
 static CRC_HandleTypeDef hcrc;
 static MsgFrameDecode_T mMsgFrame;
 
-// Helper macro for changing endianness
-#define BIG_TO_LITTLE_ENDIAN_U32(x) (((x >> 24) & 0xff) | \
-                                     ((x << 8) & 0xff0000) | \
-                                     ((x >> 8) & 0xff00) | \
-                                     ((x << 24) & 0xff000000))
-
 TEST_GROUP(COMM_MSGFRAMEDECODE);
 
 TEST_SETUP(COMM_MSGFRAMEDECODE)
@@ -59,7 +53,7 @@ TEST(COMM_MSGFRAMEDECODE, TestInitTooLong)
 
 TEST(COMM_MSGFRAMEDECODE, TestMsgRecvBytes)
 {
-    mockSet_CRC(BIG_TO_LITTLE_ENDIAN_U32(0x4FCD556FU));
+    mockSet_CRC(0x4FCD556FU);
     bool succ;
 
     // Receive first message
@@ -122,7 +116,7 @@ TEST(COMM_MSGFRAMEDECODE, TestMsgRecvBytes)
 
 TEST(COMM_MSGFRAMEDECODE, TestMsgRecvMsg)
 {
-    mockSet_CRC(BIG_TO_LITTLE_ENDIAN_U32(0x4FCD556FU));
+    mockSet_CRC(0x4FCD556FU);
 
     // DMA might receive one message and some other bytes
     uint8_t msg1[] = {':', 0x01, 0x02, 0x03, 0x04, 0x4F, 0xCD, 0x55, 0x6F, '\r', '\n'};
@@ -170,7 +164,7 @@ TEST(COMM_MSGFRAMEDECODE, TestMsgRecvMsg)
 
 TEST(COMM_MSGFRAMEDECODE, TestMsgBadCrc)
 {
-    mockSet_CRC(BIG_TO_LITTLE_ENDIAN_U32(0x4FCD556FU));
+    mockSet_CRC(0x4FCD556FU);
 
     uint8_t msgBadCrc[] = {':', 0x01, 0x02, 0x03, 0x04, 0xFF, 0xFF, 0xFF, 0xFF, '\r', '\n'};
     size_t msgBadCrcLen = sizeof(msgBadCrc) / sizeof(uint8_t);

@@ -20,12 +20,19 @@ static bool verifyCrc(MsgFrameDecode_T* mf)
   size_t crcOffset = mf->msgLen - 6U;
 
   uint32_t msgCrc = 0U;
-  memcpy(&msgCrc, msg + crcOffset, sizeof(uint32_t));
+  msgCrc |= (uint32_t)msg[crcOffset + 0U] << 24U;
+  msgCrc |= (uint32_t)msg[crcOffset + 1U] << 16U;
+  msgCrc |= (uint32_t)msg[crcOffset + 2U] << 8U;
+  msgCrc |= (uint32_t)msg[crcOffset + 3U] << 0U;
   memset(msg + crcOffset, 0U, sizeof(uint32_t));
 
   uint32_t calcCrc = HAL_CRC_Calculate(mf->hcrc, (void*)msg, mf->msgLen);
 
-  memcpy(msg + crcOffset, &msgCrc, sizeof(uint32_t));
+  // restore original message
+  msg[crcOffset + 0U] = (msgCrc >> 24U) & 0xFF;
+  msg[crcOffset + 1U] = (msgCrc >> 16U) & 0xFF;
+  msg[crcOffset + 2U] = (msgCrc >> 8U) & 0xFF;
+  msg[crcOffset + 3U] = (msgCrc >> 0U) & 0xFF;
 
   return calcCrc == msgCrc;
 }
