@@ -12,3 +12,7 @@ test/coverage_report/
 test/main_coverage.info
 test/run_tests*
 
+# Eclipse files
+.settings/
+Debug/
+evfirmware-vcu.launch
