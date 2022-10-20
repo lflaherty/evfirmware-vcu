@@ -15,6 +15,7 @@
 #include "task.h"
 #include "semphr.h"
 
+#include "lib/crc/crc.h"
 #include "comm/uart/msgframeencode.h"
 
 typedef enum
@@ -40,7 +41,7 @@ typedef struct
 {
   UART_HandleTypeDef* huartA;
   UART_HandleTypeDef* huartB;
-  CRC_HandleTypeDef* hcrc;
+  CRC_T* crc;
 
   // ******* Internal use *******
   uint32_t counter;

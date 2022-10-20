@@ -14,7 +14,7 @@
 
 // ------------------- Private data -------------------
 static Logging_T* mLog;
-static const TickType_t mBlockTime = 100 / portTICK_PERIOD_MS; // 100ms
+static const TickType_t mBlockTime2 = 100 / portTICK_PERIOD_MS; // 100ms // TODO fix testing infra so this isn't needed
 static const uint32_t tickRateMs = 100U; // 100 ms
 
 // ------------------- Private methods -------------------
@@ -29,7 +29,7 @@ static void flushLogMessage(PCDebug_T* pcdebug)
     // Construct message:
     memset(pcdebug->mfLogDataBuffer, 0U, PCDEBUG_MSG_LOG_MSGLEN);
     uint8_t* msgData = MsgFrameEncode_InitFrame(&pcdebug->mfLogData);
-    xStreamBufferReceive(pcdebug->logStreamHandle, msgData, PCDEBUG_MSG_LOG_DATALEN, mBlockTime);
+    xStreamBufferReceive(pcdebug->logStreamHandle, msgData, PCDEBUG_MSG_LOG_DATALEN, mBlockTime2);
     MsgFrameEncode_UpdateCRC(&pcdebug->mfLogData);
 
     // Duplicate the data on both ports (hardware probing is easier this way)
@@ -41,7 +41,7 @@ static void flushLogMessage(PCDebug_T* pcdebug)
 static void PCDebug_TaskMethod(PCDebug_T* pcdebug)
 {
   // Wait for notification to wake up
-  uint32_t notifiedValue = ulTaskNotifyTake(pdTRUE, mBlockTime);
+  uint32_t notifiedValue = ulTaskNotifyTake(pdTRUE, mBlockTime2);
   if (notifiedValue > 0) {
     pcdebug->counter++;
 
@@ -70,7 +70,7 @@ static void PCDebug_TaskMethod(PCDebug_T* pcdebug)
       Log_Print(mLog, "Recevied serial bytes: ");
       while (!xStreamBufferIsEmpty(pcdebug->recvStreamHandle)) {
         uint8_t recvByte = 0;
-        xStreamBufferReceive(pcdebug->recvStreamHandle, &recvByte, 1U, mBlockTime);
+        xStreamBufferReceive(pcdebug->recvStreamHandle, &recvByte, 1U, mBlockTime2);
 
         char logBuffer[LOGGING_MAX_MSG_LEN] = { 0 };
         snprintf(logBuffer, LOGGING_MAX_MSG_LEN, "0x%02x ", recvByte);
@@ -104,7 +104,7 @@ PCDebug_Status_T PCDebug_Init(
   pcdebug->canErrorCounter = 0U;
 
   // Set up message frames
-  pcdebug->mfLogData.hcrc = pcdebug->hcrc;
+  pcdebug->mfLogData.crc = pcdebug->crc;
   pcdebug->mfLogData.address = PCDEBUG_MSG_DESTADDR;
   pcdebug->mfLogData.function = PCDEBUG_MSG_LOG_FUNCTION;
   pcdebug->mfLogData.dataLen = PCDEBUG_MSG_LOG_DATALEN;

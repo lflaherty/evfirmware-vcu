@@ -47,6 +47,7 @@ static Logging_T testLog;
 static CRC_HandleTypeDef hcrc;
 static UART_HandleTypeDef husartA;
 static UART_HandleTypeDef husartB;
+static CRC_T mCrc;
 static PCDebug_T mPCDebug;
 
 TEST_GROUP(DEVICE_PCDEBUG);
@@ -64,6 +65,8 @@ TEST_SETUP(DEVICE_PCDEBUG)
 
     // Init CRC
     hcrc.InputDataFormat = CRC_INPUTDATA_FORMAT_BYTES;
+    mCrc.hcrc = &hcrc;
+    TEST_ASSERT_EQUAL(CRC_STATUS_OK, CRC_Init(&testLog, &mCrc));
 
     // Init UART
     husartA.Instance = USART1;
@@ -78,7 +81,7 @@ TEST_SETUP(DEVICE_PCDEBUG)
     memset(&mPCDebug, 0U, sizeof(PCDebug_T));
     mPCDebug.huartA = &husartA;
     mPCDebug.huartB = &husartB;
-    mPCDebug.hcrc = &hcrc;
+    mPCDebug.crc = &mCrc;
 
     PCDebug_Status_T status = PCDebug_Init(&testLog, &mPCDebug);
     TEST_ASSERT(PCDEBUG_STATUS_OK == status);

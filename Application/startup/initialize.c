@@ -42,6 +42,7 @@ struct InitTask {
 static struct InitTask initTask;
 
 // ------------------- Module structures -------------------
+static CRC_T mCrc;
 static WatchdogTrigger_T mWdtTrigger;
 static PCDebug_T mPCDebug;
 
@@ -153,10 +154,19 @@ static ECU_Init_Status_T ECU_Init_System1(void)
     return ECU_INIT_ERROR;
   }
 
+  // CRC
+  mCrc.hcrc = Mapping_GetCRC();
+  CRC_Status_T statusCrc;
+  statusCrc = CRC_Init(&mLog, &mCrc);
+  if (CRC_STATUS_OK != statusCrc) {
+    Log_Print(&mLog, "CRC initialization error\n");
+    return ECU_INIT_ERROR;
+  }
+
   // Create PC Debug driver
   mPCDebug.huartA = Mapping_GetPCDebugUartA();
   mPCDebug.huartB = Mapping_GetPCDebugUartB();
-  mPCDebug.hcrc = Mapping_GetCRC();
+  mPCDebug.crc = &mCrc;
   PCDebug_Status_T statusPcDebug = PCDebug_Init(&mLog, &mPCDebug);
   if (PCDEBUG_STATUS_OK != statusPcDebug) {
     Log_Print(&mLog, "PCDebug initialization error\n");
