@@ -10,6 +10,7 @@
 
 // Mocks for code under test
 #include "stm32_hal/MockStm32f7xx_hal.h"
+#include "lib/logging/MockLogging.h"
 
 // source code under test
 #include "comm/uart/msgframeencode.c"
@@ -17,13 +18,22 @@
 static const uint16_t MSG_LEN = 15U;
 static const uint16_t DATA_LEN = 4U;
 
+static Logging_T testLog;
+static CRC_T mCrc;
 static CRC_HandleTypeDef hcrc;
 
 TEST_GROUP(COMM_MSGFRAMEENCODE);
 
 TEST_SETUP(COMM_MSGFRAMEENCODE)
 {
+    // set up supporting modules
+    TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, Log_Init(&testLog));
+    TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, Log_EnableSWO(&testLog));
+    mockLogClear();
+    mockClearQueueData();
     hcrc.InputDataFormat = CRC_INPUTDATA_FORMAT_BYTES;
+    mCrc.hcrc = &hcrc;
+    TEST_ASSERT_EQUAL(CRC_STATUS_OK, CRC_Init(&testLog, &mCrc));
 }
 
 TEST_TEAR_DOWN(COMM_MSGFRAMEENCODE)
@@ -41,7 +51,7 @@ TEST(COMM_MSGFRAMEENCODE, TestInitFrame)
     msg.msgLen = MSG_LEN;
     msg.dataLen = DATA_LEN;
     msg.buffer = msgBuffer;
-    msg.hcrc = &hcrc;
+    msg.crc = &mCrc;
 
     uint8_t* msgData = MsgFrameEncode_InitFrame(&msg);
     TEST_ASSERT_POINTERS_EQUAL(msgData, msgBuffer + 5U);
@@ -64,7 +74,7 @@ TEST(COMM_MSGFRAMEENCODE, TestUpdateCrc)
     msg.msgLen = MSG_LEN;
     msg.dataLen = DATA_LEN;
     msg.buffer = msgBuffer;
-    msg.hcrc = &hcrc;
+    msg.crc = &mCrc;
 
     mockSet_CRC(0x4019276DU);
     uint8_t expectedMsgBuffer[MSG_LEN] = 

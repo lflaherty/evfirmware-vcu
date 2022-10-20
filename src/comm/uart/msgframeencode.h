@@ -16,8 +16,9 @@
 #ifndef COMM_UART_MSGFRAMEENCODE_H_
 #define COMM_UART_MSGFRAMEENCODE_H_
 
-#include "stm32f7xx_hal.h"
 #include <stdint.h>
+
+#include "lib/crc/crc.h"
 
 typedef struct {
   uint16_t msgLen; // length of whole message
@@ -28,7 +29,7 @@ typedef struct {
                    // Ownership and management is retained by caller and
                    // borrowed during call.
 
-  CRC_HandleTypeDef* hcrc; // CRC calculation hardware
+  CRC_T* crc; // CRC module
 } MsgFrameEncode_T;
 
 /**

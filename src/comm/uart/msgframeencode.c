@@ -14,6 +14,8 @@
 // start byte, end bytes, addr, function, crc
 #define MSGFRAME_NUM_FRAME_BYTES 11U
 
+static const TickType_t mBlockTime = 100 / portTICK_PERIOD_MS; // 100ms
+
 uint8_t* MsgFrameEncode_InitFrame(MsgFrameEncode_T* mf)
 {
   assert(mf->msgLen >= MSGFRAME_NUM_FRAME_BYTES);
@@ -37,8 +39,9 @@ uint8_t* MsgFrameEncode_InitFrame(MsgFrameEncode_T* mf)
 void MsgFrameEncode_UpdateCRC(MsgFrameEncode_T* mf)
 {
   // This required for the (void*) cast to work
-  assert(NULL != mf->hcrc);
-  assert(CRC_INPUTDATA_FORMAT_BYTES == mf->hcrc->InputDataFormat);
+  assert(NULL != mf->crc);
+  assert(NULL != mf->crc->hcrc);
+  assert(CRC_INPUTDATA_FORMAT_BYTES == mf->crc->hcrc->InputDataFormat);
 
   size_t crcOffset = mf->msgLen - 6U;
   mf->buffer[crcOffset + 0U] = 0U;
@@ -46,7 +49,13 @@ void MsgFrameEncode_UpdateCRC(MsgFrameEncode_T* mf)
   mf->buffer[crcOffset + 2U] = 0U;
   mf->buffer[crcOffset + 3U] = 0U;
 
-  uint32_t calcCrc = HAL_CRC_Calculate(mf->hcrc, (void*)mf->buffer, mf->msgLen);
+  uint32_t calcCrc = 0U;
+  CRC_Calculate(
+    mf->crc,
+    (void*)mf->buffer,
+    mf->msgLen,
+    mBlockTime,
+    &calcCrc);
 
   mf->buffer[crcOffset + 0U] = (calcCrc >> 24U) & 0xFF;
   mf->buffer[crcOffset + 1U] = (calcCrc >> 16U) & 0xFF;

@@ -21,7 +21,8 @@ TEST_SRC=\
 	test/io/adc/TestAdc.c \
 	test/io/gpio/TestGpio.c \
 	test/time/tasktimer/TestTaskTimer.c \
-	test/lib/logging/TestLogging.c
+	test/lib/logging/TestLogging.c \
+	test/lib/crc/TestCrc.c
 
 SRC_MOCKS=\
 	mock/lib/logging/MockLogging.c \

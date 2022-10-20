@@ -21,17 +21,18 @@
 #ifndef COMM_UART_MSGFRAMEDECODE_H_
 #define COMM_UART_MSGFRAMEDECODE_H_
 
-#include "stm32f7xx_hal.h"
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+
+#include "lib/crc/crc.h"
 
 #define MSGFRAME_BUFFER_LEN 1024U
 
 typedef struct {
   // MsgFrame settings
   uint16_t msgLen; // length of a single message
-  CRC_HandleTypeDef* hcrc;
+  CRC_T* crc;
 
   // Variables
   uint16_t start; // offset into `data` where next set of received data starts

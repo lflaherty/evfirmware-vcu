@@ -10,11 +10,15 @@
 #include <string.h>
 #include <assert.h>
 
+static const TickType_t mBlockTime = 100 / portTICK_PERIOD_MS; // 100ms
+
 // ------------------- Private methods -------------------
 static bool verifyCrc(MsgFrameDecode_T* mf)
 {
   // This required for the (void*) cast to work
-  assert(CRC_INPUTDATA_FORMAT_BYTES == mf->hcrc->InputDataFormat);
+  assert(NULL != mf->crc);
+  assert(NULL != mf->crc->hcrc);
+  assert(CRC_INPUTDATA_FORMAT_BYTES == mf->crc->hcrc->InputDataFormat);
 
   uint8_t* msg = mf->data + mf->start;
   size_t crcOffset = mf->msgLen - 6U;
@@ -26,7 +30,13 @@ static bool verifyCrc(MsgFrameDecode_T* mf)
   msgCrc |= (uint32_t)msg[crcOffset + 3U] << 0U;
   memset(msg + crcOffset, 0U, sizeof(uint32_t));
 
-  uint32_t calcCrc = HAL_CRC_Calculate(mf->hcrc, (void*)msg, mf->msgLen);
+  uint32_t calcCrc = 0U;
+  CRC_Calculate(
+    mf->crc,
+    (void*)msg,
+    mf->msgLen,
+    mBlockTime,
+    &calcCrc);
 
   // restore original message
   msg[crcOffset + 0U] = (msgCrc >> 24U) & 0xFF;

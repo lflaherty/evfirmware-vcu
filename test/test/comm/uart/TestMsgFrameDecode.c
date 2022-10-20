@@ -10,24 +10,36 @@
 
 // Mocks for code under test
 #include "stm32_hal/MockStm32f7xx_hal.h"
+#include "lib/logging/MockLogging.h"
 
 // source code under test
 #include "comm/uart/msgframedecode.c"
 
 static const uint16_t MSG_LEN = 11U;
 
+static Logging_T testLog;
+static CRC_T mCrc;
 static CRC_HandleTypeDef hcrc;
+
 static MsgFrameDecode_T mMsgFrame;
 
 TEST_GROUP(COMM_MSGFRAMEDECODE);
 
 TEST_SETUP(COMM_MSGFRAMEDECODE)
 {
+    // set up supporting modules
+    TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, Log_Init(&testLog));
+    TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, Log_EnableSWO(&testLog));
+    mockLogClear();
+    mockClearQueueData();
     hcrc.InputDataFormat = CRC_INPUTDATA_FORMAT_BYTES;
+    mCrc.hcrc = &hcrc;
+    TEST_ASSERT_EQUAL(CRC_STATUS_OK, CRC_Init(&testLog, &mCrc));
 
+    // set up testing code
     memset(mMsgFrame.data, 0U, MSGFRAME_BUFFER_LEN * sizeof(uint8_t));
     mMsgFrame.msgLen = MSG_LEN;
-    mMsgFrame.hcrc = &hcrc;
+    mMsgFrame.crc = &mCrc;
     bool succ = MsgFrameDecode_Init(&mMsgFrame);
 
     TEST_ASSERT_TRUE(succ);
@@ -46,7 +58,7 @@ TEST(COMM_MSGFRAMEDECODE, TestInitTooLong)
 {
     MsgFrameDecode_T mf2;
     mf2.msgLen = 1045U;
-    mf2.hcrc = &hcrc;
+    mf2.crc = &mCrc;
 
     TEST_ASSERT_FALSE(MsgFrameDecode_Init(&mf2));
 }
