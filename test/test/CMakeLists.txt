@@ -1,0 +1,3 @@
+add_subdirectory(device)
+add_subdirectory(vehicleInterface)
+add_subdirectory(vehicleLogic)

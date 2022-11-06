@@ -1,0 +1,3 @@
+add_subdirectory(stateManager)
+add_subdirectory(throttleController)
+add_subdirectory(watchdogTrigger)

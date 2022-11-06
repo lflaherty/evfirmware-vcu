@@ -197,6 +197,8 @@ static ECU_Init_Status_T ECU_Init_System2(void)
     return ECU_INIT_ERROR;
   }
 
+  mPCDebug.canDebugEnable = true;
+
   // ADC
   // Not configured in this release
 

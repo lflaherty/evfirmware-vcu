@@ -65,4 +65,4 @@ void VSM_Init(Logging_T* logger, VSM_T* vsm);
  */
 void VSM_Step(VSM_T* vsm);
 
-#endif // VEHICLELOGIC_STATEMANAGER_STATEMACHINE_H_ 
+#endif // VEHICLELOGIC_STATEMANAGER_STATEMACHINE_H_

@@ -44,6 +44,7 @@ typedef struct
   CRC_T* crc;
 
   // ******* Internal use *******
+  bool canDebugEnable; // TODO remove
   uint32_t counter;
   uint32_t canErrorCounter;
 

@@ -55,4 +55,4 @@ typedef struct
  */
 VehicleStateManager_Status_T VehicleStateManager_Init(Logging_T* logger, VehicleStateManager_T* sm);
 
-#endif // VEHICLELOGIC_STATEMANAGER_VEHICLESTATEMANAGER_H_ 
+#endif // VEHICLELOGIC_STATEMANAGER_VEHICLESTATEMANAGER_H_

@@ -22,6 +22,7 @@ typedef enum
 typedef struct
 {
   // TODO references to objects
+  uint8_t tmp; // TODO remove, can't be empty
 } VehicleControl_T;
 
 /**
@@ -39,4 +40,4 @@ VehicleControl_Status_T VehicleControl_SetECUError(VehicleControl_T* vc, bool er
 VehicleControl_Status_T VehicleControl_SetDash(VehicleControl_T* vc, bool ledOn);
 
 
-#endif // VEHICLEINTERFACE_VEHICLECONTROL_VEHICLECONTROL_H_ 
+#endif // VEHICLEINTERFACE_VEHICLECONTROL_VEHICLECONTROL_H_

@@ -43,6 +43,7 @@ typedef struct
   // TODO
   // wheel speed
   // IMU dynamics
+  uint8_t todo; // TODO remove, here because it can't be empty
 } VehicleState_VehicleSensors_T;
 
 typedef struct

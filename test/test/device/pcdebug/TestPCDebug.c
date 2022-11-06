@@ -26,22 +26,10 @@
 // MockLogging.h is deliberately not used here - need the stream internals of
 // logging to work correctly. Use MockStdio to capture SWO printfs instead
 
-// Prod (non mock) methods to avoid linker errors
-// TODO there's probably a better way to do this...
-#define UART_Init implUART_Init
-#define UART_SetRecvStream implUART_SetRecvStream
-#define UART_Config implUART_Config
-#define UART_SendMessage implUART_SendMessage
-#define HAL_UARTEx_RxEventCallback implHAL_UARTEx_RxEventCallback
-#define HAL_UART_TxCpltCallback implHAL_UART_TxCpltCallback
-#define HAL_UART_ErrorCallback implHAL_UART_ErrorCallback
-#define MsgFrameEncode_InitFrame implMsgFrameEncode_InitFrame
-#define MsgFrameEncode_UpdateCRC implMsgFrameEncode_UpdateCRC
-
 // source code under test
 #include "comm/uart/uart.c"
-#include "comm/uart/msgframeencode.c"
 #include "device/pcdebug/pcdebug.c"
+#include "lib/logging/logging.c"  // also need this to use mock impls
 
 static Logging_T testLog;
 static CRC_HandleTypeDef hcrc;
@@ -248,3 +236,6 @@ TEST_GROUP_RUNNER(DEVICE_PCDEBUG)
     RUN_TEST_CASE(DEVICE_PCDEBUG, TestLogSerialLongMsg);
     RUN_TEST_CASE(DEVICE_PCDEBUG, TestSerialRecv);
 }
+
+#define INVOKE_TEST DEVICE_PCDEBUG
+#include "test_main.h"

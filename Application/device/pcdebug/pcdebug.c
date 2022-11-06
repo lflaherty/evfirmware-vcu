@@ -45,23 +45,25 @@ static void PCDebug_TaskMethod(PCDebug_T* pcdebug)
   if (notifiedValue > 0) {
     pcdebug->counter++;
 
-    uint32_t msgId = 0xAF;
-    uint8_t data[8] = {0};
-    uint32_t dlc = 8;
+    if (pcdebug->canDebugEnable) {
+      uint32_t msgId = 0xAF;
+      uint8_t data[8] = {0};
+      uint32_t dlc = 8;
 
-    // populate data with counter
-    data[7] = 0x69;
-    data[3] = (pcdebug->counter >> 24U) & 0xFF;
-    data[2] = (pcdebug->counter >> 16U) & 0xFF;
-    data[1] = (pcdebug->counter >>  8U) & 0xFF;
-    data[0] = (pcdebug->counter >>  0U) & 0xFF;
+      // populate data with counter
+      data[7] = 0x69;
+      data[3] = (pcdebug->counter >> 24U) & 0xFF;
+      data[2] = (pcdebug->counter >> 16U) & 0xFF;
+      data[1] = (pcdebug->counter >>  8U) & 0xFF;
+      data[0] = (pcdebug->counter >>  0U) & 0xFF;
 
-    CAN_Status_T status = CAN_SendMessage(CAN_DEV1, msgId, data, dlc);
-    if (status != CAN_STATUS_OK) {
-      if (pcdebug->canErrorCounter % 10 == 0) {
-        Log_Print(mLog, "PCDebug: CAN Error\n");
+      CAN_Status_T status = CAN_SendMessage(CAN_DEV1, msgId, data, dlc);
+      if (status != CAN_STATUS_OK) {
+        if (pcdebug->canErrorCounter % 10 == 0) {
+          Log_Print(mLog, "PCDebug: CAN Error\n");
+        }
+        pcdebug->canErrorCounter++;
       }
-      pcdebug->canErrorCounter++;
     }
 
     // Dump received data
@@ -102,6 +104,7 @@ PCDebug_Status_T PCDebug_Init(
 
   pcdebug->counter = 0U;
   pcdebug->canErrorCounter = 0U;
+  pcdebug->canDebugEnable = false;
 
   // Set up message frames
   pcdebug->mfLogData.crc = pcdebug->crc;
