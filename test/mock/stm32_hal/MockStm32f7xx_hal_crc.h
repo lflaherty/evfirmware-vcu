@@ -17,6 +17,7 @@
 typedef struct
 {
     // Empty for mock
+    uint8_t tmp;
 } CRC_TypeDef;
 
 typedef struct

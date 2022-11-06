@@ -8,12 +8,15 @@
 #ifndef _MOCK_STD_MOCKSTDIO_H_
 #define _MOCK_STD_MOCKSTDIO_H_
 
+#include <stdio.h>
+
 #define PRINTF_BUFFER_LEN 257
 extern char printfOut[];
 extern int printfOutSize;
 
-#define printf(format, args...) \
-    printfOutSize += snprintf(printfOut + printfOutSize, PRINTF_BUFFER_LEN, format, ## args);
+int mockPrintf(const char * format, ...);
+
+#define printf mockPrintf
 
 /**
  * @brief Clears the printf mock buffer

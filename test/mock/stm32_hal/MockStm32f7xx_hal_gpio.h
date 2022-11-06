@@ -18,6 +18,7 @@
 typedef struct
 {
     // Empty for mock
+    uint8_t tmp;
 } GPIO_TypeDef;
 
 typedef struct

@@ -12,21 +12,21 @@ static TaskTimer_Status_T mStatus_TaskTimer_Init = TASKTIMER_STATUS_OK;
 static TaskTimer_Status_T mStatus_TaskTimer_RegisterTask = TASKTIMER_STATUS_OK;
 
 // ------------------- Methods -------------------
-TaskTimer_Status_T stub_TaskTimer_Init(Logging_T* logger, TIM_HandleTypeDef* htim)
+TaskTimer_Status_T TaskTimer_Init(Logging_T* logger, TIM_HandleTypeDef* htim)
 {
     (void)logger;
     (void)htim;
     return mStatus_TaskTimer_Init;
 }
 
-TaskTimer_Status_T stub_TaskTimer_RegisterTask(TaskHandle_t* task, uint32_t divider)
+TaskTimer_Status_T TaskTimer_RegisterTask(TaskHandle_t* task, uint32_t divider)
 {
     (void)task;
     (void)divider;
     return mStatus_TaskTimer_RegisterTask;
 }
 
-void stub_TaskTimer_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
+void TaskTimer_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
 {
     (void)htim;
 }

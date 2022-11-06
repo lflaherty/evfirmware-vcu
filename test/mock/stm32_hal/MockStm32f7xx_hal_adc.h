@@ -19,6 +19,7 @@
 typedef struct
 {
     // Empty for mock
+    uint8_t tmp;
 } ADC_TypeDef;
 
 typedef struct

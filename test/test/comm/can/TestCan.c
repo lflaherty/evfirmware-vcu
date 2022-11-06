@@ -44,7 +44,6 @@ TEST_SETUP(COMM_CAN)
     TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, Log_Init(&testLog));
     TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, Log_EnableSWO(&testLog));
     mockLogClear();
-    mockClearQueueData();
     mockSet_HAL_CAN_AllStatus(HAL_OK);
     mockClear_HAL_CAN_TxMailboxes();
     mockClear_HAL_CAN_RxFifo();
@@ -65,7 +64,6 @@ TEST_SETUP(COMM_CAN)
 TEST_TEAR_DOWN(COMM_CAN)
 {
     mockLogClear();
-    mockClearQueueData();
     mockSet_HAL_CAN_AllStatus(HAL_OK);
 }
 
@@ -190,7 +188,7 @@ TEST(COMM_CAN, TestCanSendBuffered)
     
     // First three messages in tx mailboxes, and third waiting in queue
     TEST_ASSERT_EQUAL(3U, mockGet_HAL_CAN_NumTxMailboxesInUse());
-    TEST_ASSERT_EQUAL(1U * TX_PENDING_ITEM_SIZE, mockGetQueueSize());
+    TEST_ASSERT_EQUAL(1U * TX_PENDING_ITEM_SIZE, mockGetQueueSize(canInstances[CAN_DEV1].txQueueHandle));
     for (uint32_t i = 0; i < 3; ++i) {
         CAN_TxHeaderTypeDef* txHeader = mockGet_HAL_CAN_TxHeader(i);
         uint8_t* dataRecv = mockGet_HAL_CAN_TxData(i);
@@ -217,7 +215,7 @@ TEST(COMM_CAN, TestCanSendBuffered)
     mockClear_HAL_CAN_TxMailboxes();
     HAL_CAN_TxMailbox0CompleteCallback(&hcan);
     TEST_ASSERT_EQUAL(1U, mockGet_HAL_CAN_NumTxMailboxesInUse());
-    TEST_ASSERT_EQUAL(0U, mockGetQueueSize());
+    TEST_ASSERT_EQUAL(0U, mockGetQueueSize(canInstances[CAN_DEV1].txQueueHandle));
 
     CAN_TxHeaderTypeDef* txHeader = mockGet_HAL_CAN_TxHeader(0);
     uint8_t* txData = mockGet_HAL_CAN_TxData(0);
@@ -263,21 +261,21 @@ TEST(COMM_CAN, TestCanReceive)
     HAL_CAN_RxFifo0MsgPendingCallback(&hcan);
 
     // Should have 1 CAN_DataFrame_T object in the queue now
-    TEST_ASSERT_EQUAL(1U * sizeof(CAN_DataFrame_T), mockGetQueueSize());
+    TEST_ASSERT_EQUAL(1U * sizeof(CAN_DataFrame_T), mockGetQueueSize(recvQueue));
 
     CAN_DataFrame_T recvData;
-    mockGetQueueData(&recvData, sizeof(CAN_DataFrame_T));
+    mockGetQueueData(recvQueue, &recvData, sizeof(CAN_DataFrame_T));
     TEST_ASSERT_EQUAL(CAN_DEV1, recvData.busInstance);
     TEST_ASSERT_EQUAL(msg1Id, recvData.msgId);
     TEST_ASSERT_EQUAL(dlc, recvData.dlc);
     TEST_ASSERT_EQUAL_UINT8_ARRAY(data1, recvData.data, 8U);
 
-    mockClearQueueData();
+    mockClearQueueData(canInstances[CAN_DEV1].txQueueHandle);
 
     // now try a message that should be filtered out
     mockAddHALCANRxMessage(msg2Id, data2, dlc);
     HAL_CAN_RxFifo1MsgPendingCallback(&hcan);
-    TEST_ASSERT_EQUAL(0, mockGetQueueSize());
+    TEST_ASSERT_EQUAL(0, mockGetQueueSize(canInstances[CAN_DEV1].txQueueHandle));
 }
 
 TEST_GROUP_RUNNER(COMM_CAN)
@@ -294,3 +292,6 @@ TEST_GROUP_RUNNER(COMM_CAN)
     RUN_TEST_CASE(COMM_CAN, TestCanSendError);
     RUN_TEST_CASE(COMM_CAN, TestCanReceive);
 }
+
+#define INVOKE_TEST COMM_CAN
+#include "test_main.h"

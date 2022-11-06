@@ -31,7 +31,6 @@ TEST_SETUP(LIB_CRC)
     TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, Log_Init(&testLog));
     TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, Log_EnableSWO(&testLog));
     mockLogClear();
-    mockClearQueueData();
     hcrc.InputDataFormat = CRC_INPUTDATA_FORMAT_BYTES;
 
     // start CRC
@@ -103,3 +102,6 @@ TEST_GROUP_RUNNER(LIB_CRC)
     RUN_TEST_CASE(LIB_CRC, TestCrcOK);
     RUN_TEST_CASE(LIB_CRC, TestMutexTimeout);
 }
+
+#define INVOKE_TEST LIB_CRC
+#include "test_main.h"

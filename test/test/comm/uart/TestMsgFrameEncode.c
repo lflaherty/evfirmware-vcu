@@ -30,7 +30,6 @@ TEST_SETUP(COMM_MSGFRAMEENCODE)
     TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, Log_Init(&testLog));
     TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, Log_EnableSWO(&testLog));
     mockLogClear();
-    mockClearQueueData();
     hcrc.InputDataFormat = CRC_INPUTDATA_FORMAT_BYTES;
     mCrc.hcrc = &hcrc;
     TEST_ASSERT_EQUAL(CRC_STATUS_OK, CRC_Init(&testLog, &mCrc));
@@ -90,3 +89,6 @@ TEST_GROUP_RUNNER(COMM_MSGFRAMEENCODE)
     RUN_TEST_CASE(COMM_MSGFRAMEENCODE, TestInitFrame);
     RUN_TEST_CASE(COMM_MSGFRAMEENCODE, TestUpdateCrc);
 }
+
+#define INVOKE_TEST COMM_MSGFRAMEENCODE
+#include "test_main.h"

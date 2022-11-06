@@ -47,3 +47,6 @@ TEST_GROUP_RUNNER(TIME_TASKTIMER)
 {
     RUN_TEST_CASE(TIME_TASKTIMER, TestTaskTimerInitOk);
 }
+
+#define INVOKE_TEST TIME_TASKTIMER
+#include "test_main.h"

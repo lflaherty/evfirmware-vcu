@@ -220,3 +220,6 @@ TEST_GROUP_RUNNER(COMM_UART)
     RUN_TEST_CASE(COMM_UART, TestRx);
     RUN_TEST_CASE(COMM_UART, TestErrorCallback);
 }
+
+#define INVOKE_TEST COMM_UART
+#include "test_main.h"

@@ -23,16 +23,39 @@ done
 # Reset counters
 lcov --directory . --zerocounters -q
 
+# Clean up any local coverage files
+find . -maxdepth 1 -name \*.gcno -exec rm {} \;
+find . -maxdepth 1 -name \*.gcda -exec rm {} \;
+
 echo Running tests
-./run_tests -v
 echo
+TESTS="$(ls Test*)"
+
+let counter=0 || true
+summary=""
+
+for TEST in ${TESTS}
+do
+    echo "Running ${TEST}"
+    ./${TEST} -v
+    echo
+
+    let counter++ || true
+done
+
+echo "Successfully completed $counter tests"
+echo
+
+# Copy all the coverage files here
+find . -name \*.gcno -exec cp {} . \;
+find . -name \*.gcda -exec cp {} . \;
 
 echo Generating report
 # Create report for all files
-lcov --directory . -c -o main_coverage.info > /dev/null
+lcov --directory . -c -o main_coverage.info 2> /dev/null
 # Only include directories requested
 echo "${SRC_LIST[*]}" | xargs lcov -o main_coverage.info --extract main_coverage.info
 
-# Create report webpage
-rm -rf ../coverage_report
+# # Create report webpage
+# rm -rf ../coverage_report
 genhtml main_coverage.info --output-directory coverage_report > /dev/null

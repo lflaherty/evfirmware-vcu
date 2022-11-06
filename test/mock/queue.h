@@ -21,6 +21,9 @@ struct QueueDefinition
 {
     size_t itemSize;
     size_t queueLen;
+    uint8_t data[MOCK_QUEUE_SIZE]; // single data entry in queue
+    size_t start;
+    size_t end;
     // must be kept the same as StaticQueue_t in FreeRTOS.h
 };
 typedef struct QueueDefinition* QueueHandle_t;
@@ -37,21 +40,21 @@ BaseType_t xQueueIsQueueEmptyFromISR(const QueueHandle_t xQueue);
  * @brief Empty the mock queue.
  * 
  */
-void mockClearQueueData(void);
+void mockClearQueueData(QueueHandle_t xQueue);
 
 /**
  * @brief Sets the queue to return this data upon next xQueueReceive
  * @param data Pointer to data to use
  * @param dataSize size of data. Note that this will be used to copy the data.
  */
-void mockSetQueueData(void* data, size_t dataSize);
+void mockSetQueueData(QueueHandle_t xQueue, void* data, size_t dataSize);
 
 /**
  * @brief Returns the number of items in the queue.
  * 
  * @return size_t Size of queue.
  */
-size_t mockGetQueueSize(void);
+size_t mockGetQueueSize(QueueHandle_t xQueue);
 
 /**
  * @brief Gets the data item currently in queue
@@ -59,6 +62,6 @@ size_t mockGetQueueSize(void);
  * @param dataSize size of data. Note that this will be used to copy the data.
  * @returns True if data is present.
  */
-bool mockGetQueueData(void* data, size_t dataSize);
+bool mockGetQueueData(QueueHandle_t xQueue, void* data, size_t dataSize);
 
 #endif

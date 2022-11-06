@@ -222,3 +222,6 @@ TEST_GROUP_RUNNER(IO_ADC)
     RUN_TEST_CASE(IO_ADC, TestAdcDataSingle);
     RUN_TEST_CASE(IO_ADC, TestAdcDataAvg);
 }
+
+#define INVOKE_TEST IO_ADC
+#include "test_main.h"

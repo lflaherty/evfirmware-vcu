@@ -21,12 +21,11 @@ TEST_GROUP(IO_GPIO);
 TEST_SETUP(IO_GPIO)
 {
     mockSet_GPIO_Asserted(false);
-    mockSet_HAL_ADC_Start_DMA_Status(HAL_OK);
 }
 
 TEST_TEAR_DOWN(IO_GPIO)
 {
-    mockSet_HAL_ADC_Start_DMA_Status(HAL_OK);
+    // Empty
 }
 
 TEST(IO_GPIO, TestGpioRead)
@@ -73,3 +72,6 @@ TEST_GROUP_RUNNER(IO_GPIO)
     RUN_TEST_CASE(IO_GPIO, TestGpioWrite);
     RUN_TEST_CASE(IO_GPIO, TestGpioToggle);
 }
+
+#define INVOKE_TEST IO_GPIO
+#include "test_main.h"

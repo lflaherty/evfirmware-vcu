@@ -166,3 +166,6 @@ TEST_GROUP_RUNNER(LIB_LOGGING)
     RUN_TEST_CASE(LIB_LOGGING, TestLogBusy);
     RUN_TEST_CASE(LIB_LOGGING, TestLogLongMessages);
 }
+
+#define INVOKE_TEST LIB_LOGGING
+#include "test_main.h"

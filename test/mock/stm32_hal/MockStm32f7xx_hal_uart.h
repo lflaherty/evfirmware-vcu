@@ -17,6 +17,7 @@
 typedef struct
 {
     // Empty for mock
+    uint8_t tmp;
 } USART_TypeDef;
 
 typedef struct 

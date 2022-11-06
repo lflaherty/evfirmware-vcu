@@ -13,12 +13,6 @@
 #include <assert.h>
 #include <stdbool.h>
 
-// ------------------- Static data -------------------
-#define MOCK_QUEUE_SIZE 8192 /* something large enough to put anything from the tests in */
-static uint8_t mQueueData[MOCK_QUEUE_SIZE]; // single data entry in queue
-static size_t start = 0;
-static size_t end = 0;
-
 // ------------------- Methods -------------------
 QueueHandle_t xQueueCreateStatic(const UBaseType_t uxQueueLength, const UBaseType_t uxItemSize, uint8_t* pucQueueStorage, StaticQueue_t* pxStaticQueue)
 {
@@ -28,6 +22,8 @@ QueueHandle_t xQueueCreateStatic(const UBaseType_t uxQueueLength, const UBaseTyp
     QueueHandle_t handle = (QueueHandle_t)pxStaticQueue;
     handle->itemSize = uxItemSize;
     handle->queueLen = uxQueueLength;
+    handle->start = 0U;
+    handle->end = 0U;
 
     return handle;
 }
@@ -36,13 +32,13 @@ BaseType_t xQueueReceive(QueueHandle_t xQueue, void* const pvBuffer, TickType_t 
 {
     (void)xTicksToWait;
 
-    size_t remainingSize = mockGetQueueSize();
+    size_t remainingSize = mockGetQueueSize(xQueue);
     if (remainingSize < xQueue->itemSize) {
         return pdFALSE;
     }
 
-    memcpy(pvBuffer, mQueueData + start, xQueue->itemSize);
-    start += xQueue->itemSize;
+    memcpy(pvBuffer, xQueue->data + xQueue->start, xQueue->itemSize);
+    xQueue->start += xQueue->itemSize;
 
     return pdTRUE;
 }
@@ -56,18 +52,19 @@ BaseType_t xQueueReceiveFromISR(QueueHandle_t xQueue, void *pvBuffer, BaseType_t
 BaseType_t xQueueSendToBack(QueueHandle_t xQueue, const void* const pvItemToQueue, TickType_t ticksToWait)
 {
     (void)ticksToWait;
+    assert(xQueue != NULL);
 
-    size_t freeSpace = MOCK_QUEUE_SIZE - end;
+    size_t freeSpace = MOCK_QUEUE_SIZE - xQueue->end;
     assert(freeSpace >= xQueue->itemSize);
     assert(xQueue->queueLen > 0);
 
-    size_t queueNumElements = mockGetQueueSize() / xQueue->itemSize;
+    size_t queueNumElements = mockGetQueueSize(xQueue) / xQueue->itemSize;
     if (queueNumElements >= xQueue->queueLen) {
         return pdFALSE;
     }
 
-    memcpy(mQueueData + end, pvItemToQueue, xQueue->itemSize);
-    end += xQueue->itemSize;
+    memcpy(xQueue->data + xQueue->end, pvItemToQueue, xQueue->itemSize);
+    xQueue->end += xQueue->itemSize;
 
     return pdTRUE;
 }
@@ -81,34 +78,33 @@ BaseType_t xQueueSendToBackFromISR(QueueHandle_t xQueue, const void* const pvIte
 
 BaseType_t xQueueIsQueueEmptyFromISR(const QueueHandle_t xQueue)
 {
-    (void)xQueue;
-    return start == end;
+    return xQueue->start == xQueue->end;
 }
 
-void mockClearQueueData(void)
+void mockClearQueueData(QueueHandle_t xQueue)
 {
-    start = 0U;
-    end = 0U;
+    xQueue->start = 0U;
+    xQueue->end = 0U;
 }
 
-void mockSetQueueData(void* data, size_t dataSize)
+void mockSetQueueData(QueueHandle_t xQueue, void* data, size_t dataSize)
 {
     assert(dataSize <= MOCK_QUEUE_SIZE);
 
-    start = 0;
-    end = dataSize;
-    memcpy(mQueueData, data, dataSize);
+    xQueue->start = 0;
+    xQueue->end = dataSize;
+    memcpy(xQueue->data, data, dataSize);
 }
 
-size_t mockGetQueueSize(void)
+size_t mockGetQueueSize(QueueHandle_t xQueue)
 {
-    return end - start;
+    return xQueue->end - xQueue->start;
 }
 
-bool mockGetQueueData(void* data, size_t dataSize)
+bool mockGetQueueData(QueueHandle_t xQueue, void* data, size_t dataSize)
 {
-    assert(mockGetQueueSize() == dataSize);
+    assert(mockGetQueueSize(xQueue) == dataSize);
 
-    memcpy(data, mQueueData, dataSize);
+    memcpy(data, xQueue->data, dataSize);
     return true;
 }

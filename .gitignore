@@ -7,6 +7,8 @@
 # Test files
 *.gcno
 *.gcda
+*.o
+*.su
 test/coverage/
 test/coverage_report/
 test/main_coverage.info

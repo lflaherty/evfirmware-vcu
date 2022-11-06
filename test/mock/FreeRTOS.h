@@ -18,12 +18,17 @@
 typedef struct
 {
     // Empty for mock
+    uint8_t tmp;
 } StaticTask_t;
 
+#define MOCK_QUEUE_SIZE 8192 /* something large enough to put anything from the tests in */
 typedef struct xSTATIC_QUEUE
 {
     size_t itemSize;
     size_t queueLen;
+    uint8_t mQueueData[MOCK_QUEUE_SIZE]; // single data entry in queue
+    size_t start;
+    size_t end;
     // Must be kept the same as QueueDefinition in queue.h
 } StaticQueue_t;
 
