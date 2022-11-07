@@ -11,6 +11,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "comm/uart/nmeatypes.h"
+
 typedef int16_t Temperature_T;    // x10   -3276.8 to +3276.7 °C
 typedef int16_t LowVoltage_T;     // x100  -327.68 to +327.67 volts
 typedef int16_t HighVoltage_T;    // x10   -3276.8 to +3276.7 volts
@@ -40,6 +42,20 @@ typedef struct
 
 typedef struct
 {
+  NmeaUTCTime_T utcTime;
+  char latitude[11];
+  char nsIndicator; // 'N'/'S' north/south
+  char longitude[11];
+  char ewIndicator; // 'E'/'W' east/west
+  uint8_t positionFix; 
+  uint8_t nSatellites;
+} VehicleState_GPS_T;
+
+
+typedef struct
+{
+  VehicleState_GPS_T gps;
+
   // TODO
   // wheel speed
   // IMU dynamics
