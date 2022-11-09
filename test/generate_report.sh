@@ -37,7 +37,7 @@ summary=""
 for TEST in ${TESTS}
 do
     echo "Running ${TEST}"
-    ./${TEST} -v
+    ./${TEST} -v -r 10
     echo
 
     let counter++ || true
