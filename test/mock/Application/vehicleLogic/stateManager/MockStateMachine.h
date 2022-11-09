@@ -25,4 +25,10 @@
  */
 uint32_t mockGet_VSM_Step_Count(void);
 
+/**
+ * @brief Resets the recorded number of VSM steps to 0.
+ * 
+ */
+void mockReset_VSM_Step_Count(void);
+
 #endif // _MOCK_VEHICLELOGIC_STATEMANAGER_STATEMACHINE_H_

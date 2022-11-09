@@ -28,3 +28,8 @@ uint32_t mockGet_VSM_Step_Count(void)
 {
     return mNumSteps;
 }
+
+void mockReset_VSM_Step_Count(void)
+{
+    mNumSteps = 0U;
+}
