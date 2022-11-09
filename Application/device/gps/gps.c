@@ -7,6 +7,7 @@
 #include "gps.h"
 
 #include <stdio.h> // for snprintf
+#include <string.h>
 #include "comm/uart/uart.h"
 
 // ------------------- Private data -------------------
