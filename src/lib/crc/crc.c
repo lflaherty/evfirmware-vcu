@@ -14,10 +14,12 @@ CRC_Status_T CRC_Init(Logging_T* logger, CRC_T* crcObj)
 {
   mLog = logger;
   Log_Print(mLog, "CRC_Init begin\n");
+  DEPEND_ON(logger, CRC_STATUS_ERROR_DEPENDS);
 
   // Create mutex lock
   crcObj->mutex = xSemaphoreCreateMutexStatic(&crcObj->mutexBuffer);
 
+  REGISTER(crcObj, CRC_STATUS_ERROR_DEPENDS);
   Log_Print(mLog, "complete begin\n");
   return CRC_STATUS_OK;
 }

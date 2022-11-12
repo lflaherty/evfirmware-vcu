@@ -33,6 +33,7 @@ Logging_Status_T Log_Init(Logging_T* log)
   log->enableSerial = false;
   log->enableSWO = false;
 
+  REGISTER(log, LOGGING_STATUS_ERROR_DEPEND);
   return LOGGING_STATUS_OK;
 }
 

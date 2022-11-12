@@ -14,6 +14,8 @@ target_sources(TestUart PRIVATE ${PROJECT_SOURCE_DIR}/mock/stm32_hal/MockStm32f7
 target_sources(TestUart PRIVATE ${PROJECT_SOURCE_DIR}/mock/stm32_hal/MockStm32f7xx_hal_uart.c)
 # Mocks for 1st party
 target_sources(TestUart PRIVATE ${PROJECT_SOURCE_DIR}/mock/lib/logging/MockLogging.c)
+# Production code
+target_sources(TestUart PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/lib/depends/depends.c)
 
 
 ## TestMsgFrameDecode
@@ -34,6 +36,7 @@ target_sources(TestMsgFrameDecode PRIVATE ${PROJECT_SOURCE_DIR}/mock/stm32_hal/M
 target_sources(TestMsgFrameDecode PRIVATE ${PROJECT_SOURCE_DIR}/mock/lib/logging/MockLogging.c)
 # Production code
 target_sources(TestMsgFrameDecode PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/lib/crc/crc.c)
+target_sources(TestMsgFrameDecode PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/lib/depends/depends.c)
 
 
 ## TestMsgFrameEncode
@@ -54,6 +57,7 @@ target_sources(TestMsgFrameEncode PRIVATE ${PROJECT_SOURCE_DIR}/mock/stm32_hal/M
 target_sources(TestMsgFrameEncode PRIVATE ${PROJECT_SOURCE_DIR}/mock/lib/logging/MockLogging.c)
 # Production code
 target_sources(TestMsgFrameEncode PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/lib/crc/crc.c)
+target_sources(TestMsgFrameEncode PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/lib/depends/depends.c)
 
 
 ## TestNmeaDecode
@@ -73,6 +77,7 @@ target_sources(TestNmeaDecode PRIVATE ${PROJECT_SOURCE_DIR}/mock/stm32_hal/MockS
 target_sources(TestNmeaDecode PRIVATE ${PROJECT_SOURCE_DIR}/mock/lib/logging/MockLogging.c)
 # Production code
 target_sources(TestNmeaDecode PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/comm/uart/nmeatypes.c)
+target_sources(TestNmeaDecode PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/lib/depends/depends.c)
 
 
 ## TestNmeaTypes
@@ -90,3 +95,5 @@ target_sources(TestNmeaTypes PRIVATE ${PROJECT_SOURCE_DIR}/mock/std/MockStdio.c)
 target_sources(TestNmeaTypes PRIVATE ${PROJECT_SOURCE_DIR}/mock/stm32_hal/MockStm32f7xx_hal.c)
 # Mocks for 1st party
 target_sources(TestNmeaTypes PRIVATE ${PROJECT_SOURCE_DIR}/mock/lib/logging/MockLogging.c)
+# Production code
+target_sources(TestNmeaTypes PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/lib/depends/depends.c)

@@ -11,7 +11,10 @@
 #include "stm32f7xx_hal.h"
 #include <stdint.h>
 
+#include "lib/depends/depends.h"
 #include "lib/logging/logging.h"
+
+REGISTERED_MODULE_STATIC(CAN);
 
 #define CAN_NUM_INSTANCES 3
 
@@ -33,7 +36,8 @@ typedef enum
   CAN_STATUS_ERROR_START         = 0x03U,
   CAN_STATUS_ERROR_START_NOTIFY  = 0x04U,
   CAN_STATUS_ERROR_INVALID_BUS   = 0x05U,
-  CAN_STATUS_ERROR_MAX_QUEUES    = 0x06U
+  CAN_STATUS_ERROR_MAX_QUEUES    = 0x06U,
+  CAN_STATUS_ERROR_DEPENDS       = 0X07U,
 } CAN_Status_T;
 
 /**

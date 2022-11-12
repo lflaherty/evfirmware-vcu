@@ -10,7 +10,10 @@
 
 #include "stm32f7xx_hal.h"
 
+#include "lib/depends/depends.h"
 #include "lib/logging/logging.h"
+
+REGISTERED_MODULE_STATIC(RTC);
 
 typedef enum
 {

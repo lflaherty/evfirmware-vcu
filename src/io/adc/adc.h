@@ -11,7 +11,10 @@
 #include "stm32f7xx_hal.h"
 #include <stdint.h>
 
+#include "lib/depends/depends.h"
 #include "lib/logging/logging.h"
+
+REGISTERED_MODULE_STATIC(ADC);
 
 #define ADC_MAX_NUM_CHANNELS 16
 
@@ -19,7 +22,8 @@ typedef enum
 {
   ADC_STATUS_OK                   = 0x00U,
   ADC_STATUS_ERROR_DMA            = 0x01U,
-  ADC_STATUS_ERROR_CHANNEL_COUNT  = 0x02U
+  ADC_STATUS_ERROR_CHANNEL_COUNT  = 0x02U,
+  ADC_STATUS_ERROR_DEPENDS        = 0x03U,
 } ADC_Status_T;
 
 typedef uint16_t ADC_Channel_T;

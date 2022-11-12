@@ -17,7 +17,7 @@ static size_t offset = 0;
 // Mock impls ------------------------------------------------------------------
 Logging_Status_T Log_Init(Logging_T* log)
 {
-    (void)log;
+    REGISTER(log, LOGGING_STATUS_ERROR_DEPEND);
     return LOGGING_STATUS_OK;
 }
 

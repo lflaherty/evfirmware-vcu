@@ -14,6 +14,8 @@
 #include <stddef.h>
 #include <stdbool.h>
 
+#include "lib/depends/depends.h"
+
 #define LOGGING_MAX_MSG_LEN 256
 
 /**
@@ -23,7 +25,8 @@ typedef enum
 {
   LOGGING_STATUS_OK           = 0x00U,
   LOGGING_STATUS_LOG_ERROR    = 0x01U,
-  LOGGING_STATUS_ERROR_MUTEX  = 0x02U
+  LOGGING_STATUS_ERROR_MUTEX  = 0x02U,
+  LOGGING_STATUS_ERROR_DEPEND = 0x03U,
 } Logging_Status_T;
 
 typedef struct {
@@ -37,6 +40,8 @@ typedef struct {
   bool enableSWO; // SWD serial wire output
 
   StreamBufferHandle_t serialOutputStream;
+
+  REGISTERED_MODULE();
 } Logging_T;
 
 /**

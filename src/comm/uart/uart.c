@@ -14,6 +14,8 @@
 #include "task.h"
 #include "stream_buffer.h"
 
+REGISTERED_MODULE_STATIC_DEF(UART);
+
 // ------------------- Private data -------------------
 static Logging_T* mLog;
 
@@ -144,6 +146,7 @@ UART_Status_T UART_Init(Logging_T* logger)
 {
   mLog = logger;
   Log_Print(mLog, "UART_Init begin\n");
+  DEPEND_ON(logger, UART_STATUS_ERROR_DEPENDS);
 
   // USART1
   usart1.txInProgress = false;
@@ -165,6 +168,7 @@ UART_Status_T UART_Init(Logging_T* logger)
 
   isReady = true;
 
+  REGISTER_STATIC(UART, UART_STATUS_ERROR_DEPENDS);
   Log_Print(mLog, "UART_Init complete\n");
   return UART_STATUS_OK;
 }
@@ -173,6 +177,7 @@ UART_Status_T UART_Init(Logging_T* logger)
 UART_Status_T UART_Config(UART_HandleTypeDef* handle)
 {
   Log_Print(mLog, "UART_Config begin\n");
+  DEPEND_ON_STATIC(UART, UART_STATUS_ERROR_DEPENDS);
 
   struct uartInfo* uartDev = getUartDev(handle);
   if (!uartDev) {

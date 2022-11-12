@@ -15,7 +15,10 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
+#include "lib/depends/depends.h"
 #include "lib/logging/logging.h"
+
+REGISTERED_MODULE_STATIC(TASKTIMER);
 
 /*
  * The base tick rate. This can be divided for individual tasks.
@@ -35,7 +38,8 @@ typedef enum {
   TASKTIMER_STATUS_OK                     = 0x00U,
   TASKTIMER_STATUS_ERROR_TIMER            = 0x01U,
   TASKTIMER_STATUS_ERROR_FULL             = 0x02U,
-  TASKTIMER_STATUS_ERROR_INVALID_DIVIDER  = 0x03U
+  TASKTIMER_STATUS_ERROR_INVALID_DIVIDER  = 0x03U,
+  TASKTIMER_STATUS_ERROR_DEPENDS          = 0x04U,
 } TaskTimer_Status_T;
 
 /*

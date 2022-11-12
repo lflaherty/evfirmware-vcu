@@ -15,6 +15,8 @@
 #include "task.h"
 #include "queue.h"
 
+REGISTERED_MODULE_STATIC_DEF(CAN);
+
 // ------------------- Private data -------------------
 static Logging_T* mLog;
 
@@ -192,6 +194,7 @@ CAN_Status_T CAN_Init(Logging_T* logger)
 {
   mLog = logger;
   Log_Print(mLog, "CAN_Init begin\n");
+  DEPEND_ON(logger, CAN_STATUS_ERROR_DEPENDS);
 
   // Initialize mem to 0
   memset(canInstances, 0, sizeof(canInstances));
@@ -205,6 +208,7 @@ CAN_Status_T CAN_Init(Logging_T* logger)
         &canDev->txQueueBuffer);
   }
 
+  REGISTER_STATIC(CAN, CAN_STATUS_ERROR_DEPENDS);
   Log_Print(mLog, "CAN_Init complete\n");
   return CAN_STATUS_OK;
 }
@@ -213,6 +217,8 @@ CAN_Status_T CAN_Init(Logging_T* logger)
 CAN_Status_T CAN_Config(CAN_Device_T device, CAN_HandleTypeDef* handle)
 {
   Log_Print(mLog, "CAN_Config begin ");
+  DEPEND_ON_STATIC(CAN, CAN_STATUS_ERROR_DEPENDS);
+
   switch (device) {
     case CAN_DEV1:
       Log_Print(mLog, "CAN1\n");

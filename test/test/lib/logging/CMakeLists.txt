@@ -12,3 +12,5 @@ target_sources(TestLogging PRIVATE ${PROJECT_SOURCE_DIR}/mock/FreeRTOS/mockSemph
 target_sources(TestLogging PRIVATE ${PROJECT_SOURCE_DIR}/mock/std/MockStdio.c)
 target_sources(TestLogging PRIVATE ${PROJECT_SOURCE_DIR}/mock/stm32_hal/MockStm32f7xx_hal.c)
 target_sources(TestLogging PRIVATE ${PROJECT_SOURCE_DIR}/mock/stm32_hal/MockStm32f7xx_hal_uart.c)
+# Production code
+target_sources(TestLogging PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/lib/depends/depends.c)

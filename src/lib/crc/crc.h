@@ -16,12 +16,14 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "lib/depends/depends.h"
 #include "lib/logging/logging.h"
 
 typedef enum
 {
-  CRC_STATUS_OK     = 0x00U,
-  CRC_STATUS_ERROR  = 0x01U,
+  CRC_STATUS_OK             = 0x00U,
+  CRC_STATUS_ERROR          = 0x01U,
+  CRC_STATUS_ERROR_DEPENDS  = 0x02U,
 } CRC_Status_T;
 
 typedef struct
@@ -32,6 +34,8 @@ typedef struct
   // Mutex lock
   SemaphoreHandle_t mutex;
   StaticSemaphore_t mutexBuffer;
+
+  REGISTERED_MODULE();
 } CRC_T;
 
 /**

@@ -14,3 +14,5 @@ target_sources(TestTaskTimer PRIVATE ${PROJECT_SOURCE_DIR}/mock/stm32_hal/MockSt
 target_sources(TestTaskTimer PRIVATE ${PROJECT_SOURCE_DIR}/mock/stm32_hal/MockStm32f7xx_hal_tim.c)
 # Mocks for 1st party
 target_sources(TestTaskTimer PRIVATE ${PROJECT_SOURCE_DIR}/mock/lib/logging/MockLogging.c)
+# Production code
+target_sources(TestTaskTimer PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/lib/depends/depends.c)

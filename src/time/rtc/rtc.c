@@ -10,7 +10,10 @@
 
 #include <stdio.h>
 
+#include "lib/depends/depends.h"
 #include "lib/logging/logging.h"
+
+REGISTERED_MODULE_STATIC_DEF(RTC);
 
 // ------------------- Private data -------------------
 static Logging_T* log;
@@ -21,9 +24,11 @@ RTC_Status_T RTC_Init(Logging_T* logger)
 {
   log = logger;
   Log_Print(log, "RTC_Init begin\n");
+  DEPEND_ON(logger, RTC_STATUS_ERROR);
 
   // Nothing to do here
 
+  REGISTER_STATIC(RTC, RTC_STATUS_ERROR);
   Log_Print(log, "RTC_Init complete\n");
   return RTC_STATUS_OK;
 }

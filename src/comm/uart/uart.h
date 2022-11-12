@@ -13,7 +13,10 @@
 #include "stream_buffer.h"
 #include <stdint.h>
 
+#include "lib/depends/depends.h"
 #include "lib/logging/logging.h"
+
+REGISTERED_MODULE_STATIC(UART);
 
 #define UART_NUM_CALLBACKS 16     /* Max number of UART callbacks on any device */
 #define UART_MAX_DMA_LEN 128   /* Max number of bytes in one message */
@@ -24,7 +27,8 @@ typedef enum
   UART_STATUS_NOT_READY           = 0x01U,
   UART_STATUS_ERROR_TX            = 0x02U,
   UART_STATUS_ERROR_SB_FULL       = 0x03U,
-  UART_STATUS_ERROR_NOT_SUPPORTED = 0x04U
+  UART_STATUS_ERROR_NOT_SUPPORTED = 0x04U,
+  UART_STATUS_ERROR_DEPENDS       = 0x05U,
 } UART_Status_T;
 
 /**

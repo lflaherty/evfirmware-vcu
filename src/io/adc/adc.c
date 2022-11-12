@@ -14,8 +14,10 @@
 #include <stdbool.h>
 #include <math.h>
 
+#include "lib/depends/depends.h"
 #include "lib/logging/logging.h"
 
+REGISTERED_MODULE_STATIC_DEF(ADC);
 
 static Logging_T* logging;
 
@@ -64,6 +66,7 @@ ADC_Status_T ADC_Init(Logging_T* logger, const uint16_t numChannelsUsed, const u
 {
   logging = logger;
   Log_Print(logging, "ADC_Init begin\n");
+  DEPEND_ON(logger, ADC_STATUS_ERROR_DEPENDS);
 
   if (numChannelsUsed > ADC_MAX_NUM_CHANNELS) {
     return ADC_STATUS_ERROR_CHANNEL_COUNT;
@@ -83,6 +86,7 @@ ADC_Status_T ADC_Init(Logging_T* logger, const uint16_t numChannelsUsed, const u
 
   adcInitialized = true;
 
+  REGISTER_STATIC(ADC, ADC_STATUS_ERROR_DEPENDS);
   Log_Print(logging, "ADC_Init complete\n");
   return ADC_STATUS_OK;
 }
@@ -91,6 +95,7 @@ ADC_Status_T ADC_Init(Logging_T* logger, const uint16_t numChannelsUsed, const u
 ADC_Status_T ADC_Config(ADC_HandleTypeDef* handle)
 {
   Log_Print(logging, "ADC_Config begin\n");
+  DEPEND_ON_STATIC(ADC, ADC_STATUS_ERROR_DEPENDS);
   // TODO: this only works for ADC1 (with multiple channels), expand to ADCx
 
   // just need to start DMA

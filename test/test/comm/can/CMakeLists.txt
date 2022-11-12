@@ -14,3 +14,5 @@ target_sources(TestCan PRIVATE ${PROJECT_SOURCE_DIR}/mock/stm32_hal/MockStm32f7x
 target_sources(TestCan PRIVATE ${PROJECT_SOURCE_DIR}/mock/stm32_hal/MockStm32f7xx_hal_can.c)
 # Mocks for 1st party
 target_sources(TestCan PRIVATE ${PROJECT_SOURCE_DIR}/mock/lib/logging/MockLogging.c)
+# Production code
+target_sources(TestCan PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/lib/depends/depends.c)
