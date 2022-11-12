@@ -8,6 +8,7 @@
 #ifndef VEHICLELOGIC_WATCHDOGTRIGGER_WATCHDOGTRIGGER_H_
 #define VEHICLELOGIC_WATCHDOGTRIGGER_WATCHDOGTRIGGER_H_
 
+#include "lib/depends/depends.h"
 #include "lib/logging/logging.h"
 
 #include "io/gpio/gpio.h"
@@ -19,8 +20,9 @@
 
 typedef enum
 {
-  WATCHDOGTRIGGER_STATUS_OK         = 0x00U,
-  WATCHDOGTRIGGER_STATUS_ERROR_INIT = 0x01U
+  WATCHDOGTRIGGER_STATUS_OK             = 0x00U,
+  WATCHDOGTRIGGER_STATUS_ERROR_INIT     = 0x01U,
+  WATCHDOGTRIGGER_STATUS_ERROR_DEPENDS  = 0x02U,
 } WatchdogTrigger_Status_T;
 
 #define WATCHDOGTRIGGER_STACK_SIZE 2000U
@@ -41,6 +43,8 @@ typedef struct {
   TaskHandle_t taskHandle;
   StaticTask_t taskBuffer;
   StackType_t taskStack[WATCHDOGTRIGGER_STACK_SIZE];
+
+  REGISTERED_MODULE();
 } WatchdogTrigger_T;
 
 /**

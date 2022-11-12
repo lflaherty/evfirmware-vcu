@@ -8,6 +8,7 @@
 #ifndef DEVICE_INVERTER_CINVERTER_H_
 #define DEVICE_INVERTER_CINVERTER_H_
 
+#include "lib/depends/depends.h"
 #include "lib/logging/logging.h"
 
 #include "stm32f7xx_hal.h"
@@ -25,13 +26,14 @@ typedef struct
   VehicleState_T* vehicleState;
 
   // ******* Internal use *******
-  // Empty
+  REGISTERED_MODULE();
 } CInverter_T;
 
 typedef enum
 {
-  CINVERTER_STATUS_OK         = 0x00U,
-  CINVERTER_STATUS_ERROR_CAN  = 0x01U
+  CINVERTER_STATUS_OK             = 0x00U,
+  CINVERTER_STATUS_ERROR_CAN      = 0x01U,
+  CINVERTER_STATUS_ERROR_DEPENDS  = 0x02U,
 } CInverter_Status_T;
 
 /**

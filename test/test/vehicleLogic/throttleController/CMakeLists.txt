@@ -19,8 +19,9 @@ target_sources(TestThrottleController PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-te
 target_sources(TestThrottleController PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/mock/time/tasktimer/MockTasktimer.c)
 target_sources(TestThrottleController PRIVATE ${PROJECT_SOURCE_DIR}/mock/Application/vehicleInterface/vehicleControl/MockVehicleControl.c)
 # Production code
-target_sources(TestThrottleController PRIVATE ${PROJECT_SOURCE_DIR}/../System/src/comm/can/can.c)
-target_sources(TestThrottleController PRIVATE ${PROJECT_SOURCE_DIR}/../System/src/lib/crc/crc.c)
+target_sources(TestThrottleController PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/comm/can/can.c)
+target_sources(TestThrottleController PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/lib/crc/crc.c)
+target_sources(TestThrottleController PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/lib/depends/depends.c)
 target_sources(TestThrottleController PRIVATE ${PROJECT_SOURCE_DIR}/../Application/vehicleInterface/vehicleState/vehicleState.c)
 target_sources(TestThrottleController PRIVATE ${PROJECT_SOURCE_DIR}/../Application/vehicleLogic/throttleController/torqueMap.c)
 
@@ -45,5 +46,6 @@ target_sources(TestTorqueMap PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/mock/s
 target_sources(TestTorqueMap PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/mock/lib/logging/MockLogging.c)
 target_sources(TestTorqueMap PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/mock/time/tasktimer/MockTasktimer.c)
 # Production code
-target_sources(TestTorqueMap PRIVATE ${PROJECT_SOURCE_DIR}/../System/src/comm/can/can.c)
-target_sources(TestTorqueMap PRIVATE ${PROJECT_SOURCE_DIR}/../System/src/lib/crc/crc.c)
+target_sources(TestTorqueMap PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/comm/can/can.c)
+target_sources(TestTorqueMap PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/lib/crc/crc.c)
+target_sources(TestTorqueMap PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/lib/depends/depends.c)

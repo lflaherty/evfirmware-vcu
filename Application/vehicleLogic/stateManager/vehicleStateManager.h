@@ -14,6 +14,7 @@
 #include "queue.h"
 #include "semphr.h"
 
+#include "lib/depends/depends.h"
 #include "lib/logging/logging.h"
 
 #include "vehicleInterface/vehicleState/vehicleState.h"
@@ -23,8 +24,9 @@
 
 typedef enum
 {
-  STATEMANAGER_STATUS_OK          = 0x00U,
-  STATEMANAGER_STATUS_ERROR_INIT  = 0x01U
+  STATEMANAGER_STATUS_OK            = 0x00U,
+  STATEMANAGER_STATUS_ERROR_INIT    = 0x01U,
+  STATEMANAGER_STATUS_ERROR_DEPENDS = 0x02U,
 } VehicleStateManager_Status_T;
 
 #define VEHICLESTATEMANAGER_STACK_SIZE 2000
@@ -45,6 +47,8 @@ typedef struct
   TaskHandle_t taskHandle;
   StaticTask_t taskBuffer;
   StackType_t taskStack[VEHICLESTATEMANAGER_STACK_SIZE];
+
+  REGISTERED_MODULE();
 } VehicleStateManager_T;
 
 /**

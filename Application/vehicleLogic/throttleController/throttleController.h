@@ -14,6 +14,7 @@
 #include "task.h"
 #include "semphr.h"
 
+#include "lib/depends/depends.h"
 #include "lib/logging/logging.h"
 
 #include "vehicleInterface/vehicleState/vehicleState.h"
@@ -24,9 +25,10 @@
 
 typedef enum
 {
-  THROTTLECONTROLLER_STATUS_OK          = 0x00U,
-  THROTTLECONTROLLER_STATUS_ERROR_INIT  = 0x01U,
-  THROTTLECONTROLLER_STATUS_ERROR_MUTEX = 0x02U
+  THROTTLECONTROLLER_STATUS_OK            = 0x00U,
+  THROTTLECONTROLLER_STATUS_ERROR_INIT    = 0x01U,
+  THROTTLECONTROLLER_STATUS_ERROR_MUTEX   = 0x02U,
+  THROTTLECONTROLLER_STATUS_ERROR_DEPENDS = 0x03U,
 } ThrottleController_Status_T;
 
 #define THROTTLECONTROLLER_STACK_SIZE 2000
@@ -53,6 +55,8 @@ typedef struct
   TaskHandle_t taskHandle;
   StaticTask_t taskBuffer;
   StackType_t taskStack[THROTTLECONTROLLER_STACK_SIZE];
+
+  REGISTERED_MODULE();
 } ThrottleController_T;
 
 /**

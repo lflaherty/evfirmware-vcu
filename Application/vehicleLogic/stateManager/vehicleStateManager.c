@@ -39,6 +39,7 @@ VehicleStateManager_Status_T VehicleStateManager_Init(Logging_T* logger, Vehicle
 {
   mLog = logger;
   Log_Print(mLog, "VehicleStateManager_Init begin\n");
+  DEPEND_ON_STATIC(TASKTIMER, STATEMANAGER_STATUS_ERROR_DEPENDS);
 
   sm->vsm.inputState = sm->inputState;
   sm->vsm.control = sm->control;
@@ -64,6 +65,7 @@ VehicleStateManager_Status_T VehicleStateManager_Init(Logging_T* logger, Vehicle
     return STATEMANAGER_STATUS_ERROR_INIT;
   }
 
+  REGISTER(sm, STATEMANAGER_STATUS_ERROR_DEPENDS);
   Log_Print(mLog, "VehicleStateManager_Init complete\n");
   return STATEMANAGER_STATUS_OK;
 }

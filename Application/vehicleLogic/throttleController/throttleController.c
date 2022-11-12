@@ -81,6 +81,7 @@ ThrottleController_Status_T ThrottleController_Init(
 {
   mLog = logger;
   Log_Print(mLog, "ThrottleController_Init begin\n");
+  DEPEND_ON_STATIC(TASKTIMER, THROTTLECONTROLLER_STATUS_ERROR_DEPENDS);
 
   throttleControl->torqueMapForward = &TorqueMap_Default;
   throttleControl->torqueMapReverse = &TorqueMap_DefaultReverse;
@@ -107,6 +108,7 @@ ThrottleController_Status_T ThrottleController_Init(
     return THROTTLECONTROLLER_STATUS_ERROR_INIT;
   }
 
+  REGISTER(throttleControl, THROTTLECONTROLLER_STATUS_ERROR_DEPENDS);
   Log_Print(mLog, "ThrottleController_Init complete\n");
   return THROTTLECONTROLLER_STATUS_OK;
 }

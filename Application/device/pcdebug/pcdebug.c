@@ -101,6 +101,9 @@ PCDebug_Status_T PCDebug_Init(
 {
   mLog = logger;
   Log_Print(mLog, "PCDebug_Init begin\n");
+  DEPEND_ON(logger, PCDEBUG_STATUS_ERROR_DEPENDS);
+  DEPEND_ON_STATIC(UART, PCDEBUG_STATUS_ERROR_DEPENDS);
+  DEPEND_ON_STATIC(TASKTIMER, PCDEBUG_STATUS_ERROR_DEPENDS);
 
   pcdebug->counter = 0U;
   pcdebug->canErrorCounter = 0U;
@@ -159,6 +162,7 @@ PCDebug_Status_T PCDebug_Init(
     return PCDEBUG_STATUS_ERROR_INIT;
   }
 
+  REGISTER(pcdebug, PCDEBUG_STATUS_ERROR_DEPENDS);
   Log_Print(mLog, "PCDebug_Init complete\n");
   return PCDEBUG_STATUS_OK;
 }

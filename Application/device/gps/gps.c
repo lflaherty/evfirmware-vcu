@@ -104,6 +104,7 @@ GPS_Status_T GPS_Init(
 {
   mLog = logger;
   Log_Print(mLog, "GPS_Init begin\n");
+  DEPEND_ON(logger, GPS_STATUS_ERROR_DEPENDS);
 
   if (NULL == gps->huart || NULL == gps->pin3dFix || NULL == gps->state) {
     return GPS_STATUS_ERROR_INIT;
@@ -131,6 +132,7 @@ GPS_Status_T GPS_Init(
     return GPS_STATUS_ERROR_INIT;
   }
 
+  REGISTER(gps, GPS_STATUS_ERROR_DEPENDS);
   Log_Print(mLog, "GPS_Init complete\n");
   return GPS_STATUS_OK;
 }

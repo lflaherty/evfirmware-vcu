@@ -47,6 +47,8 @@ WatchdogTrigger_Status_T WatchdogTrigger_Init(
 {
   mLog = logger;
   Log_Print(mLog, "WatchdogTrigger_Init begin\n");
+  DEPEND_ON(logger, WATCHDOGTRIGGER_STATUS_ERROR_DEPENDS);
+  DEPEND_ON_STATIC(TASKTIMER, WATCHDOGTRIGGER_STATUS_ERROR_DEPENDS);
 
   wdtTrigger->counter = 0U;
 
@@ -70,6 +72,7 @@ WatchdogTrigger_Status_T WatchdogTrigger_Init(
     return WATCHDOGTRIGGER_STATUS_ERROR_INIT;
   }
 
+  REGISTER(wdtTrigger, WATCHDOGTRIGGER_STATUS_ERROR_DEPENDS);
   Log_Print(mLog, "WatchdogTrigger_Init complete\n");
   return WATCHDOGTRIGGER_STATUS_OK;
 }

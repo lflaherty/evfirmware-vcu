@@ -20,8 +20,9 @@ target_sources(TestFaultManager PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/moc
 target_sources(TestFaultManager PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/mock/time/tasktimer/MockTasktimer.c)
 # Production code
 target_sources(TestFaultManager PRIVATE ${PROJECT_SOURCE_DIR}/../Application/vehicleInterface/vehicleState/vehicleState.c)
-target_sources(TestFaultManager PRIVATE ${PROJECT_SOURCE_DIR}/../System/src/comm/can/can.c)
-target_sources(TestFaultManager PRIVATE ${PROJECT_SOURCE_DIR}/../System/src/lib/crc/crc.c)
+target_sources(TestFaultManager PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/comm/can/can.c)
+target_sources(TestFaultManager PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/lib/depends/depends.c)
+target_sources(TestFaultManager PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/lib/crc/crc.c)
 
 
 ## TestVehicleStateMachine
@@ -48,6 +49,7 @@ target_sources(TestVehicleStateMachine PRIVATE ${PROJECT_SOURCE_DIR}/mock/Applic
 target_sources(TestVehicleStateMachine PRIVATE ${PROJECT_SOURCE_DIR}/mock/Application/vehicleLogic/throttleController/MockThrottleController.c)
 # Production code
 target_sources(TestVehicleStateMachine PRIVATE ${PROJECT_SOURCE_DIR}/../Application/vehicleInterface/vehicleState/vehicleState.c)
+target_sources(TestVehicleStateMachine PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/lib/depends/depends.c)
 
 
 ## TestVehicleStateManager
@@ -74,3 +76,4 @@ target_sources(TestVehicleStateManager PRIVATE ${PROJECT_SOURCE_DIR}/mock/Applic
 target_sources(TestVehicleStateManager PRIVATE ${PROJECT_SOURCE_DIR}/mock/Application/vehicleLogic/stateManager/MockStateMachine.c)
 target_sources(TestVehicleStateManager PRIVATE ${PROJECT_SOURCE_DIR}/mock/Application/vehicleLogic/throttleController/MockThrottleController.c)
 # Production code
+target_sources(TestVehicleStateManager PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/lib/depends/depends.c)

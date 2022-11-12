@@ -72,7 +72,7 @@ TEST_SETUP(DEVICE_PCDEBUG)
     mPCDebug.crc = &mCrc;
 
     PCDebug_Status_T status = PCDebug_Init(&testLog, &mPCDebug);
-    TEST_ASSERT(PCDEBUG_STATUS_OK == status);
+    TEST_ASSERT_EQUAL(PCDEBUG_STATUS_OK, status);
 
     const char* expectedLogging =
         "PCDebug_Init begin\n"

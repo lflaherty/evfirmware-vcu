@@ -247,6 +247,8 @@ CInverter_Status_T CInverter_Init(Logging_T* logger, CInverter_T* inv)
 {
   mLog = logger;
   Log_Print(mLog, "CInverter_Init begin\n");
+  DEPEND_ON(logger, CINVERTER_STATUS_ERROR_DEPENDS);
+  DEPEND_ON_STATIC(CAN, CINVERTER_STATUS_ERROR_DEPENDS);
 
   // Register callbacks
   CAN_Status_T callbackRegStatus = CAN_STATUS_OK;
@@ -266,6 +268,7 @@ CInverter_Status_T CInverter_Init(Logging_T* logger, CInverter_T* inv)
     return CINVERTER_STATUS_ERROR_CAN;
   }
 
+  REGISTER(inv, CINVERTER_STATUS_ERROR_DEPENDS);
   Log_Print(mLog, "CInverter_Init complete\n");
   return CINVERTER_STATUS_OK;
 }

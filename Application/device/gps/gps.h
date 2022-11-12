@@ -14,6 +14,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
+#include "lib/depends/depends.h"
 #include "lib/logging/logging.h"
 #include "io/gpio/gpio.h"
 #include "comm/uart/nmeadecode.h"
@@ -22,8 +23,9 @@
 
 typedef enum
 {
-  GPS_STATUS_OK         = 0x00,
-  GPS_STATUS_ERROR_INIT = 0x01,
+  GPS_STATUS_OK             = 0x00,
+  GPS_STATUS_ERROR_INIT     = 0x01,
+  GPS_STATUS_ERROR_DEPENDS  = 0x02,
 } GPS_Status_T;
 
 #define GPS_STACK_SIZE 2000U
@@ -54,6 +56,8 @@ typedef struct
 
   // For taking data out of serial stream
   uint8_t workingBuffer[GPS_RECV_STREAM_SIZE_BYTES];
+
+  REGISTERED_MODULE();
 } GPS_T;
 
 /**

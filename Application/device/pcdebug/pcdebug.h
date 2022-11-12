@@ -15,13 +15,15 @@
 #include "task.h"
 #include "semphr.h"
 
+#include "lib/depends/depends.h"
 #include "lib/crc/crc.h"
 #include "comm/uart/msgframeencode.h"
 
 typedef enum
 {
-  PCDEBUG_STATUS_OK         = 0x00,
-  PCDEBUG_STATUS_ERROR_INIT = 0x01
+  PCDEBUG_STATUS_OK             = 0x00,
+  PCDEBUG_STATUS_ERROR_INIT     = 0x01,
+  PCDEBUG_STATUS_ERROR_DEPENDS  = 0x02,
 } PCDebug_Status_T;
 
 #define PCDEBUG_STACK_SIZE 2000U
@@ -70,6 +72,8 @@ typedef struct
   // Message frames for encoding
   MsgFrameEncode_T mfLogData;
   uint8_t mfLogDataBuffer[PCDEBUG_MSG_LOG_MSGLEN];
+
+  REGISTERED_MODULE();
 } PCDebug_T;
 
 /**

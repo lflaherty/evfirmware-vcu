@@ -14,16 +14,18 @@
 #include "queue.h"
 #include "semphr.h"
 
+#include "lib/depends/depends.h"
 #include "lib/logging/logging.h"
 
 #include "vehicleStateTypes.h"
 
 typedef enum
 {
-  VEHICLESTATE_STATUS_OK          = 0x00U,
-  VEHICLESTATE_STATUS_ERROR_INIT  = 0x01U,
-  VEHICLESTATE_STATUS_ERROR_QUEUE = 0x02U,
-  VEHICLESTATE_STATUS_ERROR_SIZE  = 0x03U
+  VEHICLESTATE_STATUS_OK            = 0x00U,
+  VEHICLESTATE_STATUS_ERROR_INIT    = 0x01U,
+  VEHICLESTATE_STATUS_ERROR_QUEUE   = 0x02U,
+  VEHICLESTATE_STATUS_ERROR_SIZE    = 0x03U,
+  VEHICLESTATE_STATUS_ERROR_DEPENDS = 0x04U,
 } VehicleState_Status_T;
 
 #define VEHICLESTATE_QUEUE_MAX_VALUE_SIZE 4 /* bytes */
@@ -65,6 +67,8 @@ typedef struct
   QueueHandle_t dataQueueHandle;
   StaticQueue_t dataQueueBuffer;
   uint8_t dataQueueStorageArea[VEHICLESTATE_QUEUE_LENGTH*VEHICLESTATE_QUEUE_DATA_SIZE];
+
+  REGISTERED_MODULE();
 } VehicleState_T;
 
 /**

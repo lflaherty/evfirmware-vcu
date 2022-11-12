@@ -55,6 +55,7 @@ VehicleState_Status_T VehicleState_Init(Logging_T* logger, VehicleState_T* state
 {
   mLog = logger;
   Log_Print(mLog, "VehicleState_Init begin\n");
+  DEPEND_ON_STATIC(TASKTIMER, VEHICLESTATE_STATUS_ERROR_DEPENDS);
 
   memset(&state->data, 0, sizeof(state->data)); // initialize data to 0
 
@@ -85,6 +86,7 @@ VehicleState_Status_T VehicleState_Init(Logging_T* logger, VehicleState_T* state
     return VEHICLESTATE_STATUS_ERROR_INIT;
   }
 
+  REGISTER(state, VEHICLESTATE_STATUS_ERROR_DEPENDS);
   Log_Print(mLog, "VehicleState_Init complete\n");
   return VEHICLESTATE_STATUS_OK;
 }

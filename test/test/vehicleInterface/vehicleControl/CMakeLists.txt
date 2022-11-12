@@ -18,5 +18,6 @@ target_sources(TestVehicleControl PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/m
 target_sources(TestVehicleControl PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/mock/lib/logging/MockLogging.c)
 target_sources(TestVehicleControl PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/mock/time/tasktimer/MockTasktimer.c)
 # Production code
-target_sources(TestVehicleControl PRIVATE ${PROJECT_SOURCE_DIR}/../System/src/comm/can/can.c)
-target_sources(TestVehicleControl PRIVATE ${PROJECT_SOURCE_DIR}/../System/src/lib/crc/crc.c)
+target_sources(TestVehicleControl PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/comm/can/can.c)
+target_sources(TestVehicleControl PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/lib/depends/depends.c)
+target_sources(TestVehicleControl PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/lib/crc/crc.c)
