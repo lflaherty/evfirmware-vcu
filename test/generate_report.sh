@@ -37,13 +37,34 @@ summary=""
 for TEST in ${TESTS}
 do
     echo "Running ${TEST}"
-    ./${TEST} -v -r 10
+    ./${TEST} -v
     echo
 
     let counter++ || true
 done
 
 echo "Successfully completed $counter tests"
+echo
+
+echo Stress testing
+let counter=0 || true
+summary=""
+
+for TEST in ${TESTS}
+do
+    set +e # allow a failed test to be detected
+    out="$(./${TEST} -v -r 25)"
+    status=$?
+    if [ ${status} -ne 0 ]; then
+        echo "Failed 25 run ${TEST}"
+        echo "${out}"
+    fi
+
+    set -e
+    let counter++ || true
+done
+
+echo "Successfully completed $counter stress tests"
 echo
 
 # Copy all the coverage files here
