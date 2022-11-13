@@ -25,18 +25,27 @@
 #include "vehicleLogic/watchdogTrigger/watchdogTrigger.c"
 
 static Logging_T testLog;
+
+static GPIO_TypeDef mLedGpioBank;
+static uint16_t mLedGpioPin = 1;
 static GPIO_T mLedGpio;
+
 static WatchdogTrigger_T mWatchdogTrigger;
 
 TEST_GROUP(VEHICLELOGIC_WATCHDOGTRIGGER);
 
 TEST_SETUP(VEHICLELOGIC_WATCHDOGTRIGGER)
 {
+    mLedGpio.GPIOx = &mLedGpioBank;
+    mLedGpio.GPIO_Pin = mLedGpioPin;
+
     TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, Log_Init(&testLog));
     TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, Log_EnableSWO(&testLog));
     mockLogClear();
     mockSet_TaskTimer_Init_Status(TASKTIMER_STATUS_OK);
     mockSet_TaskTimer_RegisterTask_Status(TASKTIMER_STATUS_OK);
+
+    mock_GPIO_RegisterPin(mLedGpio.GPIOx, mLedGpio.GPIO_Pin);
     
     memset(&mWatchdogTrigger, 0U, sizeof(WatchdogTrigger_T));
     mWatchdogTrigger.blinkLED = &mLedGpio;
@@ -78,7 +87,7 @@ TEST(VEHICLELOGIC_WATCHDOGTRIGGER, InitTaskRegisterError)
 TEST(VEHICLELOGIC_WATCHDOGTRIGGER, TestTask)
 {
     bool expectedGpio = false;
-    mockSet_GPIO_Asserted(false);
+    mockSet_GPIO_Asserted(mLedGpio.GPIOx, mLedGpio.GPIO_Pin, false);
 
     for (uint32_t i = 0; i < 10000; ++i) {
         mockSetTaskNotifyValue(1); // to wake up
@@ -87,7 +96,7 @@ TEST(VEHICLELOGIC_WATCHDOGTRIGGER, TestTask)
         if ((i + 1) % 100 == 0) {
             expectedGpio = !expectedGpio;
         }
-        TEST_ASSERT_EQUAL(expectedGpio, mockGet_GPIO_Asserted());
+        TEST_ASSERT_EQUAL(expectedGpio, mockGet_GPIO_Asserted(mLedGpio.GPIOx, mLedGpio.GPIO_Pin));
     }
 }
 
