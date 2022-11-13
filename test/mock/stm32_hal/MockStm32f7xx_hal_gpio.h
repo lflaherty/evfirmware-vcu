@@ -47,7 +47,8 @@ void stubHAL_GPIO_TogglePin(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin);
 #define HAL_GPIO_TogglePin stubHAL_GPIO_TogglePin
 
 // ================== Mock control methods ==================
-void mockSet_GPIO_Asserted(bool asserted);
-bool mockGet_GPIO_Asserted(void);
+void mock_GPIO_RegisterPin(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin);
+void mockSet_GPIO_Asserted(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin, bool asserted);
+bool mockGet_GPIO_Asserted(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin);
 
 #endif

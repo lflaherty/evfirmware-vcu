@@ -14,13 +14,19 @@
 // source code under test
 #include "io/gpio/gpio.c"
 
-GPIO_T mGpioPin; // only used to pass fields to STM32 HAL
+static GPIO_TypeDef mGpioBank;
+static uint16_t mGpioPin = 1;
+static GPIO_T mGpio; // only used to pass fields to STM32 HAL
 
 TEST_GROUP(IO_GPIO);
 
 TEST_SETUP(IO_GPIO)
 {
-    mockSet_GPIO_Asserted(false);
+    mGpio.GPIOx = &mGpioBank;
+    mGpio.GPIO_Pin = mGpioPin;
+
+    mock_GPIO_RegisterPin(&mGpioBank, mGpioPin);
+    mockSet_GPIO_Asserted(&mGpioBank, mGpioPin, false);
 }
 
 TEST_TEAR_DOWN(IO_GPIO)
@@ -30,28 +36,28 @@ TEST_TEAR_DOWN(IO_GPIO)
 
 TEST(IO_GPIO, TestGpioRead)
 {
-    mockSet_GPIO_Asserted(false);
-    TEST_ASSERT_FALSE(GPIO_ReadPin(&mGpioPin));
+    mockSet_GPIO_Asserted(&mGpioBank, mGpioPin, false);
+    TEST_ASSERT_FALSE(GPIO_ReadPin(&mGpio));
 
-    mockSet_GPIO_Asserted(true);
-    TEST_ASSERT_TRUE(GPIO_ReadPin(&mGpioPin));
+    mockSet_GPIO_Asserted(&mGpioBank, mGpioPin, true);
+    TEST_ASSERT_TRUE(GPIO_ReadPin(&mGpio));
 
-    mockSet_GPIO_Asserted(false);
-    TEST_ASSERT_FALSE(GPIO_ReadPin(&mGpioPin));
+    mockSet_GPIO_Asserted(&mGpioBank, mGpioPin, false);
+    TEST_ASSERT_FALSE(GPIO_ReadPin(&mGpio));
 }
 
 TEST(IO_GPIO, TestGpioWrite)
 {
     for (int i = 0; i < 10; ++i) {
-        GPIO_WritePin(&mGpioPin, true);
-        TEST_ASSERT_TRUE(mockGet_GPIO_Asserted());
-        TEST_ASSERT_TRUE(GPIO_ReadPin(&mGpioPin));
+        GPIO_WritePin(&mGpio, true);
+        TEST_ASSERT_TRUE(mockGet_GPIO_Asserted(&mGpioBank, mGpioPin));
+        TEST_ASSERT_TRUE(GPIO_ReadPin(&mGpio));
     }
     
     for (int i = 0; i < 10; i++) {
-        GPIO_WritePin(&mGpioPin, false);
-        TEST_ASSERT_FALSE(mockGet_GPIO_Asserted());
-        TEST_ASSERT_FALSE(GPIO_ReadPin(&mGpioPin));
+        GPIO_WritePin(&mGpio, false);
+        TEST_ASSERT_FALSE(mockGet_GPIO_Asserted(&mGpioBank, mGpioPin));
+        TEST_ASSERT_FALSE(GPIO_ReadPin(&mGpio));
     }
 }
 
@@ -60,9 +66,9 @@ TEST(IO_GPIO, TestGpioToggle)
     bool expected = false;
     for (int i = 0; i < 20; ++i) {
         expected = !expected;
-        GPIO_TogglePin(&mGpioPin);
-        TEST_ASSERT_EQUAL(expected, mockGet_GPIO_Asserted());
-        TEST_ASSERT_EQUAL(expected, GPIO_ReadPin(&mGpioPin));
+        GPIO_TogglePin(&mGpio);
+        TEST_ASSERT_EQUAL(expected, mockGet_GPIO_Asserted(&mGpioBank, mGpioPin));
+        TEST_ASSERT_EQUAL(expected, GPIO_ReadPin(&mGpio));
     }
 }
 
