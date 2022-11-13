@@ -944,11 +944,11 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(DIN_INV_ERR_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : DIN_WS_R_Pin SDCSTATE_BMS_Pin SDCSTATE_IMD_Pin SDCSTATE_BSPD_Pin */
-  GPIO_InitStruct.Pin = DIN_WS_R_Pin|SDCSTATE_BMS_Pin|SDCSTATE_IMD_Pin|SDCSTATE_BSPD_Pin;
+  /*Configure GPIO pin : DIN_WS_R_Pin */
+  GPIO_InitStruct.Pin = DIN_WS_R_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
+  HAL_GPIO_Init(DIN_WS_R_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : MPIO_EN6_Pin MPIO_EN5_Pin MPIO_OUT5_Pin EEPROM_ADDR2_Pin
                            EEPROM_ADDR1_Pin EEPROM_ADDR0_Pin EEPROM_WP_Pin MPIO_EN8_Pin */
@@ -992,11 +992,27 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(STATUS_LED_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : SDCSTATE_OUT_Pin */
-  GPIO_InitStruct.Pin = SDCSTATE_OUT_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  /*Configure GPIO pins : GPIO_EXTI9_SDCBMS_Pin GPIO_EXTI10_SDCIMD_Pin GPIO_EXTI15_SDCBSPD_Pin */
+  GPIO_InitStruct.Pin = GPIO_EXTI9_SDCBMS_Pin|GPIO_EXTI10_SDCIMD_Pin|GPIO_EXTI15_SDCBSPD_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(SDCSTATE_OUT_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : GPIO_EXTI4_SDCOUT_Pin */
+  GPIO_InitStruct.Pin = GPIO_EXTI4_SDCOUT_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIO_EXTI4_SDCOUT_GPIO_Port, &GPIO_InitStruct);
+
+  /* EXTI interrupt init*/
+  HAL_NVIC_SetPriority(EXTI4_IRQn, 6, 0);
+  HAL_NVIC_EnableIRQ(EXTI4_IRQn);
+
+  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 6, 0);
+  HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
+
+  HAL_NVIC_SetPriority(EXTI15_10_IRQn, 6, 0);
+  HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 
 }
 

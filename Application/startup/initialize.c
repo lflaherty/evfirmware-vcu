@@ -18,6 +18,7 @@
 
 #include "vehicleInterface/config/deviceMapping.h"
 
+#include "device/sdc/sdc.h"
 #include "device/pcdebug/pcdebug.h"
 
 #include "vehicleLogic/watchdogTrigger/watchdogTrigger.h"
@@ -251,4 +252,10 @@ static ECU_Init_Status_T ECU_Init_App3(void)
   }
 
   return ECU_INIT_OK;
+}
+
+// TODO move this somewhere more appropriate
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+  SDC_IRQHandler(GPIO_Pin);
 }

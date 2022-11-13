@@ -42,6 +42,15 @@ typedef struct
 
 typedef struct
 {
+  // True => error raised
+  bool bms;
+  bool bspd;
+  bool imd;
+  bool out; // overall output status for SDC
+} VehicleState_SDC_T;
+
+typedef struct
+{
   NmeaUTCTime_T utcTime;
   char latitude[11];
   char nsIndicator; // 'N'/'S' north/south
@@ -51,15 +60,14 @@ typedef struct
   uint8_t nSatellites;
 } VehicleState_GPS_T;
 
-
 typedef struct
 {
   VehicleState_GPS_T gps;
+  VehicleState_SDC_T sdc;
 
   // TODO
   // wheel speed
   // IMU dynamics
-  uint8_t todo; // TODO remove, here because it can't be empty
 } VehicleState_VehicleSensors_T;
 
 typedef struct
