@@ -1,5 +1,5 @@
 /**
- * TestPCDebug.c
+ * TestGps.c
  * 
  *  Created on: Nov 7 2022
  *      Author: Liam Flaherty
@@ -62,7 +62,7 @@ TEST_SETUP(DEVICE_GPS)
     
     mockLogClear();
     
-    // Init PC Debug
+    // Init GPS
     memset(&mGps, 0U, sizeof(GPS_T));
     mGps.huart = &husart;
     mGps.pin3dFix = &pin3dFix;
