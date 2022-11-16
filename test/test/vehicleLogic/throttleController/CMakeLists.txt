@@ -22,8 +22,8 @@ target_sources(TestThrottleController PRIVATE ${PROJECT_SOURCE_DIR}/mock/Applica
 target_sources(TestThrottleController PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/comm/can/can.c)
 target_sources(TestThrottleController PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/lib/crc/crc.c)
 target_sources(TestThrottleController PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/lib/depends/depends.c)
-target_sources(TestThrottleController PRIVATE ${PROJECT_SOURCE_DIR}/../Application/vehicleInterface/vehicleState/vehicleState.c)
-target_sources(TestThrottleController PRIVATE ${PROJECT_SOURCE_DIR}/../Application/vehicleLogic/throttleController/torqueMap.c)
+target_sources(TestThrottleController PRIVATE ${PROJECT_SOURCE_DIR}/../src/vcu/vehicleInterface/vehicleState/vehicleState.c)
+target_sources(TestThrottleController PRIVATE ${PROJECT_SOURCE_DIR}/../src/vcu/vehicleLogic/throttleController/torqueMap.c)
 
 
 ## TestTorqueMap

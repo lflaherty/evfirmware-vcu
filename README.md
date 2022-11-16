@@ -1,9 +1,5 @@
 # Hillclimb EV - Vehicle Control Unit firmware
 
-## Status
-
-* Under development
-
 ## Description
 
 This repository provides the firmare for Vehicle Control Unit firmware. The Vehicle Control Unit is responsible for overseeing the vehicle state and controlling the vehicle's operation from driver input.
@@ -47,10 +43,19 @@ Sensors will publish their data to the `Vehicle Interface`. `Vehicle Processes` 
 ![Components](doc/app_components.png)
 ![Components](doc/sys_components.png)
 
+### Directory structure
+
+ * `doc` Supporting assets for docs
+ * `src`
+   * `cube-proj` Main entrypoint, STM32 HAL, firmware build, and STM32CubeIDE project
+   * `vcu` Firmware specific to vehicle control unit.
+   * `system-lib` Symlink to common MCU firmware.
+ * `test` VCU tests (overlayed on top of system-lib tests)
+
 ## Tests
 The library is tested via a suite of unit tests contained under `test`. These unit tests leverge the unit testing framework, `Unity`. 
 
-The tests can be executed by invoking the Makefile under the `test` directory.
+The tests can be executed by invoking `run_tests.sh`
 
 Executing the tests will generate a code coverage report using `lcov`.
 

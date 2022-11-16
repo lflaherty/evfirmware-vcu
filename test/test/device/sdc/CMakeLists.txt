@@ -18,4 +18,4 @@ target_sources(TestSdc PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/mock/lib/log
 # Production code
 target_sources(TestSdc PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/io/gpio/gpio.c)
 target_sources(TestSdc PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/lib/depends/depends.c)
-target_sources(TestSdc PRIVATE ${PROJECT_SOURCE_DIR}/../Application/vehicleInterface/vehicleState/vehicleState.c)
+target_sources(TestSdc PRIVATE ${PROJECT_SOURCE_DIR}/../src/vcu/vehicleInterface/vehicleState/vehicleState.c)
