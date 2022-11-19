@@ -8,10 +8,35 @@
 #include "deviceMapping.h"
 #include "stm32f7xx_hal.h"
 
+/*
+ * PDM Config
+ */
+static GPIO_T pinPdmChannel1 = { .GPIOx = P_SW1_GPIO_Port, .GPIO_Pin = P_SW1_Pin };
+static GPIO_T pinPdmChannel2 = { .GPIOx = P_SW2_GPIO_Port, .GPIO_Pin = P_SW2_Pin };
+static GPIO_T pinPdmChannel3 = { .GPIOx = P_SW3_GPIO_Port, .GPIO_Pin = P_SW3_Pin };
+static GPIO_T pinPdmChannel4 = { .GPIOx = P_SW4_GPIO_Port, .GPIO_Pin = P_SW4_Pin };
+static GPIO_T pinPdmChannel5 = { .GPIOx = P_SW5_GPIO_Port, .GPIO_Pin = P_SW5_Pin };
+static GPIO_T pinPdmChannel6 = { .GPIOx = P_SW6_GPIO_Port, .GPIO_Pin = P_SW6_Pin };
+PDM_Channel_T pdmChannels[] = {
+  [PDM_Ch1] = {.pin = &pinPdmChannel1 },
+  [PDM_Ch2] = {.pin = &pinPdmChannel2 },
+  [PDM_Ch3] = {.pin = &pinPdmChannel3 },
+  [PDM_Ch4] = {.pin = &pinPdmChannel4 },
+  [PDM_Ch5] = {.pin = &pinPdmChannel5 },
+  [PDM_Ch6] = {.pin = &pinPdmChannel6 },
+};
+uint8_t numPdmChannels = sizeof(pdmChannels) / sizeof(PDM_Channel_T);
+
+/*
+ * GPIO Config
+ */
 GPIO_T Mapping_GPIO_LED = {
   .GPIOx = STATUS_LED_GPIO_Port, .GPIO_Pin = STATUS_LED_Pin
 };
 
+/*
+ * Device handles
+ */
 extern ADC_HandleTypeDef hadc1;
 extern DMA_HandleTypeDef hdma_adc1;
 
@@ -47,7 +72,6 @@ UART_HandleTypeDef* Mapping_GetPCDebugUartB(void)
 {
   return &huart3;
 }
-
 
 RTC_HandleTypeDef* Mapping_GetRTC(void)
 {

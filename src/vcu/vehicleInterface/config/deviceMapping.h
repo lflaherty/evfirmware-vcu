@@ -12,6 +12,7 @@
 #include <stdint.h>
 #include "io/adc/adc.h" /* Needed for ADC_Channel_T */
 #include "io/gpio/gpio.h" /* Needed for GPIO_T */
+#include "device/pdm/pdm.h"
 
 /*
  * Include main for the auto-generated pin names
@@ -50,6 +51,25 @@
 #define MAPPING_ADC_MPIO7         MAPPING_ADC1_CHANNEL0
 #define MAPPING_ADC_MPIO8         MAPPING_ADC1_CHANNEL1
 
+/*
+ * PDM Config
+ */
+enum PDM_Channels
+{
+  PDM_Ch1 = 0U,
+  PDM_Ch2,
+  PDM_Ch3,
+  PDM_Ch4,
+  PDM_Ch5,
+  PDM_Ch6,
+  PDM_NUM_CHANNELS
+};
+extern PDM_Channel_T pdmChannels[];
+extern uint8_t numPdmChannels;
+
+/*
+ * GPIO Config
+ */
 extern GPIO_T Mapping_GPIO_LED;
 
 /*
