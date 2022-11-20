@@ -117,8 +117,13 @@ PCInterface_Status_T PCInterface_Init(
   pcinterface->mfLogData.msgLen = PCINTERFACE_MSG_LOG_MSGLEN;
   pcinterface->mfLogData.buffer = pcinterface->mfLogDataBuffer;
 
-  // Create mutex lock
+  // Create mutex lock & queue
   pcinterface->mutex = xSemaphoreCreateMutexStatic(&pcinterface->mutexBuffer);
+  pcinterface->logStreamHandle = xStreamBufferCreateStatic(
+      PCINTERFACE_LOG_STREAM_SIZE_BYTES,
+      PCINTERFACE_LOG_STREAM_TRIGGER_LEVEL_BYTES,
+      pcinterface->logStreamStorage,
+      &pcinterface->logStreamStruct);
 
   // create main task
   pcinterface->taskHandle = xTaskCreateStatic(
@@ -138,11 +143,6 @@ PCInterface_Status_T PCInterface_Init(
   }
 
   // Register to receive logging data
-  pcinterface->logStreamHandle = xStreamBufferCreateStatic(
-      PCINTERFACE_LOG_STREAM_SIZE_BYTES,
-      PCINTERFACE_LOG_STREAM_TRIGGER_LEVEL_BYTES,
-      pcinterface->logStreamStorage,
-      &pcinterface->logStreamStruct);
   Logging_Status_T logStatus =
       Log_SetSerialStream(mLog, pcinterface->logStreamHandle);
   if (LOGGING_STATUS_OK != logStatus) {
