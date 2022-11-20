@@ -1,5 +1,5 @@
 /**
- * TestPCDebug.c
+ * TestPCInterface.c
  * 
  *  Created on: Aug 2 2022
  *      Author: Liam Flaherty
@@ -28,7 +28,7 @@
 
 // source code under test
 #include "comm/uart/uart.c"
-#include "device/pcdebug/pcdebug.c"
+#include "device/pcinterface/pcinterface.c"
 #include "lib/logging/logging.c"  // also need this to use mock impls
 
 static Logging_T testLog;
@@ -36,11 +36,11 @@ static CRC_HandleTypeDef hcrc;
 static UART_HandleTypeDef husartA;
 static UART_HandleTypeDef husartB;
 static CRC_T mCrc;
-static PCDebug_T mPCDebug;
+static PCInterface_T mPCInterface;
 
-TEST_GROUP(DEVICE_PCDEBUG);
+TEST_GROUP(DEVICE_PCINTERFACE);
 
-TEST_SETUP(DEVICE_PCDEBUG)
+TEST_SETUP(DEVICE_PCINTERFACE)
 {
     mockSemaphoreSetLocked(false);
 
@@ -66,68 +66,68 @@ TEST_SETUP(DEVICE_PCDEBUG)
     mockClearPrintf();
     
     // Init PC Debug
-    memset(&mPCDebug, 0U, sizeof(PCDebug_T));
-    mPCDebug.huartA = &husartA;
-    mPCDebug.huartB = &husartB;
-    mPCDebug.crc = &mCrc;
+    memset(&mPCInterface, 0U, sizeof(PCInterface_T));
+    mPCInterface.huartA = &husartA;
+    mPCInterface.huartB = &husartB;
+    mPCInterface.crc = &mCrc;
 
-    PCDebug_Status_T status = PCDebug_Init(&testLog, &mPCDebug);
-    TEST_ASSERT_EQUAL(PCDEBUG_STATUS_OK, status);
+    PCInterface_Status_T status = PCInterface_Init(&testLog, &mPCInterface);
+    TEST_ASSERT_EQUAL(PCINTERFACE_STATUS_OK, status);
 
     const char* expectedLogging =
-        "PCDebug_Init begin\n"
-        "PCDebug_Init complete\n";
+        "PCInterface_Init begin\n"
+        "PCInterface_Init complete\n";
     TEST_ASSERT_EQUAL_STRING(expectedLogging, printfOut);
 
     // clear again for coming tests (because init prints)
-    mockClearStreamBufferData(mPCDebug.logStreamHandle);
+    mockClearStreamBufferData(mPCInterface.logStreamHandle);
     mockClearStreamBufferData(usart1.txPendingStreamHandle);
     mockClear_HAL_UART_Data();
     mockClearPrintf();
 }
 
-TEST_TEAR_DOWN(DEVICE_PCDEBUG)
+TEST_TEAR_DOWN(DEVICE_PCINTERFACE)
 {
     TEST_ASSERT_FALSE(mockSempahoreGetLocked());
     mockClear_HAL_UART_Data();
 }
 
-TEST(DEVICE_PCDEBUG, InitOk)
+TEST(DEVICE_PCINTERFACE, InitOk)
 {
     // Done by TEST_SETUP
 }
 
-TEST(DEVICE_PCDEBUG, InitTaskRegisterError)
+TEST(DEVICE_PCINTERFACE, InitTaskRegisterError)
 {
     mockSet_TaskTimer_RegisterTask_Status(TASKTIMER_STATUS_ERROR_FULL);
 
-    PCDebug_Status_T status = PCDebug_Init(&testLog, &mPCDebug);
-    TEST_ASSERT(PCDEBUG_STATUS_ERROR_INIT == status);
+    PCInterface_Status_T status = PCInterface_Init(&testLog, &mPCInterface);
+    TEST_ASSERT(PCINTERFACE_STATUS_ERROR_INIT == status);
 
     const char* expectedLogging =
-        "PCDebug_Init begin\n";
+        "PCInterface_Init begin\n";
     TEST_ASSERT_EQUAL_STRING(expectedLogging, printfOut);
 }
 
-TEST(DEVICE_PCDEBUG, TestNoMessages)
+TEST(DEVICE_PCINTERFACE, TestNoMessages)
 {
     // With no log messages, nothing should happen
 
     // First 500ms will attempt to print twice...
     for (uint16_t i = 0; i < 5U; ++i) {
         mockSetTaskNotifyValue(1); // to wake up
-        PCDebug_TaskMethod(&mPCDebug);
+        PCInterface_TaskMethod(&mPCInterface);
         TEST_ASSERT_EQUAL(0U, mockGet_HAL_UART_Len());
     }
 }
 
-TEST(DEVICE_PCDEBUG, TestLogSerialShortMsg)
+TEST(DEVICE_PCINTERFACE, TestLogSerialShortMsg)
 {
     const char simpleMsg[] = "Hello!\n"; // less than 32 data chars
     assert(sizeof(simpleMsg) <= 32U);
 
     mockSet_CRC(0xAABBCCDD);
-    const uint8_t expectedUart[PCDEBUG_MSG_LOG_MSGLEN] = {
+    const uint8_t expectedUart[PCINTERFACE_MSG_LOG_MSGLEN] = {
         ':',  // Start byte
         0x00, 0x02,     // Receiver address: Debug PC
         0x00, 0x02,     // Message ID: log message
@@ -143,14 +143,14 @@ TEST(DEVICE_PCDEBUG, TestLogSerialShortMsg)
 
     // serial should be flushed
     mockSetTaskNotifyValue(1); // to wake up
-    PCDebug_TaskMethod(&mPCDebug);
+    PCInterface_TaskMethod(&mPCInterface);
 
-    TEST_ASSERT_EQUAL_UINT8_ARRAY(expectedUart, mPCDebug.mfLogDataBuffer, PCDEBUG_MSG_LOG_MSGLEN);
-    TEST_ASSERT_EQUAL(PCDEBUG_MSG_LOG_MSGLEN, mockGet_HAL_UART_Len());
-    TEST_ASSERT_EQUAL_UINT8_ARRAY(expectedUart, mockGet_HAL_UART_Data(), PCDEBUG_MSG_LOG_MSGLEN);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(expectedUart, mPCInterface.mfLogDataBuffer, PCINTERFACE_MSG_LOG_MSGLEN);
+    TEST_ASSERT_EQUAL(PCINTERFACE_MSG_LOG_MSGLEN, mockGet_HAL_UART_Len());
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(expectedUart, mockGet_HAL_UART_Data(), PCINTERFACE_MSG_LOG_MSGLEN);
 }
 
-TEST(DEVICE_PCDEBUG, TestLogSerialLongMsg)
+TEST(DEVICE_PCINTERFACE, TestLogSerialLongMsg)
 {
     // A log message that needs to be split into two message (i.e. longer than 32)
     const char longMsg[] = "Never gonna give you up\n"
@@ -158,8 +158,8 @@ TEST(DEVICE_PCDEBUG, TestLogSerialLongMsg)
     assert(sizeof(longMsg) > 32U);
 
     mockSet_CRC(0xAABBCCDD);
-    uint8_t expectedUart1[PCDEBUG_MSG_LOG_MSGLEN] = { 0 };
-    uint8_t expectedUart2[PCDEBUG_MSG_LOG_MSGLEN] = { 0 };
+    uint8_t expectedUart1[PCINTERFACE_MSG_LOG_MSGLEN] = { 0 };
+    uint8_t expectedUart2[PCINTERFACE_MSG_LOG_MSGLEN] = { 0 };
 
     expectedUart1[0] = ':';
     expectedUart1[2] = 0x02; // Receiver address: Debug PC
@@ -173,8 +173,8 @@ TEST(DEVICE_PCDEBUG, TestLogSerialLongMsg)
     expectedUart1[42] = '\n';
 
     // construst msg2 expect from buffer
-    memcpy(expectedUart2, expectedUart1, PCDEBUG_MSG_LOG_MSGLEN);
-    memset(expectedUart2 + 5, 0U, PCDEBUG_MSG_LOG_DATALEN); // clear data
+    memcpy(expectedUart2, expectedUart1, PCINTERFACE_MSG_LOG_MSGLEN);
+    memset(expectedUart2 + 5, 0U, PCINTERFACE_MSG_LOG_DATALEN); // clear data
     size_t remainingBytes = sizeof(longMsg) - 32;
     memcpy(expectedUart2 + 5, longMsg + 32, remainingBytes);
 
@@ -183,13 +183,13 @@ TEST(DEVICE_PCDEBUG, TestLogSerialLongMsg)
     // Stepping through to 100ms should trigger transmission
     for (uint16_t i = 0; i < 10; ++i) {
         mockSetTaskNotifyValue(1); // to wake up
-        PCDebug_TaskMethod(&mPCDebug);
+        PCInterface_TaskMethod(&mPCInterface);
     }
 
     // 1st message should be on UART now, with second message queued
-    TEST_ASSERT_EQUAL(PCDEBUG_MSG_LOG_MSGLEN, mockGet_HAL_UART_Len());
-    TEST_ASSERT_EQUAL(PCDEBUG_MSG_LOG_MSGLEN, mockGetStreamBufferLen(usart1.txPendingStreamHandle));
-    TEST_ASSERT_EQUAL_UINT8_ARRAY(expectedUart1, mockGet_HAL_UART_Data(), PCDEBUG_MSG_LOG_MSGLEN);
+    TEST_ASSERT_EQUAL(PCINTERFACE_MSG_LOG_MSGLEN, mockGet_HAL_UART_Len());
+    TEST_ASSERT_EQUAL(PCINTERFACE_MSG_LOG_MSGLEN, mockGetStreamBufferLen(usart1.txPendingStreamHandle));
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(expectedUart1, mockGet_HAL_UART_Data(), PCINTERFACE_MSG_LOG_MSGLEN);
 
     // Prompt UART to send next message...
     mockClear_HAL_UART_Data();
@@ -197,12 +197,12 @@ TEST(DEVICE_PCDEBUG, TestLogSerialLongMsg)
     mockClearStreamBufferData(usart1.txPendingStreamHandle);
 
     // 2nd message should be on UART now, with no further queued messages
-    TEST_ASSERT_EQUAL(PCDEBUG_MSG_LOG_MSGLEN, mockGet_HAL_UART_Len());
+    TEST_ASSERT_EQUAL(PCINTERFACE_MSG_LOG_MSGLEN, mockGet_HAL_UART_Len());
     TEST_ASSERT_EQUAL(0U, mockGetStreamBufferLen(usart1.txPendingStreamHandle));
-    TEST_ASSERT_EQUAL_UINT8_ARRAY(expectedUart2, mockGet_HAL_UART_Data(), PCDEBUG_MSG_LOG_MSGLEN);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(expectedUart2, mockGet_HAL_UART_Data(), PCINTERFACE_MSG_LOG_MSGLEN);
 }
 
-TEST(DEVICE_PCDEBUG, TestSerialRecv)
+TEST(DEVICE_PCINTERFACE, TestSerialRecv)
 {
     uint8_t recvBytes[] = {0x01, 0x2, 0xAA, 0xBB};
     uint16_t recvBytesLen = sizeof(recvBytes);
@@ -212,30 +212,30 @@ TEST(DEVICE_PCDEBUG, TestSerialRecv)
 
     // Nothing should be printed before there is data...
     mockSetTaskNotifyValue(1); // to wake up
-    PCDebug_TaskMethod(&mPCDebug);
+    PCInterface_TaskMethod(&mPCInterface);
     TEST_ASSERT_EQUAL(0U, printfOutSize);
 
     // UART recieve on DMA:
     memcpy(usart1.uartDmaRx, recvBytes, recvBytesLen); // copy into DMA buffer
     HAL_UARTEx_RxEventCallback(&husartA, recvBytesLen);
-    TEST_ASSERT_EQUAL(recvBytesLen, mockGetStreamBufferLen(mPCDebug.recvStreamHandle));
+    TEST_ASSERT_EQUAL(recvBytesLen, mockGetStreamBufferLen(mPCInterface.recvStreamHandle));
 
     // Driver should just log these bytes
     mockSetTaskNotifyValue(1); // to wake up
-    PCDebug_TaskMethod(&mPCDebug);
+    PCInterface_TaskMethod(&mPCInterface);
     TEST_ASSERT_EQUAL_STRING(expectedLog, printfOut);
     TEST_ASSERT_EQUAL(expectedLogLen, printfOutSize);
 }
 
-TEST_GROUP_RUNNER(DEVICE_PCDEBUG)
+TEST_GROUP_RUNNER(DEVICE_PCINTERFACE)
 {
-    RUN_TEST_CASE(DEVICE_PCDEBUG, InitOk);
-    RUN_TEST_CASE(DEVICE_PCDEBUG, InitTaskRegisterError);
-    RUN_TEST_CASE(DEVICE_PCDEBUG, TestNoMessages);
-    RUN_TEST_CASE(DEVICE_PCDEBUG, TestLogSerialShortMsg);
-    RUN_TEST_CASE(DEVICE_PCDEBUG, TestLogSerialLongMsg);
-    RUN_TEST_CASE(DEVICE_PCDEBUG, TestSerialRecv);
+    RUN_TEST_CASE(DEVICE_PCINTERFACE, InitOk);
+    RUN_TEST_CASE(DEVICE_PCINTERFACE, InitTaskRegisterError);
+    RUN_TEST_CASE(DEVICE_PCINTERFACE, TestNoMessages);
+    RUN_TEST_CASE(DEVICE_PCINTERFACE, TestLogSerialShortMsg);
+    RUN_TEST_CASE(DEVICE_PCINTERFACE, TestLogSerialLongMsg);
+    RUN_TEST_CASE(DEVICE_PCINTERFACE, TestSerialRecv);
 }
 
-#define INVOKE_TEST DEVICE_PCDEBUG
+#define INVOKE_TEST DEVICE_PCINTERFACE
 #include "test_main.h"
