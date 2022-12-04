@@ -29,14 +29,52 @@
 // source code under test
 #include "comm/uart/uart.c"
 #include "device/pcinterface/pcinterface.c"
+#include "device/pcinterface/periodicupdates.c"
+#include "device/pcinterface/requests.c"
 #include "lib/logging/logging.c"  // also need this to use mock impls
 
 static Logging_T testLog;
+
 static CRC_HandleTypeDef hcrc;
 static UART_HandleTypeDef husartA;
 static UART_HandleTypeDef husartB;
 static CRC_T mCrc;
+static VehicleState_T mVehicleState;
+
 static PCInterface_T mPCInterface;
+
+#define STATEUPDATE_NUMMSGS 2
+/**
+ * @brief The state message is often the first to send - at 1Hz, but it is sent
+ * on the first invocation of the task method
+ * Check that it's there and then clear it so that the test can continue testing
+ * what it actually cares about
+ * 
+ * @returns Number of bytes to skip to ignore state msg
+ */
+static size_t expectStateMsg(void)
+{
+    // The first message will be queued but once we trigger the UART to
+    // tx more, in this test it will put *all* remaining queued bytes onto
+    // the UART line.
+    TEST_ASSERT_EQUAL(PCINTERFACE_MSG_STATEUPDATE_MSGLEN, mockGet_HAL_UART_Len());
+    // Flush the first message to expose the second
+    mockClear_HAL_UART_Data();
+    HAL_UART_TxCpltCallback(mPCInterface.huartA);
+
+    size_t remainingBytes = 0;
+    if (STATEUPDATE_NUMMSGS > 1) {
+        uint16_t remainingMsgs = STATEUPDATE_NUMMSGS - 1;
+        remainingBytes = remainingMsgs * PCINTERFACE_MSG_STATEUPDATE_MSGLEN;
+
+        TEST_ASSERT_GREATER_OR_EQUAL(remainingBytes, mockGet_HAL_UART_Len());
+        // Flush the first message to expose the second
+        // mockClear_HAL_UART_Data();
+        // HAL_UART_TxCpltCallback(mPCInterface.huartA);
+    }
+
+    return remainingBytes;
+}
 
 TEST_GROUP(DEVICE_PCINTERFACE);
 
@@ -62,6 +100,11 @@ TEST_SETUP(DEVICE_PCINTERFACE)
     TEST_ASSERT_EQUAL(UART_STATUS_OK, UART_Init(&testLog));
     TEST_ASSERT_EQUAL(UART_STATUS_OK, UART_Config(&husartA));
 
+    // Init vehicle state
+    TEST_ASSERT_EQUAL(
+        VEHICLESTATE_STATUS_OK,
+        VehicleState_Init(&testLog, &mVehicleState));
+
     // clear to only capture PC debug prints
     mockClearPrintf();
     
@@ -70,6 +113,7 @@ TEST_SETUP(DEVICE_PCINTERFACE)
     mPCInterface.huartA = &husartA;
     mPCInterface.huartB = &husartB;
     mPCInterface.crc = &mCrc;
+    mPCInterface.state = &mVehicleState;
 
     PCInterface_Status_T status = PCInterface_Init(&testLog, &mPCInterface);
     TEST_ASSERT_EQUAL(PCINTERFACE_STATUS_OK, status);
@@ -111,14 +155,15 @@ TEST(DEVICE_PCINTERFACE, InitTaskRegisterError)
 
 TEST(DEVICE_PCINTERFACE, TestNoMessages)
 {
-    // With no log messages, nothing should happen
+    // With no log messages, should only get state update
 
     // First 500ms will attempt to print twice...
     for (uint16_t i = 0; i < 5U; ++i) {
         mockSetTaskNotifyValue(1); // to wake up
         PCInterface_TaskMethod(&mPCInterface);
-        TEST_ASSERT_EQUAL(0U, mockGet_HAL_UART_Len());
     }
+
+    TEST_ASSERT_EQUAL(PCINTERFACE_MSG_STATEUPDATE_MSGLEN, mockGet_HAL_UART_Len());
 }
 
 TEST(DEVICE_PCINTERFACE, TestLogSerialShortMsg)
@@ -145,9 +190,11 @@ TEST(DEVICE_PCINTERFACE, TestLogSerialShortMsg)
     mockSetTaskNotifyValue(1); // to wake up
     PCInterface_TaskMethod(&mPCInterface);
 
+    // Expecting: A state update message, and a log message
+    size_t stateBytes = expectStateMsg();
     TEST_ASSERT_EQUAL_UINT8_ARRAY(expectedUart, mPCInterface.mfLogDataBuffer, PCINTERFACE_MSG_LOG_MSGLEN);
-    TEST_ASSERT_EQUAL(PCINTERFACE_MSG_LOG_MSGLEN, mockGet_HAL_UART_Len());
-    TEST_ASSERT_EQUAL_UINT8_ARRAY(expectedUart, mockGet_HAL_UART_Data(), PCINTERFACE_MSG_LOG_MSGLEN);
+    TEST_ASSERT_EQUAL(PCINTERFACE_MSG_LOG_MSGLEN, mockGet_HAL_UART_Len() - stateBytes);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(expectedUart, mockGet_HAL_UART_Data() + stateBytes, PCINTERFACE_MSG_LOG_MSGLEN);
 }
 
 TEST(DEVICE_PCINTERFACE, TestLogSerialLongMsg)
@@ -187,9 +234,17 @@ TEST(DEVICE_PCINTERFACE, TestLogSerialLongMsg)
     }
 
     // 1st message should be on UART now, with second message queued
-    TEST_ASSERT_EQUAL(PCINTERFACE_MSG_LOG_MSGLEN, mockGet_HAL_UART_Len());
-    TEST_ASSERT_EQUAL(PCINTERFACE_MSG_LOG_MSGLEN, mockGetStreamBufferLen(usart1.txPendingStreamHandle));
-    TEST_ASSERT_EQUAL_UINT8_ARRAY(expectedUart1, mockGet_HAL_UART_Data(), PCINTERFACE_MSG_LOG_MSGLEN);
+    // (following the state update, because that always sends first)
+    size_t stateBytes = expectStateMsg();
+    // The state message is immediately sent, but the log messages are queued
+    // and transmitted together after that.
+    TEST_ASSERT_EQUAL(2*PCINTERFACE_MSG_LOG_MSGLEN, mockGet_HAL_UART_Len() - stateBytes);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(expectedUart1,
+            mockGet_HAL_UART_Data() + stateBytes,
+            PCINTERFACE_MSG_LOG_MSGLEN);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(expectedUart2,
+            mockGet_HAL_UART_Data() + stateBytes + PCINTERFACE_MSG_LOG_MSGLEN,
+            PCINTERFACE_MSG_LOG_MSGLEN);
 
     // Prompt UART to send next message...
     mockClear_HAL_UART_Data();
@@ -197,9 +252,7 @@ TEST(DEVICE_PCINTERFACE, TestLogSerialLongMsg)
     mockClearStreamBufferData(usart1.txPendingStreamHandle);
 
     // 2nd message should be on UART now, with no further queued messages
-    TEST_ASSERT_EQUAL(PCINTERFACE_MSG_LOG_MSGLEN, mockGet_HAL_UART_Len());
-    TEST_ASSERT_EQUAL(0U, mockGetStreamBufferLen(usart1.txPendingStreamHandle));
-    TEST_ASSERT_EQUAL_UINT8_ARRAY(expectedUart2, mockGet_HAL_UART_Data(), PCINTERFACE_MSG_LOG_MSGLEN);
+    TEST_ASSERT_EQUAL(0, mockGet_HAL_UART_Len());
 }
 
 TEST(DEVICE_PCINTERFACE, TestSerialRecv)
@@ -227,6 +280,58 @@ TEST(DEVICE_PCINTERFACE, TestSerialRecv)
     TEST_ASSERT_EQUAL(expectedLogLen, printfOutSize);
 }
 
+TEST(DEVICE_PCINTERFACE, PeriodicStateUpdates)
+{
+    // Just what the CRC hardware produces, doesn't really matter what the
+    // test sets it to here.
+    mockSet_CRC(0x12345678);
+
+    // Set some SDC state to tx
+    mVehicleState.data.vehicle.sdc.bspd = true;
+    mVehicleState.data.vehicle.sdc.out = true;
+    mVehicleState.data.glv.pdmChState[0] = true;
+    mVehicleState.data.glv.pdmChState[4] = true;
+    mVehicleState.data.glv.pdmChState[5] = true;
+
+    const uint8_t expectedMsgSDC[] = {
+        ':',       // Start
+        0x00, 0x02, // Receiver addr
+        0x00, 0x01, // Function
+        0x00, 0x01, // Payload: field ID: SDC
+        0x01,       // Payload: field size
+        0x00, 0x00, 0x00, 0x0A, // Payload: SDC bits
+        0x12, 0x34, 0x56, 0x78, // CRC
+        '\r', '\n'
+    };
+    _Static_assert(sizeof(expectedMsgSDC) == PCINTERFACE_MSG_STATEUPDATE_MSGLEN, "State update msg length");
+
+    const uint8_t expectedMsgPDM[] = {
+        ':',       // Start
+        0x00, 0x02, // Receiver addr
+        0x00, 0x01, // Function
+        0x00, 0x02, // Payload: field ID: PDM
+        0x01,       // Payload: field size
+        0x00, 0x00, 0x00, 0x31, // Payload: PDM bits
+        0x12, 0x34, 0x56, 0x78, // CRC
+        '\r', '\n'
+    };
+    _Static_assert(sizeof(expectedMsgPDM) == PCINTERFACE_MSG_STATEUPDATE_MSGLEN, "State update msg length");
+
+    // invoke PC controller's periodic task
+    for (int i = 0; i < 100; ++i) {
+        mockSetTaskNotifyValue(1); // to wake up
+        PCInterface_TaskMethod(&mPCInterface);
+    }
+
+    TEST_ASSERT_EQUAL(PCINTERFACE_MSG_STATEUPDATE_MSGLEN, mockGet_HAL_UART_Len());
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(expectedMsgSDC,
+        mockGet_HAL_UART_Data(),
+        PCINTERFACE_MSG_STATEUPDATE_MSGLEN);
+    // TEST_ASSERT_EQUAL_UINT8_ARRAY(expectedMsgPDM,
+    //     mockGet_HAL_UART_Data() + PCINTERFACE_MSG_STATEUPDATE_MSGLEN,
+    //     PCINTERFACE_MSG_STATEUPDATE_MSGLEN);
+}
+
 TEST_GROUP_RUNNER(DEVICE_PCINTERFACE)
 {
     RUN_TEST_CASE(DEVICE_PCINTERFACE, InitOk);
@@ -235,6 +340,7 @@ TEST_GROUP_RUNNER(DEVICE_PCINTERFACE)
     RUN_TEST_CASE(DEVICE_PCINTERFACE, TestLogSerialShortMsg);
     RUN_TEST_CASE(DEVICE_PCINTERFACE, TestLogSerialLongMsg);
     RUN_TEST_CASE(DEVICE_PCINTERFACE, TestSerialRecv);
+    RUN_TEST_CASE(DEVICE_PCINTERFACE, PeriodicStateUpdates);
 }
 
 #define INVOKE_TEST DEVICE_PCINTERFACE

@@ -15,9 +15,13 @@
 // ------------------- Private data -------------------
 static Logging_T* mLog;
 static const TickType_t mBlockTime2 = 100 / portTICK_PERIOD_MS; // 100ms // TODO fix testing infra so this isn't needed
-static const uint32_t tickRateMs = 100U; // 100 ms
+static const uint32_t tickRateMs = 10U; // 10 ms
 
 // ------------------- Private methods -------------------
+// ************ Request handlers ************
+extern void PCInterface_HandleRequests(PCInterface_T* pcinterface);
+extern void PCInterface_HandlePeriodic(PCInterface_T* pcinterface);
+
 /**
  * @brief Sends all queued log messages to serial
  *
@@ -25,6 +29,22 @@ static const uint32_t tickRateMs = 100U; // 100 ms
  */
 static void flushLogMessage(PCInterface_T* pcinterface)
 {
+  // Dump received data
+  if (pdFALSE == xStreamBufferIsEmpty(pcinterface->recvStreamHandle)) {
+    // For now just print them to log...
+    Log_Print(mLog, "Recevied serial bytes: ");
+    while (!xStreamBufferIsEmpty(pcinterface->recvStreamHandle)) {
+      uint8_t recvByte = 0;
+      xStreamBufferReceive(pcinterface->recvStreamHandle, &recvByte, 1U, mBlockTime2);
+
+      char logBuffer[LOGGING_MAX_MSG_LEN] = { 0 };
+      snprintf(logBuffer, LOGGING_MAX_MSG_LEN, "0x%02x ", recvByte);
+      Log_Print(mLog, logBuffer);
+    }
+    Log_Print(mLog, "\n");
+  }
+
+  // Send saved log data to UART
   while (!xStreamBufferIsEmpty(pcinterface->logStreamHandle)) {
     // Construct message:
     memset(pcinterface->mfLogDataBuffer, 0U, PCINTERFACE_MSG_LOG_MSGLEN);
@@ -38,50 +58,42 @@ static void flushLogMessage(PCInterface_T* pcinterface)
   }
 }
 
+static void periodicCanDebug(PCInterface_T* pcinterface)
+{
+  if (pcinterface->canDebugEnable) {
+    uint32_t msgId = 0xAF;
+    uint8_t data[8] = {0};
+    uint32_t dlc = 8;
+
+    // populate data with counter
+    data[7] = 0x69;
+    data[3] = (pcinterface->counter >> 24U) & 0xFF;
+    data[2] = (pcinterface->counter >> 16U) & 0xFF;
+    data[1] = (pcinterface->counter >>  8U) & 0xFF;
+    data[0] = (pcinterface->counter >>  0U) & 0xFF;
+
+    CAN_Status_T status = CAN_SendMessage(CAN_DEV1, msgId, data, dlc);
+    if (status != CAN_STATUS_OK) {
+      if (pcinterface->canErrorCounter % 10 == 0) {
+        Log_Print(mLog, "PCInterface: CAN Error\n");
+      }
+      pcinterface->canErrorCounter++;
+    }
+  }
+}
+
 static void PCInterface_TaskMethod(PCInterface_T* pcinterface)
 {
   // Wait for notification to wake up
   uint32_t notifiedValue = ulTaskNotifyTake(pdTRUE, mBlockTime2);
   if (notifiedValue > 0) {
-    pcinterface->counter++;
+    PCInterface_HandleRequests(pcinterface);
+    PCInterface_HandlePeriodic(pcinterface);
 
-    if (pcinterface->canDebugEnable) {
-      uint32_t msgId = 0xAF;
-      uint8_t data[8] = {0};
-      uint32_t dlc = 8;
-
-      // populate data with counter
-      data[7] = 0x69;
-      data[3] = (pcinterface->counter >> 24U) & 0xFF;
-      data[2] = (pcinterface->counter >> 16U) & 0xFF;
-      data[1] = (pcinterface->counter >>  8U) & 0xFF;
-      data[0] = (pcinterface->counter >>  0U) & 0xFF;
-
-      CAN_Status_T status = CAN_SendMessage(CAN_DEV1, msgId, data, dlc);
-      if (status != CAN_STATUS_OK) {
-        if (pcinterface->canErrorCounter % 10 == 0) {
-          Log_Print(mLog, "PCInterface: CAN Error\n");
-        }
-        pcinterface->canErrorCounter++;
-      }
-    }
-
-    // Dump received data
-    if (pdFALSE == xStreamBufferIsEmpty(pcinterface->recvStreamHandle)) {
-      // For now just print them to log...
-      Log_Print(mLog, "Recevied serial bytes: ");
-      while (!xStreamBufferIsEmpty(pcinterface->recvStreamHandle)) {
-        uint8_t recvByte = 0;
-        xStreamBufferReceive(pcinterface->recvStreamHandle, &recvByte, 1U, mBlockTime2);
-
-        char logBuffer[LOGGING_MAX_MSG_LEN] = { 0 };
-        snprintf(logBuffer, LOGGING_MAX_MSG_LEN, "0x%02x ", recvByte);
-        Log_Print(mLog, logBuffer);
-      }
-      Log_Print(mLog, "\n");
-    }
-
+    periodicCanDebug(pcinterface);
     flushLogMessage(pcinterface);
+
+    pcinterface->counter++;
   }
 }
 
@@ -102,6 +114,7 @@ PCInterface_Status_T PCInterface_Init(
   mLog = logger;
   Log_Print(mLog, "PCInterface_Init begin\n");
   DEPEND_ON(logger, PCINTERFACE_STATUS_ERROR_DEPENDS);
+  DEPEND_ON(pcinterface->state, PCINTERFACE_STATUS_ERROR_DEPENDS);
   DEPEND_ON_STATIC(UART, PCINTERFACE_STATUS_ERROR_DEPENDS);
   DEPEND_ON_STATIC(TASKTIMER, PCINTERFACE_STATUS_ERROR_DEPENDS);
 
@@ -110,6 +123,13 @@ PCInterface_Status_T PCInterface_Init(
   pcinterface->canDebugEnable = false;
 
   // Set up message frames
+  pcinterface->mfStateUpdate.crc = pcinterface->crc;
+  pcinterface->mfStateUpdate.address = PCINTERFACE_MSG_DESTADDR;
+  pcinterface->mfStateUpdate.function = PCINTERFACE_MSG_STATEUPDATE_FUNCITION;
+  pcinterface->mfStateUpdate.dataLen = PCINTERFACE_MSG_STATEUPDATE_DATALEN;
+  pcinterface->mfStateUpdate.msgLen = PCINTERFACE_MSG_STATEUPDATE_MSGLEN;
+  pcinterface->mfStateUpdate.buffer = pcinterface->mfStateUpdateBuffer;
+
   pcinterface->mfLogData.crc = pcinterface->crc;
   pcinterface->mfLogData.address = PCINTERFACE_MSG_DESTADDR;
   pcinterface->mfLogData.function = PCINTERFACE_MSG_LOG_FUNCTION;
