@@ -49,6 +49,12 @@ typedef struct
   bool out; // overall output status for SDC
 } VehicleState_SDC_T;
 
+#define VEHICLESTATE_MAXPDM_CHANNELS 8U
+typedef struct
+{
+  bool pdmChState[VEHICLESTATE_MAXPDM_CHANNELS];
+} VehicleState_GLV_T; // Grounded LV system
+
 typedef struct
 {
   NmeaUTCTime_T utcTime;
@@ -161,6 +167,7 @@ typedef struct
   VehicleState_InputSensors_T inputs;
   VehicleState_DashInputs_T dash;
   VehicleState_VehicleSensors_T vehicle;
+  VehicleState_GLV_T glv;
   VehicleState_Battery_T battery;
   VehicleState_Motor_T motor;
   VehicleState_Inverter_T inverter;

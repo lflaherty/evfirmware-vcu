@@ -16,6 +16,7 @@
 #include "lib/depends/depends.h"
 #include "lib/logging/logging.h"
 #include "io/gpio/gpio.h"
+#include "vehicleInterface/vehicleState/vehicleState.h"
 
 typedef enum
 {
@@ -23,6 +24,7 @@ typedef enum
   PDM_STATUS_ERROR_DEPENDS    = 0x01,
   PDM_STATUS_ERROR_CONFIG     = 0x02,
   PDM_STATUS_ERROR_INVALID_CH = 0x03,
+  PDM_STATUS_ERROR_STATE      = 0x04,
 } PDM_Status_T;
 
 typedef struct
@@ -34,6 +36,8 @@ typedef struct
 {
   PDM_Channel_T* channels; // array of channels
   size_t numChannels;
+  // The state storage needs to be updated to track the PDM channels
+  VehicleState_T* vehicleState;
 
   // Internal
   bool initComplete;

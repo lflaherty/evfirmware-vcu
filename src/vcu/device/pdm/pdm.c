@@ -17,9 +17,14 @@ PDM_Status_T PDM_Init(Logging_T* logger, PDM_T* pdm)
   mLog = logger;
   Log_Print(mLog, "PDM_Init begin\n");
   DEPEND_ON(logger, PDM_STATUS_ERROR_DEPENDS);
+  DEPEND_ON(pdm->vehicleState, PDM_STATUS_ERROR_DEPENDS);
 
   if ((pdm->channels == NULL && pdm->numChannels > 0) ||
       (pdm->channels != NULL && pdm->numChannels == 0)) {
+    return PDM_STATUS_ERROR_CONFIG;
+  }
+
+  if (pdm->numChannels > VEHICLESTATE_MAXPDM_CHANNELS) {
     return PDM_STATUS_ERROR_CONFIG;
   }
 
@@ -38,6 +43,13 @@ PDM_Status_T PDM_SetOutputEnabled(
   if (channel >= pdm->numChannels) {
     return PDM_STATUS_ERROR_INVALID_CH;
   }
+
+  // Update state storage
+  if (!VehicleState_AccessAcquire(pdm->vehicleState)) {
+    return PDM_STATUS_ERROR_STATE;
+  }
+  pdm->vehicleState->data.glv.pdmChState[channel] = state;
+  VehicleState_AccessRelease(pdm->vehicleState);
 
   GPIO_T* pin = pdm->channels[channel].pin;
   GPIO_WritePin(pin, state);

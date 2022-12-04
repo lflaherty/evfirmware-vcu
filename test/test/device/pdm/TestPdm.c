@@ -16,6 +16,7 @@
 // Mocks for code under test (replaces stubs)
 #include "stm32_hal/MockStm32f7xx_hal.h"
 #include "lib/logging/MockLogging.h"
+#include "time/tasktimer/MockTasktimer.h"
 
 // source code under test
 #include "device/pdm/pdm.c"
@@ -50,6 +51,7 @@ static PDM_Channel_T channels[] = {
 _Static_assert(Num_Channels == sizeof(channels) / sizeof(PDM_Channel_T), "channel config incorrect");
 
 // Modules
+static VehicleState_T mVehicleState;
 static Logging_T testLog;
 static PDM_T mPdm;
 
@@ -85,11 +87,19 @@ TEST_SETUP(DEVICE_PDM)
     // Init logging
     TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, Log_Init(&testLog));
     TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, Log_EnableSWO(&testLog));
+
+    // Init vehicle state
+    mockSet_TaskTimer_Init_Status(TASKTIMER_STATUS_OK);
+    mockSet_TaskTimer_RegisterTask_Status(TASKTIMER_STATUS_OK);
+    TEST_ASSERT_EQUAL(
+        VEHICLESTATE_STATUS_OK,
+        VehicleState_Init(&testLog, &mVehicleState));
     mockLogClear();
     
     // Init PDM
     mPdm.channels = channels;
     mPdm.numChannels = Num_Channels;
+    mPdm.vehicleState = &mVehicleState;
     PDM_Status_T status = PDM_Init(&testLog, &mPdm);
     TEST_ASSERT(PDM_STATUS_OK == status);
 
@@ -121,6 +131,7 @@ TEST(DEVICE_PDM, NoChannels)
 {
     PDM_T altPdm; // just register no channels
     memset(&altPdm, 0, sizeof(altPdm));
+    altPdm.vehicleState = &mVehicleState;
 
     TEST_ASSERT_EQUAL(PDM_STATUS_OK, PDM_Init(&testLog, &altPdm));
     TEST_ASSERT_EQUAL(NULL, altPdm.channels);
@@ -134,6 +145,7 @@ TEST(DEVICE_PDM, IncorrectConfig)
 {
     PDM_T altPdm; // just register no channels
     memset(&altPdm, 0, sizeof(altPdm));
+    altPdm.vehicleState = &mVehicleState;
 
     PDM_Channel_T altChannels[] = {
         [0] = { .pin = &pinCh1 },
@@ -147,6 +159,7 @@ TEST(DEVICE_PDM, IncorrectConfig)
     // now do the other way around
     memset(&altPdm, 0, sizeof(altPdm));
     altPdm.numChannels = altNumChannels;
+    altPdm.vehicleState = &mVehicleState;
     TEST_ASSERT_EQUAL(PDM_STATUS_ERROR_CONFIG, PDM_Init(&testLog, &altPdm));
 }
 
@@ -161,6 +174,7 @@ TEST(DEVICE_PDM, ControlChannels)
     TEST_ASSERT_EQUAL(PDM_STATUS_OK, PDM_SetOutputEnabled(&mPdm, Ch6, true));
     for (uint8_t i = 0; i < Num_Channels; ++i) {
         TEST_ASSERT_TRUE(GPIO_ReadPin(channels[i].pin));
+        TEST_ASSERT_TRUE(mVehicleState.data.glv.pdmChState[i]);
     }
 
     // Setting all to false
@@ -172,18 +186,23 @@ TEST(DEVICE_PDM, ControlChannels)
     TEST_ASSERT_EQUAL(PDM_STATUS_OK, PDM_SetOutputEnabled(&mPdm, Ch6, false));
     for (uint8_t i = 0; i < Num_Channels; ++i) {
         TEST_ASSERT_FALSE(GPIO_ReadPin(channels[i].pin));
+        TEST_ASSERT_FALSE(mVehicleState.data.glv.pdmChState[i]);
     }
 
     // Iterate through controlling all channels individually
     for (uint8_t i = 0; i < Num_Channels; ++i) {
         resetGPIOs();
+        memset(mVehicleState.data.glv.pdmChState, 0, sizeof(mVehicleState.data.glv.pdmChState) / sizeof(bool));
+
         TEST_ASSERT_EQUAL(PDM_STATUS_OK, PDM_SetOutputEnabled(&mPdm, i, true));
 
         TEST_ASSERT_TRUE(GPIO_ReadPin(channels[i].pin));
+        TEST_ASSERT_TRUE(mVehicleState.data.glv.pdmChState[i]);
         for (uint8_t j = 0; j < Num_Channels; ++j) {
             if (i == j) // skip the pin currently being tested
                 continue;
             TEST_ASSERT_FALSE(GPIO_ReadPin(channels[j].pin));
+            TEST_ASSERT_FALSE(mVehicleState.data.glv.pdmChState[j]);
         }
     }
 
