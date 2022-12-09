@@ -13,11 +13,15 @@ target_sources(TestVehicleControl PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/m
 target_sources(TestVehicleControl PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/mock/stm32_hal/MockStm32f7xx_hal.c)
 target_sources(TestVehicleControl PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/mock/stm32_hal/MockStm32f7xx_hal_can.c)
 target_sources(TestVehicleControl PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/mock/stm32_hal/MockStm32f7xx_hal_crc.c)
+target_sources(TestVehicleControl PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/mock/stm32_hal/MockStm32f7xx_hal_gpio.c)
 target_sources(TestVehicleControl PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/mock/stm32_hal/MockStm32f7xx_hal_uart.c)
 # Mocks for 1st party
 target_sources(TestVehicleControl PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/mock/lib/logging/MockLogging.c)
 target_sources(TestVehicleControl PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/mock/time/tasktimer/MockTasktimer.c)
 # Production code
 target_sources(TestVehicleControl PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/comm/can/can.c)
+target_sources(TestVehicleControl PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/io/gpio/gpio.c)
 target_sources(TestVehicleControl PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/lib/depends/depends.c)
 target_sources(TestVehicleControl PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/lib/crc/crc.c)
+target_sources(TestVehicleControl PRIVATE ${PROJECT_SOURCE_DIR}/../src/vcu/device/sdc/sdc.c)
+target_sources(TestVehicleControl PRIVATE ${PROJECT_SOURCE_DIR}/../src/vcu/vehicleInterface/vehicleState/vehicleState.c)

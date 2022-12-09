@@ -21,6 +21,7 @@ VehicleControl_Status_T VehicleControl_Init(
 {
   mLog = logger;
   Log_Print(mLog, "VehicleControl_Init begin\n");
+  DEPEND_ON_STATIC(SDC, VEHICLECONTROL_STATUS_ERROR_DEPENDS);
 
   // Nothing to do
 
@@ -64,8 +65,7 @@ VehicleControl_Status_T VehicleControl_SetPowerChannel(VehicleControl_T* vc, uin
 VehicleControl_Status_T VehicleControl_SetECUError(VehicleControl_T* vc, bool error)
 {
   (void)vc;
-  (void)error;
-  // TODO
+  SDC_AssertECUFault(error);
   return VEHICLECONTROL_STATUS_OK;
 }
 

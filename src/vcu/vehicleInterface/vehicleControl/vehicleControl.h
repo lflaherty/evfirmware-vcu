@@ -15,6 +15,8 @@
 #include "lib/depends/depends.h"
 #include "vehicleInterface/vehicleState/vehicleStateTypes.h"
 
+#include "device/sdc/sdc.h"
+
 typedef enum
 {
   VEHICLECONTROL_STATUS_OK            = 0x00U,
@@ -23,7 +25,6 @@ typedef enum
 
 typedef struct
 {
-
   REGISTERED_MODULE();
 } VehicleControl_T;
 

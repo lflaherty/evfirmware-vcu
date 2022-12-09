@@ -25,6 +25,7 @@ VehicleControl_Status_T stub_VehicleControl_Init(Logging_T* logger, VehicleContr
 {
     (void)logger;
     (void)vc;
+    REGISTER(vc, VEHICLECONTROL_STATUS_ERROR_DEPENDS);
     return mStatus_VehicleControl_Init;
 }
 
