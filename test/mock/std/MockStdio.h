@@ -10,7 +10,7 @@
 
 #include <stdio.h>
 
-#define PRINTF_BUFFER_LEN 257
+#define PRINTF_BUFFER_LEN 4096
 extern char printfOut[];
 extern int printfOutSize;
 
