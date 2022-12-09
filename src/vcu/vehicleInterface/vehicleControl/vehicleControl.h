@@ -12,25 +12,30 @@
 #include <stdbool.h>
 
 #include "lib/logging/logging.h"
+#include "lib/depends/depends.h"
 #include "vehicleInterface/vehicleState/vehicleStateTypes.h"
 
 typedef enum
 {
-  VEHICLECONTORL_STATUS_OK    = 0x00U
+  VEHICLECONTROL_STATUS_OK            = 0x00U,
+  VEHICLECONTROL_STATUS_ERROR_DEPENDS = 0x01U,
 } VehicleControl_Status_T;
 
 typedef struct
 {
-  // TODO references to objects
-  uint8_t tmp; // TODO remove, can't be empty
+
+  REGISTERED_MODULE();
 } VehicleControl_T;
 
 /**
  * @brief Initialize the vehicle control process
  * @param logger Pointer to system logger
- * @returns Success status. VEHICLECONTORL_STATUS_OK if successful.
+ * @param control VehicleControl struct
+ * @returns Success status. VEHICLECONTROL_STATUS_OK if successful.
  */
-VehicleControl_Status_T VehicleControl_Init(Logging_T* logger);
+VehicleControl_Status_T VehicleControl_Init(
+    Logging_T* logger,
+    VehicleControl_T* control);
 
 VehicleControl_Status_T VehicleControl_EnableInverter(VehicleControl_T* vc);
 VehicleControl_Status_T VehicleControl_DisableInverter(VehicleControl_T* vc);

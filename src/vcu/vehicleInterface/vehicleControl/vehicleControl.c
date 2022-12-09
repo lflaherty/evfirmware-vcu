@@ -15,29 +15,32 @@
 static Logging_T* mLog;
 
 // ------------------- Public methods -------------------
-VehicleControl_Status_T VehicleControl_Init(Logging_T* logger)
+VehicleControl_Status_T VehicleControl_Init(
+    Logging_T* logger,
+    VehicleControl_T* control)
 {
   mLog = logger;
   Log_Print(mLog, "VehicleControl_Init begin\n");
 
   // Nothing to do
 
+  REGISTER(control, VEHICLECONTROL_STATUS_ERROR_DEPENDS);
   Log_Print(mLog, "VehicleControl_Init complete\n");
-  return VEHICLECONTORL_STATUS_OK;
+  return VEHICLECONTROL_STATUS_OK;
 }
 
 VehicleControl_Status_T VehicleControl_EnableInverter(VehicleControl_T* vc)
 {
   (void)vc;
   // TODO
-  return VEHICLECONTORL_STATUS_OK;
+  return VEHICLECONTROL_STATUS_OK;
 }
 
 VehicleControl_Status_T VehicleControl_DisableInverter(VehicleControl_T* vc)
 {
   (void)vc;
   // TODO
-  return VEHICLECONTORL_STATUS_OK;
+  return VEHICLECONTROL_STATUS_OK;
 }
 
 VehicleControl_Status_T VehicleControl_RequestMotorTorque(VehicleControl_T* vc, float torque, VehicleState_InverterDirection_T direction)
@@ -46,7 +49,7 @@ VehicleControl_Status_T VehicleControl_RequestMotorTorque(VehicleControl_T* vc, 
   (void)torque;
   (void)direction;
   // TODO
-  return VEHICLECONTORL_STATUS_OK;
+  return VEHICLECONTROL_STATUS_OK;
 }
 
 VehicleControl_Status_T VehicleControl_SetPowerChannel(VehicleControl_T* vc, uint8_t channel, bool enabled)
@@ -55,7 +58,7 @@ VehicleControl_Status_T VehicleControl_SetPowerChannel(VehicleControl_T* vc, uin
   (void)channel;
   (void)enabled;
   // TODO
-  return VEHICLECONTORL_STATUS_OK;
+  return VEHICLECONTROL_STATUS_OK;
 }
 
 VehicleControl_Status_T VehicleControl_SetECUError(VehicleControl_T* vc, bool error)
@@ -63,7 +66,7 @@ VehicleControl_Status_T VehicleControl_SetECUError(VehicleControl_T* vc, bool er
   (void)vc;
   (void)error;
   // TODO
-  return VEHICLECONTORL_STATUS_OK;
+  return VEHICLECONTROL_STATUS_OK;
 }
 
 VehicleControl_Status_T VehicleControl_SetDash(VehicleControl_T* vc, bool ledOn)
@@ -71,5 +74,5 @@ VehicleControl_Status_T VehicleControl_SetDash(VehicleControl_T* vc, bool ledOn)
   (void)vc;
   (void)ledOn;
   // TODO
-  return VEHICLECONTORL_STATUS_OK;
+  return VEHICLECONTROL_STATUS_OK;
 }

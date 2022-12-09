@@ -8,22 +8,23 @@
 #include "MockVehicleControl.h"
 
 // ------------------- Static data -------------------
-static VehicleControl_Status_T mStatus_VehicleControl_Init = VEHICLECONTORL_STATUS_OK;
-static VehicleControl_Status_T mStatus_VehicleControl_EnableInverter = VEHICLECONTORL_STATUS_OK;
-static VehicleControl_Status_T mStatus_VehicleControl_DisableInverter = VEHICLECONTORL_STATUS_OK;
-static VehicleControl_Status_T mStatus_VehicleControl_RequestMotorTorque = VEHICLECONTORL_STATUS_OK;
-static VehicleControl_Status_T mStatus_VehicleControl_SetPowerChannel = VEHICLECONTORL_STATUS_OK;
-static VehicleControl_Status_T mStatus_VehicleControl_SetECUError = VEHICLECONTORL_STATUS_OK;
-static VehicleControl_Status_T mStatus_VehicleControl_SetDash = VEHICLECONTORL_STATUS_OK;
+static VehicleControl_Status_T mStatus_VehicleControl_Init = VEHICLECONTROL_STATUS_OK;
+static VehicleControl_Status_T mStatus_VehicleControl_EnableInverter = VEHICLECONTROL_STATUS_OK;
+static VehicleControl_Status_T mStatus_VehicleControl_DisableInverter = VEHICLECONTROL_STATUS_OK;
+static VehicleControl_Status_T mStatus_VehicleControl_RequestMotorTorque = VEHICLECONTROL_STATUS_OK;
+static VehicleControl_Status_T mStatus_VehicleControl_SetPowerChannel = VEHICLECONTROL_STATUS_OK;
+static VehicleControl_Status_T mStatus_VehicleControl_SetECUError = VEHICLECONTROL_STATUS_OK;
+static VehicleControl_Status_T mStatus_VehicleControl_SetDash = VEHICLECONTROL_STATUS_OK;
 
 static uint32_t mRequestMotorTorqueRequests = 0U;
 static float mRequestMotorTorqueLatest = 0.0f;
 static VehicleState_InverterDirection_T mRequestMotorTorqueLatestDir = VEHICLESTATE_INVERTER_REVERSE;
 
 // ------------------- Methods -------------------
-VehicleControl_Status_T stub_VehicleControl_Init(Logging_T* logger)
+VehicleControl_Status_T stub_VehicleControl_Init(Logging_T* logger, VehicleControl_T* vc)
 {
     (void)logger;
+    (void)vc;
     return mStatus_VehicleControl_Init;
 }
 

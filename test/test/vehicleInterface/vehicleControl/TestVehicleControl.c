@@ -32,8 +32,8 @@ TEST_SETUP(VEHICLEINTERFACE_VEHICLECONTROL)
 
     memset(&mVehicleControl, 0, sizeof(VehicleControl_T));
 
-    VehicleControl_Status_T status = VehicleControl_Init(&testLog);
-    TEST_ASSERT(VEHICLECONTORL_STATUS_OK == status);
+    VehicleControl_Status_T status = VehicleControl_Init(&testLog, &mVehicleControl);
+    TEST_ASSERT(VEHICLECONTROL_STATUS_OK == status);
 
     const char* expectedLogging =
         "VehicleControl_Init begin\n"
@@ -57,13 +57,13 @@ TEST(VEHICLEINTERFACE_VEHICLECONTROL, InitOk)
 TEST(VEHICLEINTERFACE_VEHICLECONTROL, EnableInverter)
 {
     VehicleControl_Status_T status = VehicleControl_EnableInverter(&mVehicleControl);
-    TEST_ASSERT_EQUAL(status, VEHICLECONTORL_STATUS_OK);
+    TEST_ASSERT_EQUAL(status, VEHICLECONTROL_STATUS_OK);
 }
 
 TEST(VEHICLEINTERFACE_VEHICLECONTROL, DisableInverter)
 {
     VehicleControl_Status_T status = VehicleControl_DisableInverter(&mVehicleControl);
-    TEST_ASSERT_EQUAL(status, VEHICLECONTORL_STATUS_OK);
+    TEST_ASSERT_EQUAL(status, VEHICLECONTROL_STATUS_OK);
 }
 
 TEST(VEHICLEINTERFACE_VEHICLECONTROL, RequestMotorTorque)
@@ -72,7 +72,7 @@ TEST(VEHICLEINTERFACE_VEHICLECONTROL, RequestMotorTorque)
     VehicleState_InverterDirection_T direction = VEHICLESTATE_INVERTER_FORWARD;
     VehicleControl_Status_T status = VehicleControl_RequestMotorTorque(&mVehicleControl, torque, direction);
 
-    TEST_ASSERT_EQUAL(status, VEHICLECONTORL_STATUS_OK);
+    TEST_ASSERT_EQUAL(status, VEHICLECONTROL_STATUS_OK);
 }
 
 TEST(VEHICLEINTERFACE_VEHICLECONTROL, SetPowerChannel)
@@ -81,7 +81,7 @@ TEST(VEHICLEINTERFACE_VEHICLECONTROL, SetPowerChannel)
     bool enabled = true;
     VehicleControl_Status_T status = VehicleControl_SetPowerChannel(&mVehicleControl, channel, enabled);
     
-    TEST_ASSERT_EQUAL(status, VEHICLECONTORL_STATUS_OK);
+    TEST_ASSERT_EQUAL(status, VEHICLECONTROL_STATUS_OK);
 }
 
 TEST(VEHICLEINTERFACE_VEHICLECONTROL, SetECUError)
@@ -89,7 +89,7 @@ TEST(VEHICLEINTERFACE_VEHICLECONTROL, SetECUError)
     bool error = true;
     VehicleControl_Status_T status = VehicleControl_SetECUError(&mVehicleControl, error);
     
-    TEST_ASSERT_EQUAL(status, VEHICLECONTORL_STATUS_OK);
+    TEST_ASSERT_EQUAL(status, VEHICLECONTROL_STATUS_OK);
 }
 
 TEST(VEHICLEINTERFACE_VEHICLECONTROL, SetDash)
@@ -97,7 +97,7 @@ TEST(VEHICLEINTERFACE_VEHICLECONTROL, SetDash)
     bool ledOn = true;
     VehicleControl_Status_T status = VehicleControl_SetDash(&mVehicleControl, ledOn);
     
-    TEST_ASSERT_EQUAL(status, VEHICLECONTORL_STATUS_OK);
+    TEST_ASSERT_EQUAL(status, VEHICLECONTROL_STATUS_OK);
 }
 
 TEST_GROUP_RUNNER(VEHICLEINTERFACE_VEHICLECONTROL)
