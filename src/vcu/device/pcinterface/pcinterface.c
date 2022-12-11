@@ -29,21 +29,6 @@ extern void PCInterface_HandlePeriodic(PCInterface_T* pcinterface);
  */
 static void flushLogMessage(PCInterface_T* pcinterface)
 {
-  // Dump received data
-  if (pdFALSE == xStreamBufferIsEmpty(pcinterface->recvStreamHandle)) {
-    // For now just print them to log...
-    Log_Print(mLog, "Recevied serial bytes: ");
-    while (!xStreamBufferIsEmpty(pcinterface->recvStreamHandle)) {
-      uint8_t recvByte = 0;
-      xStreamBufferReceive(pcinterface->recvStreamHandle, &recvByte, 1U, mBlockTime2);
-
-      char logBuffer[LOGGING_MAX_MSG_LEN] = { 0 };
-      snprintf(logBuffer, LOGGING_MAX_MSG_LEN, "0x%02x ", recvByte);
-      Log_Print(mLog, logBuffer);
-    }
-    Log_Print(mLog, "\n");
-  }
-
   // Send saved log data to UART
   while (!xStreamBufferIsEmpty(pcinterface->logStreamHandle)) {
     // Construct message:
@@ -112,9 +97,11 @@ PCInterface_Status_T PCInterface_Init(
     PCInterface_T* pcinterface)
 {
   mLog = logger;
+  pcinterface->log = logger; // TODO migrate to this way
   Log_Print(mLog, "PCInterface_Init begin\n");
   DEPEND_ON(logger, PCINTERFACE_STATUS_ERROR_DEPENDS);
   DEPEND_ON(pcinterface->state, PCINTERFACE_STATUS_ERROR_DEPENDS);
+  DEPEND_ON(pcinterface->control, PCINTERFACE_STATUS_ERROR_DEPENDS);
   DEPEND_ON_STATIC(UART, PCINTERFACE_STATUS_ERROR_DEPENDS);
   DEPEND_ON_STATIC(TASKTIMER, PCINTERFACE_STATUS_ERROR_DEPENDS);
 
@@ -122,20 +109,29 @@ PCInterface_Status_T PCInterface_Init(
   pcinterface->canErrorCounter = 0U;
   pcinterface->canDebugEnable = false;
 
-  // Set up message frames
+  // Set up message frame encoders
+  // Encoder init method is called when frame is used
+  // But set common fields here once
   pcinterface->mfStateUpdate.crc = pcinterface->crc;
-  pcinterface->mfStateUpdate.address = PCINTERFACE_MSG_DESTADDR;
+  pcinterface->mfStateUpdate.address = PCINTERFACE_MSG_DESTADDR_PC;
   pcinterface->mfStateUpdate.function = PCINTERFACE_MSG_STATEUPDATE_FUNCITION;
   pcinterface->mfStateUpdate.dataLen = PCINTERFACE_MSG_STATEUPDATE_DATALEN;
   pcinterface->mfStateUpdate.msgLen = PCINTERFACE_MSG_STATEUPDATE_MSGLEN;
   pcinterface->mfStateUpdate.buffer = pcinterface->mfStateUpdateBuffer;
 
   pcinterface->mfLogData.crc = pcinterface->crc;
-  pcinterface->mfLogData.address = PCINTERFACE_MSG_DESTADDR;
+  pcinterface->mfLogData.address = PCINTERFACE_MSG_DESTADDR_PC;
   pcinterface->mfLogData.function = PCINTERFACE_MSG_LOG_FUNCTION;
   pcinterface->mfLogData.dataLen = PCINTERFACE_MSG_LOG_DATALEN;
   pcinterface->mfLogData.msgLen = PCINTERFACE_MSG_LOG_MSGLEN;
   pcinterface->mfLogData.buffer = pcinterface->mfLogDataBuffer;
+
+  // Setup message frame decoder
+  pcinterface->mfDecode.crc = pcinterface->crc;
+  pcinterface->mfDecode.msgLen = PCINTERFACE_MSG_COMMON_MSGLEN;
+  if (!MsgFrameDecode_Init(&pcinterface->mfDecode)) {
+    return PCINTERFACE_STATUS_ERROR_INIT;
+  }
 
   // Create mutex lock & queue
   pcinterface->mutex = xSemaphoreCreateMutexStatic(&pcinterface->mutexBuffer);

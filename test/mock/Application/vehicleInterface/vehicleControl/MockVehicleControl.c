@@ -16,6 +16,7 @@ static VehicleControl_Status_T mStatus_VehicleControl_SetPowerChannel = VEHICLEC
 static VehicleControl_Status_T mStatus_VehicleControl_SetECUError = VEHICLECONTROL_STATUS_OK;
 static VehicleControl_Status_T mStatus_VehicleControl_SetDash = VEHICLECONTROL_STATUS_OK;
 
+static bool mECUError = false;
 static uint32_t mRequestMotorTorqueRequests = 0U;
 static float mRequestMotorTorqueLatest = 0.0f;
 static VehicleState_InverterDirection_T mRequestMotorTorqueLatestDir = VEHICLESTATE_INVERTER_REVERSE;
@@ -61,7 +62,7 @@ VehicleControl_Status_T stub_VehicleControl_SetPowerChannel(VehicleControl_T* vc
 VehicleControl_Status_T stub_VehicleControl_SetECUError(VehicleControl_T* vc, bool error)
 {
     (void)vc;
-    (void)error;
+    mECUError = error;
     return mStatus_VehicleControl_SetECUError;
 }
 
@@ -107,6 +108,14 @@ void mockSet_VehicleControl_SetDash_Status(VehicleControl_Status_T status)
     mStatus_VehicleControl_SetDash = status;
 }
 
+void mockReset_VehicleControl(void)
+{
+    mockReset_VehicleControl_RequestMotorTorque();
+    mockSet_VehicleControl_RequestMotorTorque_LastRequest(0.0f);
+    mockSet_VehicleControl_RequestMotorTorque_LastRequestDir(VEHICLESTATE_INVERTER_FORWARD);
+    mockSet_VehicleControl_ECUError(false);
+}
+
 void mockReset_VehicleControl_RequestMotorTorque(void)
 {
     mRequestMotorTorqueRequests = 0U;
@@ -135,4 +144,14 @@ void mockSet_VehicleControl_RequestMotorTorque_LastRequestDir(VehicleState_Inver
 VehicleState_InverterDirection_T mockGet_VehicleControl_RequestMotorTorque_LastRequestDir(void)
 {
     return mRequestMotorTorqueLatestDir;
+}
+
+void mockSet_VehicleControl_ECUError(bool error)
+{
+    mECUError = error;
+}
+
+bool mockGet_VehicleControl_ECUError(void)
+{
+    return mECUError;
 }

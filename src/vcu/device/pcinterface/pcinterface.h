@@ -21,7 +21,11 @@
 #include "lib/depends/depends.h"
 #include "lib/crc/crc.h"
 #include "comm/uart/msgframeencode.h"
+#include "comm/uart/msgframedecode.h"
 #include "vehicleInterface/vehicleState/vehicleState.h"
+#include "vehicleInterface/vehicleControl/vehicleControl.h"
+
+#include "messages.h"
 
 typedef enum
 {
@@ -38,26 +42,20 @@ typedef enum
 #define PCINTERFACE_RECV_STREAM_SIZE_BYTES 2048U
 #define PCINTERFACE_RECV_STREAM_TRIGGER_LEVEL_BYTES 1U
 
-#define PCINTERFACE_MSG_DESTADDR 0x02
-
-#define PCINTERFACE_MSG_STATEUPDATE_FUNCITION 0x01
-#define PCINTERFACE_MSG_STATEUPDATE_DATALEN   7U
-#define PCINTERFACE_MSG_STATEUPDATE_MSGLEN    18U
-#define PCINTERFACE_MSG_LOG_FUNCTION 0x02
-#define PCINTERFACE_MSG_LOG_DATALEN  32U
-#define PCINTERFACE_MSG_LOG_MSGLEN   43U
-
 typedef struct
 {
   UART_HandleTypeDef* huartA;
   UART_HandleTypeDef* huartB;
   CRC_T* crc;
   VehicleState_T* state; // Vehicle state object to fetch data from
+  VehicleControl_T* control;
 
   // ******* Internal use *******
   bool canDebugEnable; // TODO remove
   uint32_t counter;
   uint32_t canErrorCounter;
+
+  Logging_T* log; // TODO move towards this approach
 
   // Mutex lock
   SemaphoreHandle_t mutex;
@@ -83,6 +81,9 @@ typedef struct
   uint8_t mfStateUpdateBuffer[PCINTERFACE_MSG_STATEUPDATE_MSGLEN];
   MsgFrameEncode_T mfLogData;
   uint8_t mfLogDataBuffer[PCINTERFACE_MSG_LOG_MSGLEN];
+
+  // Message frame for decoding
+  MsgFrameDecode_T mfDecode;
 
   REGISTERED_MODULE();
 } PCInterface_T;

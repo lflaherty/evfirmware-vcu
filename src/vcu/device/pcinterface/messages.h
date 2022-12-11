@@ -1,0 +1,35 @@
+/*
+ * messages.h
+ *
+ * Defines details of UART debug protocol messages
+ *
+ *  Created on: Dec 2 2022
+ *      Author: Liam Flaherty
+ */
+
+#ifndef DEVICE_PCINTERFACE_MESSAGES_H_
+#define DEVICE_PCINTERFACE_MESSAGES_H_
+
+#define PCINTERFACE_MSG_DESTADDR_VCU    0x01
+#define PCINTERFACE_MSG_DESTADDR_PC     0x02
+
+// Tx messages:
+
+#define PCINTERFACE_MSG_STATEUPDATE_FUNCITION 0x01
+#define PCINTERFACE_MSG_STATEUPDATE_DATALEN   7U
+#define PCINTERFACE_MSG_STATEUPDATE_MSGLEN    18U
+
+#define PCINTERFACE_MSG_LOG_FUNCTION 0x02
+#define PCINTERFACE_MSG_LOG_DATALEN  32U
+#define PCINTERFACE_MSG_LOG_MSGLEN   43U
+
+// Rx messages:
+
+// Use a common message length to simplifying decoding
+#define PCINTERFACE_MSG_COMMON_DATALEN  8U
+#define PCINTERFACE_MSG_COMMON_MSGLEN   19U
+
+#define PCINTERFACE_MSG_TESTCMD_SDC_FUNCTION    0x101
+
+
+#endif // DEVICE_PCINTERFACE_MESSAGES_H_

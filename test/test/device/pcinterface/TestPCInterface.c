@@ -23,6 +23,7 @@
 #include "semaphore.h"
 
 #include "time/tasktimer/MockTasktimer.h"
+#include "vehicleInterface/vehicleControl/MockVehicleControl.h"
 // MockLogging.h is deliberately not used here - need the stream internals of
 // logging to work correctly. Use MockStdio to capture SWO printfs instead
 
@@ -40,6 +41,7 @@ static UART_HandleTypeDef husartA;
 static UART_HandleTypeDef husartB;
 static CRC_T mCrc;
 static VehicleState_T mVehicleState;
+static VehicleControl_T mVehicleControl;
 
 static PCInterface_T mPCInterface;
 
@@ -105,6 +107,11 @@ TEST_SETUP(DEVICE_PCINTERFACE)
         VEHICLESTATE_STATUS_OK,
         VehicleState_Init(&testLog, &mVehicleState));
 
+    // Init vehicle control interface
+    TEST_ASSERT_EQUAL(
+        VEHICLECONTROL_STATUS_OK,
+        VehicleControl_Init(&testLog, &mVehicleControl));
+
     // clear to only capture PC debug prints
     mockClearPrintf();
     
@@ -114,6 +121,7 @@ TEST_SETUP(DEVICE_PCINTERFACE)
     mPCInterface.huartB = &husartB;
     mPCInterface.crc = &mCrc;
     mPCInterface.state = &mVehicleState;
+    mPCInterface.control = &mVehicleControl;
 
     PCInterface_Status_T status = PCInterface_Init(&testLog, &mPCInterface);
     TEST_ASSERT_EQUAL(PCINTERFACE_STATUS_OK, status);
@@ -128,6 +136,7 @@ TEST_SETUP(DEVICE_PCINTERFACE)
     mockClearStreamBufferData(usart1.txPendingStreamHandle);
     mockClear_HAL_UART_Data();
     mockClearPrintf();
+    mockReset_VehicleControl();
 }
 
 TEST_TEAR_DOWN(DEVICE_PCINTERFACE)
@@ -255,31 +264,6 @@ TEST(DEVICE_PCINTERFACE, TestLogSerialLongMsg)
     TEST_ASSERT_EQUAL(0, mockGet_HAL_UART_Len());
 }
 
-TEST(DEVICE_PCINTERFACE, TestSerialRecv)
-{
-    uint8_t recvBytes[] = {0x01, 0x2, 0xAA, 0xBB};
-    uint16_t recvBytesLen = sizeof(recvBytes);
-
-    const char expectedLog[] = "Recevied serial bytes: 0x01 0x02 0xaa 0xbb \n";
-    size_t expectedLogLen = sizeof(expectedLog) - 1U; // -1 because logging skips null char
-
-    // Nothing should be printed before there is data...
-    mockSetTaskNotifyValue(1); // to wake up
-    PCInterface_TaskMethod(&mPCInterface);
-    TEST_ASSERT_EQUAL(0U, printfOutSize);
-
-    // UART recieve on DMA:
-    memcpy(usart1.uartDmaRx, recvBytes, recvBytesLen); // copy into DMA buffer
-    HAL_UARTEx_RxEventCallback(&husartA, recvBytesLen);
-    TEST_ASSERT_EQUAL(recvBytesLen, mockGetStreamBufferLen(mPCInterface.recvStreamHandle));
-
-    // Driver should just log these bytes
-    mockSetTaskNotifyValue(1); // to wake up
-    PCInterface_TaskMethod(&mPCInterface);
-    TEST_ASSERT_EQUAL_STRING(expectedLog, printfOut);
-    TEST_ASSERT_EQUAL(expectedLogLen, printfOutSize);
-}
-
 TEST(DEVICE_PCINTERFACE, PeriodicStateUpdates)
 {
     // Just what the CRC hardware produces, doesn't really matter what the
@@ -323,13 +307,69 @@ TEST(DEVICE_PCINTERFACE, PeriodicStateUpdates)
         PCInterface_TaskMethod(&mPCInterface);
     }
 
+    // First message
     TEST_ASSERT_EQUAL(PCINTERFACE_MSG_STATEUPDATE_MSGLEN, mockGet_HAL_UART_Len());
     TEST_ASSERT_EQUAL_UINT8_ARRAY(expectedMsgSDC,
         mockGet_HAL_UART_Data(),
         PCINTERFACE_MSG_STATEUPDATE_MSGLEN);
-    // TEST_ASSERT_EQUAL_UINT8_ARRAY(expectedMsgPDM,
-    //     mockGet_HAL_UART_Data() + PCINTERFACE_MSG_STATEUPDATE_MSGLEN,
-    //     PCINTERFACE_MSG_STATEUPDATE_MSGLEN);
+
+    // Copy the pending bytes to the bus
+    mockClear_HAL_UART_Data();
+    HAL_UART_TxCpltCallback(mPCInterface.huartA);
+
+    const size_t numMessages = 1U;
+    TEST_ASSERT_EQUAL(numMessages*PCINTERFACE_MSG_STATEUPDATE_MSGLEN, mockGet_HAL_UART_Len());
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(expectedMsgPDM,
+        mockGet_HAL_UART_Data(),
+        PCINTERFACE_MSG_STATEUPDATE_MSGLEN);
+}
+
+TEST(DEVICE_PCINTERFACE, TestCommandSDC)
+{
+    // Set the CRC that the "hardware" calculates
+    mockSet_CRC(0x12345678);
+
+    uint8_t testMsg[] = {
+        ':',       // Start
+        0x00, 0x01, // Receiver addr: VCU
+        0x01, 0x01, // Function: Test Cmd, Set SDC output
+        0x00, 0x00, 0x00, 0x00, // Empty payload bytes
+        0x00, 0x00, 0x00,       // Empty payload bytes
+        0x00, // Payload: error output state
+        0x12, 0x34, 0x56, 0x78, // CRC
+        '\r', '\n'
+    };
+    uint16_t testMsgLen = sizeof(testMsg)*sizeof(uint8_t);
+    _Static_assert(sizeof(testMsg) == PCINTERFACE_MSG_COMMON_MSGLEN, "message length");
+
+    // UART recieve on DMA:
+    memcpy(usart1.uartDmaRx, testMsg, testMsgLen); // copy into DMA buffer
+    HAL_UARTEx_RxEventCallback(&husartA, testMsgLen);
+    mockSetTaskNotifyValue(1); // to wake up
+    PCInterface_TaskMethod(&mPCInterface);
+
+    TEST_ASSERT_FALSE(mockGet_VehicleControl_ECUError());
+
+    // Toggle error on and run again
+    // (note that this only works because we're faking the hardware CRC)
+    testMsg[12] = 0x01;
+
+    memcpy(usart1.uartDmaRx, testMsg, testMsgLen); // copy into DMA buffer
+    HAL_UARTEx_RxEventCallback(&husartA, testMsgLen);
+    mockSetTaskNotifyValue(1); // to wake up
+    PCInterface_TaskMethod(&mPCInterface);
+
+    TEST_ASSERT_TRUE(mockGet_VehicleControl_ECUError());
+
+    // And toggle it back off...
+    testMsg[12] = 0x00;
+
+    memcpy(usart1.uartDmaRx, testMsg, testMsgLen); // copy into DMA buffer
+    HAL_UARTEx_RxEventCallback(&husartA, testMsgLen);
+    mockSetTaskNotifyValue(1); // to wake up
+    PCInterface_TaskMethod(&mPCInterface);
+
+    TEST_ASSERT_FALSE(mockGet_VehicleControl_ECUError());
 }
 
 TEST_GROUP_RUNNER(DEVICE_PCINTERFACE)
@@ -339,8 +379,8 @@ TEST_GROUP_RUNNER(DEVICE_PCINTERFACE)
     RUN_TEST_CASE(DEVICE_PCINTERFACE, TestNoMessages);
     RUN_TEST_CASE(DEVICE_PCINTERFACE, TestLogSerialShortMsg);
     RUN_TEST_CASE(DEVICE_PCINTERFACE, TestLogSerialLongMsg);
-    RUN_TEST_CASE(DEVICE_PCINTERFACE, TestSerialRecv);
     RUN_TEST_CASE(DEVICE_PCINTERFACE, PeriodicStateUpdates);
+    RUN_TEST_CASE(DEVICE_PCINTERFACE, TestCommandSDC);
 }
 
 #define INVOKE_TEST DEVICE_PCINTERFACE

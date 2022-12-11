@@ -31,11 +31,14 @@ void mockSet_VehicleControl_SetPowerChannel_Status(VehicleControl_Status_T statu
 void mockSet_VehicleControl_SetECUError_Status(VehicleControl_Status_T status);
 void mockSet_VehicleControl_SetDash_Status(VehicleControl_Status_T status);
 
+void mockReset_VehicleControl(void);
 void mockReset_VehicleControl_RequestMotorTorque(void);
 uint32_t mockGet_VehicleControl_RequestMotorTorque_NumRequests(void);
 void mockSet_VehicleControl_RequestMotorTorque_LastRequest(float torqueRequest);
 float mockGet_VehicleControl_RequestMotorTorque_LastRequest(void);
 void mockSet_VehicleControl_RequestMotorTorque_LastRequestDir(VehicleState_InverterDirection_T torqueDirection);
 VehicleState_InverterDirection_T mockGet_VehicleControl_RequestMotorTorque_LastRequestDir(void);
+void mockSet_VehicleControl_ECUError(bool error);
+bool mockGet_VehicleControl_ECUError(void);
 
 #endif // _MOCK_VEHICLEINTERFACE_VEHICLECONTROL_VEHICLECONTROL_H_
