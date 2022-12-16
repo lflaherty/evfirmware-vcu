@@ -40,5 +40,7 @@ void mockSet_VehicleControl_RequestMotorTorque_LastRequestDir(VehicleState_Inver
 VehicleState_InverterDirection_T mockGet_VehicleControl_RequestMotorTorque_LastRequestDir(void);
 void mockSet_VehicleControl_ECUError(bool error);
 bool mockGet_VehicleControl_ECUError(void);
+void mockSet_VehicleControl_PDMChannel(uint8_t channel, bool en);
+bool mockGet_VehicleControl_PDMChannel(uint8_t ch);
 
 #endif // _MOCK_VEHICLEINTERFACE_VEHICLECONTROL_VEHICLECONTROL_H_

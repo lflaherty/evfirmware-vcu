@@ -7,6 +7,8 @@
 
 #include "MockVehicleControl.h"
 
+#include <assert.h>
+
 // ------------------- Static data -------------------
 static VehicleControl_Status_T mStatus_VehicleControl_Init = VEHICLECONTROL_STATUS_OK;
 static VehicleControl_Status_T mStatus_VehicleControl_EnableInverter = VEHICLECONTROL_STATUS_OK;
@@ -17,6 +19,7 @@ static VehicleControl_Status_T mStatus_VehicleControl_SetECUError = VEHICLECONTR
 static VehicleControl_Status_T mStatus_VehicleControl_SetDash = VEHICLECONTROL_STATUS_OK;
 
 static bool mECUError = false;
+static bool mPDMEnabled[6] = { 0U };
 static uint32_t mRequestMotorTorqueRequests = 0U;
 static float mRequestMotorTorqueLatest = 0.0f;
 static VehicleState_InverterDirection_T mRequestMotorTorqueLatestDir = VEHICLESTATE_INVERTER_REVERSE;
@@ -54,8 +57,8 @@ VehicleControl_Status_T stub_VehicleControl_RequestMotorTorque(VehicleControl_T*
 VehicleControl_Status_T stub_VehicleControl_SetPowerChannel(VehicleControl_T* vc, uint8_t channel, bool enabled)
 {
     (void)vc;
-    (void)channel;
-    (void)enabled;
+    assert(channel < 6);
+    mPDMEnabled[channel] = enabled;
     return mStatus_VehicleControl_SetPowerChannel;
 }
 
@@ -154,4 +157,16 @@ void mockSet_VehicleControl_ECUError(bool error)
 bool mockGet_VehicleControl_ECUError(void)
 {
     return mECUError;
+}
+
+void mockSet_VehicleControl_PDMChannel(uint8_t channel, bool en)
+{
+    assert(channel < 6);
+    mPDMEnabled[channel] = en;
+}
+
+bool mockGet_VehicleControl_PDMChannel(uint8_t ch)
+{
+    assert(ch < 6);
+    return mPDMEnabled[ch];
 }

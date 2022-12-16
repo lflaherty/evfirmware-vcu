@@ -33,6 +33,30 @@ static void handleMsgTestSdc(
   Log_Print(pcinterface->log, buf);
 }
 
+static void handleMsgTestPdm(
+    PCInterface_T* pcinterface,
+    uint8_t* payloadBytes,
+    uint16_t nBytes)
+{
+  if (nBytes != PCINTERFACE_MSG_COMMON_DATALEN) {
+    return;
+  }
+
+  bool pdmReqeusts[6] = { 0 };
+  for (uint8_t i = 0U; i < 6; ++i) {
+    pdmReqeusts[i] = !!payloadBytes[i + 2];
+  }
+
+  Log_Print(pcinterface->log, "Test command executed: set PDM states to\n");
+  for (uint8_t i = 0U; i < 6; ++i) {
+    VehicleControl_SetPowerChannel(pcinterface->control, i, pdmReqeusts[i]);
+
+    char buf[32] = { 0 };
+    snprintf(buf, 32, "  PDM channel %u: %u\n", i, pdmReqeusts[i]);
+    Log_Print(pcinterface->log, buf);
+  }
+}
+
 static void handleMessage(
     PCInterface_T* pcinterface, 
     uint8_t* bytes,
@@ -59,6 +83,10 @@ static void handleMessage(
   switch (function) {
     case PCINTERFACE_MSG_TESTCMD_SDC_FUNCTION:
       handleMsgTestSdc(pcinterface, payload, payloadLen);
+      break;
+
+    case PCINTERFACE_MSG_TESTCMD_PDM_FUNCTION:
+      handleMsgTestPdm(pcinterface, payload, payloadLen);
       break;
   }
 }

@@ -372,6 +372,76 @@ TEST(DEVICE_PCINTERFACE, TestCommandSDC)
     TEST_ASSERT_FALSE(mockGet_VehicleControl_ECUError());
 }
 
+TEST(DEVICE_PCINTERFACE, TestCommandPDM)
+{
+    // Set the CRC that the "hardware" calculates
+    mockSet_CRC(0x12345678);
+
+    uint8_t testMsg[] = {
+        ':',       // Start
+        0x00, 0x01, // Receiver addr: VCU
+        0x01, 0x02, // Function: Test Cmd, Set PDM output
+        0x00, 0x00, // Empty bytes
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // Payload: PDM channels
+        0x12, 0x34, 0x56, 0x78, // CRC
+        '\r', '\n'
+    };
+    uint16_t testMsgLen = sizeof(testMsg)*sizeof(uint8_t);
+    _Static_assert(sizeof(testMsg) == PCINTERFACE_MSG_COMMON_MSGLEN, "message length");
+
+    // UART recieve on DMA:
+    memcpy(usart1.uartDmaRx, testMsg, testMsgLen); // copy into DMA buffer
+    HAL_UARTEx_RxEventCallback(&husartA, testMsgLen);
+    mockSetTaskNotifyValue(1); // to wake up
+    PCInterface_TaskMethod(&mPCInterface);
+
+    for (uint8_t i = 0; i < 6; ++i) {
+        TEST_ASSERT_FALSE(mockGet_VehicleControl_PDMChannel(i));
+    }
+
+    for (uint8_t i = 0; i < 6; ++i) {
+        // Toggle PDM on and run again
+        // (note that this only works because we're faking the hardware CRC)
+        testMsg[7] = 0x00;
+        testMsg[8] = 0x00;
+        testMsg[9] = 0x00;
+        testMsg[10] = 0x00;
+        testMsg[11] = 0x00;
+        testMsg[12] = 0x00;
+
+        testMsg[i + 7U] = 0x01; // PDM i
+
+        memcpy(usart1.uartDmaRx, testMsg, testMsgLen); // copy into DMA buffer
+        HAL_UARTEx_RxEventCallback(&husartA, testMsgLen);
+        mockSetTaskNotifyValue(1); // to wake up
+        PCInterface_TaskMethod(&mPCInterface);
+
+        TEST_ASSERT_TRUE(mockGet_VehicleControl_PDMChannel(i));
+        for (uint8_t j = 0; j < 6; ++j) {
+            if (i == j)
+                continue;
+            TEST_ASSERT_FALSE(mockGet_VehicleControl_PDMChannel(j));
+        }
+    }
+
+    // And toggle it back off...
+    testMsg[7] = 0x00;
+    testMsg[8] = 0x00;
+    testMsg[9] = 0x00;
+    testMsg[10] = 0x00;
+    testMsg[11] = 0x00;
+    testMsg[12] = 0x00;
+
+    memcpy(usart1.uartDmaRx, testMsg, testMsgLen); // copy into DMA buffer
+    HAL_UARTEx_RxEventCallback(&husartA, testMsgLen);
+    mockSetTaskNotifyValue(1); // to wake up
+    PCInterface_TaskMethod(&mPCInterface);
+
+    for (uint8_t i = 0; i < 6; ++i) {
+        TEST_ASSERT_FALSE(mockGet_VehicleControl_PDMChannel(i));
+    }
+}
+
 TEST_GROUP_RUNNER(DEVICE_PCINTERFACE)
 {
     RUN_TEST_CASE(DEVICE_PCINTERFACE, InitOk);
@@ -381,6 +451,7 @@ TEST_GROUP_RUNNER(DEVICE_PCINTERFACE)
     RUN_TEST_CASE(DEVICE_PCINTERFACE, TestLogSerialLongMsg);
     RUN_TEST_CASE(DEVICE_PCINTERFACE, PeriodicStateUpdates);
     RUN_TEST_CASE(DEVICE_PCINTERFACE, TestCommandSDC);
+    RUN_TEST_CASE(DEVICE_PCINTERFACE, TestCommandPDM);
 }
 
 #define INVOKE_TEST DEVICE_PCINTERFACE
