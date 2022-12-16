@@ -32,7 +32,7 @@ typedef struct xSTATIC_QUEUE
     // Must be kept the same as QueueDefinition in queue.h
 } StaticQueue_t;
 
-#define MOCK_STREAMBUFFER_SIZE 8192 /* something large enough to put anything from the tests in */
+#define MOCK_STREAMBUFFER_SIZE 262144 /* something large enough to put anything from the tests in */
 typedef struct
 {
     size_t itemSize;
