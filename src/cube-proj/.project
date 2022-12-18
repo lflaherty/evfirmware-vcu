@@ -38,7 +38,7 @@
 		<link>
 			<name>System_src</name>
 			<type>2</type>
-			<locationURI>PARENT-1-PROJECT_LOC/system-lib</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/system-lib/src</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>

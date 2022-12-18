@@ -270,6 +270,7 @@ NVIC.TimeBase=TIM1_UP_TIM10_IRQn
 NVIC.TimeBaseIP=TIM1
 NVIC.USART1_IRQn=true\:7\:0\:true\:false\:true\:true\:true\:true
 NVIC.USART3_IRQn=true\:7\:0\:true\:false\:true\:true\:true\:true
+NVIC.USART6_IRQn=true\:7\:0\:true\:false\:true\:true\:true\:true
 NVIC.UsageFault_IRQn=true\:0\:0\:false\:false\:true\:false\:false\:false
 PA0/WKUP.Signal=ADCx_IN0
 PA1.Signal=ADCx_IN1
