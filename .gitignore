@@ -12,6 +12,5 @@
 test/coverage/
 test/coverage_report/
 test/main_coverage.info
-test/run_tests*
 test/build/
 
