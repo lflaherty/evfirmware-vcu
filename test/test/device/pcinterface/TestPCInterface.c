@@ -120,8 +120,6 @@ TEST_SETUP(DEVICE_PCINTERFACE)
     mPCInterface.huartA = &husartA;
     mPCInterface.huartB = &husartB;
     mPCInterface.crc = &mCrc;
-    mPCInterface.state = &mVehicleState;
-    mPCInterface.control = &mVehicleControl;
 
     PCInterface_Status_T status = PCInterface_Init(&testLog, &mPCInterface);
     TEST_ASSERT_EQUAL(PCINTERFACE_STATUS_OK, status);
@@ -130,6 +128,13 @@ TEST_SETUP(DEVICE_PCINTERFACE)
         "PCInterface_Init begin\n"
         "PCInterface_Init complete\n";
     TEST_ASSERT_EQUAL_STRING(expectedLogging, printfOut);
+
+    TEST_ASSERT_EQUAL(
+        PCINTERFACE_STATUS_OK,
+        PCInterface_SetVehicleState(&mPCInterface, &mVehicleState));
+    TEST_ASSERT_EQUAL(
+        PCINTERFACE_STATUS_OK,
+        PCInterface_SetVehicleControl(&mPCInterface, &mVehicleControl));
 
     // clear again for coming tests (because init prints)
     mockClearStreamBufferData(mPCInterface.logStreamHandle);

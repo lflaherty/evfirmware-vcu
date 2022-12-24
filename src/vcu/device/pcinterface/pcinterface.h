@@ -47,8 +47,6 @@ typedef struct
   UART_HandleTypeDef* huartA;
   UART_HandleTypeDef* huartB;
   CRC_T* crc;
-  VehicleState_T* state; // Vehicle state object to fetch data from
-  VehicleControl_T* control;
 
   // ******* Internal use *******
   bool canDebugEnable; // TODO remove
@@ -56,6 +54,11 @@ typedef struct
   uint32_t canErrorCounter;
 
   Logging_T* log; // TODO move towards this approach
+
+  VehicleState_T* state; // Vehicle state object to fetch data from
+  VehicleControl_T* control;
+  bool stateEnabled; // whether state pointer is set and ready
+  bool controlEnabled; // whether control pointer is set and ready
 
   // Mutex lock
   SemaphoreHandle_t mutex;
@@ -98,5 +101,29 @@ typedef struct
 PCInterface_Status_T PCInterface_Init(
     Logging_T* logger,
     PCInterface_T* pcinterface);
+
+/**
+ * @brief Sets the internal vehicle state pointer and enables
+ * related functionality such as periodic state data outputs.
+ * 
+ * @param pcinterface PCInterface struct
+ * @param state VehicleState pointer
+ * @return PCINTERFACE_STATUS_OK if successful
+ */
+PCInterface_Status_T PCInterface_SetVehicleState(
+    PCInterface_T* pcinterface,
+    VehicleState_T* state);
+
+/**
+ * @brief Sets the internal vehicle control pointer and enables
+ * related functionality such as test messages.
+ * 
+ * @param pcinterface PCInterface struct
+ * @param control VehicleControl pointer
+ * @return PCINTERFACE_STATUS_OK if successful
+ */
+PCInterface_Status_T PCInterface_SetVehicleControl(
+    PCInterface_T* pcinterface,
+    VehicleControl_T* control);
 
 #endif // DEVICE_PCINTERFACE_PCINTERFACE_H_

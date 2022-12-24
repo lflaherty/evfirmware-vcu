@@ -107,6 +107,11 @@ static void sendStatePdm(
  */
 static void periodicStateUpdate(PCInterface_T* pcinterface)
 {
+  if (!pcinterface->stateEnabled) {
+    // PCInterface_SetVehicleState hasn't been called yet
+    return;
+  }
+
   // Periodic task runs at 100Hz, but only want to tx the state at 1Hz
   if (pcinterface->counter % COUNT_1HZ != 0U) {
     return;

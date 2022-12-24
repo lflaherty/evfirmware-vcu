@@ -9,6 +9,8 @@
 
 #include "pcinterface.h"
 
+#include <stdio.h> /* for snprintf */
+
 #define BATCH_RECV_SIZE 8U
 
 #define PAYLOAD_OFFSET 5U
@@ -62,6 +64,10 @@ static void handleMessage(
     uint8_t* bytes,
     uint16_t nBytes)
 {
+  if (!pcinterface->controlEnabled) {
+    // PCInterface_SetVehicleControl hasn't been called yet
+    return;
+  }
   if (nBytes != PCINTERFACE_MSG_COMMON_MSGLEN) {
     return;
   }
@@ -105,7 +111,7 @@ void PCInterface_HandleRequests(PCInterface_T* pcinterface)
         &pcinterface->mfDecode, 
         recvBytes,
         nRecv);
-    
+
     if (succ) {
       size_t offset = 0U;
       bool msgDecoded = MsgFrameDecode_RecvMsg(

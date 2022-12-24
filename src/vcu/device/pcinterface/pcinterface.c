@@ -100,14 +100,14 @@ PCInterface_Status_T PCInterface_Init(
   pcinterface->log = logger; // TODO migrate to this way
   Log_Print(mLog, "PCInterface_Init begin\n");
   DEPEND_ON(logger, PCINTERFACE_STATUS_ERROR_DEPENDS);
-  DEPEND_ON(pcinterface->state, PCINTERFACE_STATUS_ERROR_DEPENDS);
-  DEPEND_ON(pcinterface->control, PCINTERFACE_STATUS_ERROR_DEPENDS);
   DEPEND_ON_STATIC(UART, PCINTERFACE_STATUS_ERROR_DEPENDS);
   DEPEND_ON_STATIC(TASKTIMER, PCINTERFACE_STATUS_ERROR_DEPENDS);
 
   pcinterface->counter = 0U;
   pcinterface->canErrorCounter = 0U;
   pcinterface->canDebugEnable = false;
+  pcinterface->stateEnabled = false;
+  pcinterface->controlEnabled = false;
 
   // Set up message frame encoders
   // Encoder init method is called when frame is used
@@ -180,5 +180,29 @@ PCInterface_Status_T PCInterface_Init(
 
   REGISTER(pcinterface, PCINTERFACE_STATUS_ERROR_DEPENDS);
   Log_Print(mLog, "PCInterface_Init complete\n");
+  return PCINTERFACE_STATUS_OK;
+}
+
+PCInterface_Status_T PCInterface_SetVehicleState(
+    PCInterface_T* pcinterface,
+    VehicleState_T* state)
+{
+  DEPEND_ON(state, PCINTERFACE_STATUS_ERROR_DEPENDS);
+
+  pcinterface->state = state;
+  pcinterface->stateEnabled = true;
+
+  return PCINTERFACE_STATUS_OK;
+}
+
+PCInterface_Status_T PCInterface_SetVehicleControl(
+    PCInterface_T* pcinterface,
+    VehicleControl_T* control)
+{
+  DEPEND_ON(control, PCINTERFACE_STATUS_ERROR_DEPENDS);
+
+  pcinterface->control = control;
+  pcinterface->controlEnabled = true;
+
   return PCINTERFACE_STATUS_OK;
 }
