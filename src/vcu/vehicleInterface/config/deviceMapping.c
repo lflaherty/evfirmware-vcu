@@ -35,6 +35,18 @@ GPIO_T Mapping_GPIO_LED = {
 };
 
 /*
+ * GPS Config
+ */
+GPIO_T Mapping_GPS_3dFixPin = {
+  .GPIOx = GPS_FIX_GPIO_Port, .GPIO_Pin = GPS_FIX_Pin
+};
+extern UART_HandleTypeDef huart6;
+UART_HandleTypeDef* Mapping_GPS_GetUARTHandle(void)
+{
+  return &huart6;
+}
+
+/*
  * Device handles
  */
 extern ADC_HandleTypeDef hadc1;

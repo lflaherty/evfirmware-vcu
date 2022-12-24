@@ -73,6 +73,12 @@ extern uint8_t numPdmChannels;
 extern GPIO_T Mapping_GPIO_LED;
 
 /*
+ * GPS Config
+ */
+extern GPIO_T Mapping_GPS_3dFixPin;
+UART_HandleTypeDef* Mapping_GPS_GetUARTHandle(void);
+
+/*
  * Getters for device handles
  */
 TIM_HandleTypeDef* Mapping_GetTaskTimer(void);

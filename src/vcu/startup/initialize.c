@@ -17,9 +17,11 @@
 #include "comm/can/can.h"
 
 #include "vehicleInterface/config/deviceMapping.h"
+#include "vehicleInterface/vehicleState/vehicleState.h"
 
+#include "device/gps/gps.h"
 #include "device/sdc/sdc.h"
-#include "device/pcdebug/pcdebug.h"
+#include "device/pcinterface/pcinterface.h"
 
 #include "vehicleLogic/watchdogTrigger/watchdogTrigger.h"
 
@@ -31,8 +33,6 @@ typedef enum
 } ECU_Init_Status_T;
 
 // ------------------- Private data -------------------
-static Logging_T mLog;
-
 #define INIT_STACK_SIZE 1500U
 #define INIT_TASK_PRIORITY 15U
 struct InitTask {
@@ -43,9 +43,14 @@ struct InitTask {
 static struct InitTask initTask;
 
 // ------------------- Module structures -------------------
+static Logging_T mLog;
 static CRC_T mCrc;
+
+static VehicleState_T mVehicleState;
+
+static GPS_T mGps;
 static WatchdogTrigger_T mWdtTrigger;
-static PCDebug_T mPCDebug;
+static PCInterface_T mPCInterface;
 
 // ------------------- Private prototypes -------------------
 static void ECU_Init_Task(void* pvParameters);    // RTOS task method for init
@@ -130,10 +135,10 @@ static ECU_Init_Status_T ECU_Init_System1(void)
     return ECU_INIT_ERROR;
   }
 
-  statusLog = Log_EnableSWO(&mLog);
-  if (LOGGING_STATUS_OK != statusLog) {
-    return ECU_INIT_ERROR;
-  }
+  // statusLog = Log_EnableSWO(&mLog);
+  // if (LOGGING_STATUS_OK != statusLog) {
+  //   return ECU_INIT_ERROR;
+  // }
 
   // UART
   UART_Status_T statusUart;
@@ -151,7 +156,13 @@ static ECU_Init_Status_T ECU_Init_System1(void)
 
   statusUart = UART_Config(Mapping_GetPCDebugUartB());
   if (UART_STATUS_OK != statusUart) {
-    Log_Print(&mLog, "USART1 (PCDebug B) config error\n");
+    Log_Print(&mLog, "USART3 (PCDebug B) config error\n");
+    return ECU_INIT_ERROR;
+  }
+
+  statusUart = UART_Config(Mapping_GPS_GetUARTHandle());
+  if (UART_STATUS_OK != statusUart) {
+    Log_Print(&mLog, "USART6 (GPS) config error\n");
     return ECU_INIT_ERROR;
   }
 
@@ -165,16 +176,16 @@ static ECU_Init_Status_T ECU_Init_System1(void)
   }
 
   // Create PC Debug driver
-  mPCDebug.huartA = Mapping_GetPCDebugUartA();
-  mPCDebug.huartB = Mapping_GetPCDebugUartB();
-  mPCDebug.crc = &mCrc;
-  PCDebug_Status_T statusPcDebug = PCDebug_Init(&mLog, &mPCDebug);
-  if (PCDEBUG_STATUS_OK != statusPcDebug) {
+  // Create it this early so we get serial output, we'll enable the other
+  // functionality later on
+  mPCInterface.huartA = Mapping_GetPCDebugUartA();
+  mPCInterface.huartB = Mapping_GetPCDebugUartB();
+  mPCInterface.crc = &mCrc;
+  PCInterface_Status_T statusPcInterface = PCInterface_Init(&mLog, &mPCInterface);
+  if (PCINTERFACE_STATUS_OK != statusPcInterface) {
     Log_Print(&mLog, "PCDebug initialization error\n");
     return ECU_INIT_ERROR;
   }
-
-  Log_Print(&mLog, "Serial logging enabled\n");
 
   return ECU_INIT_OK;
 }
@@ -198,7 +209,7 @@ static ECU_Init_Status_T ECU_Init_System2(void)
     return ECU_INIT_ERROR;
   }
 
-  mPCDebug.canDebugEnable = true;
+  mPCInterface.canDebugEnable = true; // TODO remove
 
   // ADC
   // Not configured in this release
@@ -222,9 +233,18 @@ static ECU_Init_Status_T ECU_Init_System3(void)
 //------------------------------------------------------------------------------
 static ECU_Init_Status_T ECU_Init_App1(void)
 {
-  Log_Print(&mLog, "###### ECU_Init_App2 ######\n");
-  
-  // Not configured in this release
+  Log_Print(&mLog, "###### ECU_Init_App1 ######\n");
+
+  // Vehicle state
+  if (VehicleState_Init(&mLog, &mVehicleState) != VEHICLESTATE_STATUS_OK) {
+    Log_Print(&mLog, "VehicleState initialization error\n");
+    return ECU_INIT_ERROR;
+  }
+
+  if (PCInterface_SetVehicleState(&mPCInterface, &mVehicleState) != PCINTERFACE_STATUS_OK) {
+    Log_Print(&mLog, "PCInterface_SetVehicleState failed\n");
+    return ECU_INIT_ERROR;
+  }
 
   return ECU_INIT_OK;
 }
@@ -232,9 +252,16 @@ static ECU_Init_Status_T ECU_Init_App1(void)
 //------------------------------------------------------------------------------
 static ECU_Init_Status_T ECU_Init_App2(void)
 {
-  Log_Print(&mLog, "###### ECU_Init_App1 ######\n");
+  Log_Print(&mLog, "###### ECU_Init_App2 ######\n");
 
-  // Not configured in this release
+  // GPS
+  mGps.pin3dFix = &Mapping_GPS_3dFixPin;
+  mGps.huart = Mapping_GPS_GetUARTHandle();
+  mGps.state = &mVehicleState;
+  if (GPS_Init(&mLog, &mGps) != GPS_STATUS_OK) {
+    Log_Print(&mLog, "GPS initialization error\n");
+    return ECU_INIT_ERROR;
+  }
 
   return ECU_INIT_OK;
 }
