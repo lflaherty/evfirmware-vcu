@@ -30,6 +30,7 @@ typedef struct
 // Don't dereference them...
 #define USART1 ((USART_TypeDef*)0x1)
 #define USART3 ((USART_TypeDef*)0x3)
+#define USART6 ((USART_TypeDef*)0x6)
 
 // ================== Define methods ==================
 HAL_StatusTypeDef stubHAL_UART_Init(UART_HandleTypeDef *huart);

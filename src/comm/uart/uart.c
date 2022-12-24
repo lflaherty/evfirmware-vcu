@@ -40,6 +40,7 @@ struct uartInfo {
 
 static struct uartInfo usart1;
 static struct uartInfo usart3;
+static struct uartInfo usart6;
 
 /**
  * @brief Get the Uart Dev object for the provided port.
@@ -53,6 +54,8 @@ static struct uartInfo* getUartDev(const UART_HandleTypeDef* huart)
     return &usart1;
   } else if (USART3 == huart->Instance) {
     return &usart3;
+  } else if (USART6 == huart->Instance) {
+	return &usart6;
   } else {
     // uart instance not implemented
     return NULL;
@@ -165,6 +168,15 @@ UART_Status_T UART_Init(Logging_T* logger)
       1U,
       usart3.txPendingStorage,
       &usart3.txPendingStreamStruct);
+
+  // USART6
+  usart6.txInProgress = false;
+  usart6.outputSbEnabled = false;
+  usart6.txPendingStreamHandle = xStreamBufferCreateStatic(
+      UART_MAX_DMA_LEN,
+      1U,
+      usart6.txPendingStorage,
+      &usart6.txPendingStreamStruct);
 
   isReady = true;
 
