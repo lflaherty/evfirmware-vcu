@@ -59,8 +59,7 @@ VehicleStateManager_Status_T VehicleStateManager_Init(Logging_T* logger, Vehicle
       &sm->taskBuffer);
 
   // Register the task for timer notifications every 10ms (100Hz)
-  uint16_t timerDivider = tickRateMs * TASKTIMER_BASE_PERIOD_MS;
-  TaskTimer_Status_T statusTimer = TaskTimer_RegisterTask(&sm->taskHandle, timerDivider);
+  TaskTimer_Status_T statusTimer = TaskTimer_RegisterTask(&sm->taskHandle, TASKTIMER_FREQUENCY_100HZ);
   if (TASKTIMER_STATUS_OK != statusTimer) {
     return STATEMANAGER_STATUS_ERROR_INIT;
   }

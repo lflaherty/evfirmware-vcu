@@ -15,7 +15,6 @@
 // ------------------- Private data -------------------
 static Logging_T* mLog;
 static const TickType_t mBlockTime2 = 100 / portTICK_PERIOD_MS; // 100ms // TODO fix testing infra so this isn't needed
-static const uint32_t tickRateMs = 10U; // 10 ms
 
 // ------------------- Private methods -------------------
 // ************ Request handlers ************
@@ -152,8 +151,7 @@ PCInterface_Status_T PCInterface_Init(
       &pcinterface->taskBuffer);
 
   // Register the task for timer notifications every 10ms (100Hz)
-  uint16_t timerDivider = tickRateMs * TASKTIMER_BASE_PERIOD_MS;
-  TaskTimer_Status_T statusTimer = TaskTimer_RegisterTask(&pcinterface->taskHandle, timerDivider);
+  TaskTimer_Status_T statusTimer = TaskTimer_RegisterTask(&pcinterface->taskHandle, TASKTIMER_FREQUENCY_100HZ);
   if (TASKTIMER_STATUS_OK != statusTimer) {
     return PCINTERFACE_STATUS_ERROR_INIT;
   }

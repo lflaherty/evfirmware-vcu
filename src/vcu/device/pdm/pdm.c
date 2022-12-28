@@ -9,7 +9,6 @@
 
 // ------------------- Private data -------------------
 static Logging_T* mLog;
-static const TickType_t mBlockTime = 10 / portTICK_PERIOD_MS; // 10ms
 
 // ------------------- Public methods -------------------
 PDM_Status_T PDM_Init(Logging_T* logger, PDM_T* pdm)

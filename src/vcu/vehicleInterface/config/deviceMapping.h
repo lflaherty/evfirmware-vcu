@@ -81,7 +81,7 @@ UART_HandleTypeDef* Mapping_GPS_GetUARTHandle(void);
 /*
  * Getters for device handles
  */
-TIM_HandleTypeDef* Mapping_GetTaskTimer(void);
+TIM_HandleTypeDef* Mapping_GetTaskTimer100Hz(void);
 UART_HandleTypeDef* Mapping_GetPCDebugUartA(void);
 UART_HandleTypeDef* Mapping_GetPCDebugUartB(void); // Second port for ease of debugging
 RTC_HandleTypeDef* Mapping_GetRTC(void);

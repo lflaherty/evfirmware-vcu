@@ -70,7 +70,7 @@ extern UART_HandleTypeDef huart3;
 extern UART_HandleTypeDef huart6;
 
 
-TIM_HandleTypeDef* Mapping_GetTaskTimer(void)
+TIM_HandleTypeDef* Mapping_GetTaskTimer100Hz(void)
 {
   return &htim2;
 }

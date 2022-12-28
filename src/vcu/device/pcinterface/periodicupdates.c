@@ -10,6 +10,8 @@
 #include "pcinterface.h"
 #include "fieldId.h"
 
+#include "comm/uart/uart.h"
+
 #define COUNT_1HZ (uint32_t)100U
 
 /**

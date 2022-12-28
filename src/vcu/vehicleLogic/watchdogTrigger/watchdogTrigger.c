@@ -12,7 +12,6 @@
 // ------------------- Private data -------------------
 static Logging_T* mLog;
 static const TickType_t mBlockTime = 100 / portTICK_PERIOD_MS; // 100ms
-static const uint32_t tickRateMs = 10U;
 
 // ------------------- Private methods -------------------
 static void WatchdogTrigger(WatchdogTrigger_T* wdtTrigger)
@@ -66,8 +65,7 @@ WatchdogTrigger_Status_T WatchdogTrigger_Init(
       &wdtTrigger->taskBuffer);
 
   // Register the task for timer notifications every 10ms (100Hz)
-  uint16_t timerDivider = tickRateMs * TASKTIMER_BASE_PERIOD_MS;
-  TaskTimer_Status_T statusTimer = TaskTimer_RegisterTask(&wdtTrigger->taskHandle, timerDivider);
+  TaskTimer_Status_T statusTimer = TaskTimer_RegisterTask(&wdtTrigger->taskHandle, TASKTIMER_FREQUENCY_100HZ);
   if (TASKTIMER_STATUS_OK != statusTimer) {
     return WATCHDOGTRIGGER_STATUS_ERROR_INIT;
   }

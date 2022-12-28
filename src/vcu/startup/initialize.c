@@ -130,7 +130,7 @@ static ECU_Init_Status_T ECU_Init_System1(void)
   Log_Print(&mLog, "###### ECU_Init_System1 ######\n");
 
   // Timers
-  if (TaskTimer_Init(&mLog, Mapping_GetTaskTimer()) != TASKTIMER_STATUS_OK) {
+  if (TaskTimer_Init(&mLog, Mapping_GetTaskTimer100Hz()) != TASKTIMER_STATUS_OK) {
     Log_Print(&mLog, "Task Timer initialization error\n");
     return ECU_INIT_ERROR;
   }
