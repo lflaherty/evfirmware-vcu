@@ -7,6 +7,8 @@
 
 #include "MockTasktimer.h"
 
+#include <assert.h>
+
 REGISTERED_MODULE_STATIC_DEF(TASKTIMER);
 
 // ------------------- Static data -------------------
@@ -22,10 +24,10 @@ TaskTimer_Status_T TaskTimer_Init(Logging_T* logger, TIM_HandleTypeDef* htim)
     return mStatus_TaskTimer_Init;
 }
 
-TaskTimer_Status_T TaskTimer_RegisterTask(TaskHandle_t* task, uint32_t divider)
+TaskTimer_Status_T TaskTimer_RegisterTask(TaskHandle_t* task, const TaskTimer_Frequency_T timer)
 {
     (void)task;
-    (void)divider;
+    assert(timer < TASKTIMER_FREQUENCY_COUNT);
     return mStatus_TaskTimer_RegisterTask;
 }
 

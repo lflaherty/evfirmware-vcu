@@ -25,35 +25,38 @@ static Logging_T* mLog;
 typedef struct {
   bool isSet;                  // Only true when used
   TaskHandle_t* taskHandle;    // Handle for notification
-  uint32_t divider;            // Timer divider. How many timer ticks to count.
-  uint32_t timerCounter;       // Current count of timer ticks.
 } TimedTask_T;
 
-static struct {
+typedef struct {
   uint8_t numTasks;
   TimedTask_T tasks[TASKTIMER_MAX_TASKS];
-} taskData;
+} TaskList_T;
 
-static TIM_HandleTypeDef* timHandle;
+static TIM_HandleTypeDef* timHandles[TASKTIMER_FREQUENCY_COUNT] = {0};
+static TaskList_T taskLists[TASKTIMER_FREQUENCY_COUNT] = {0};
 static bool isInitialized = false;
 
 
 // ------------------- Public methods -------------------
-TaskTimer_Status_T TaskTimer_Init(Logging_T* logger, TIM_HandleTypeDef* htim)
+TaskTimer_Status_T TaskTimer_Init(
+    Logging_T* logger,
+    TIM_HandleTypeDef* htim100Hz)
 {
   mLog = logger;
   Log_Print(mLog, "TaskTimer_Init begin\n");
   DEPEND_ON(logger, TASKTIMER_STATUS_ERROR_DEPENDS);
 
-  // Init data
-  memset(&taskData, 0, sizeof(taskData));
-  timHandle = htim;
+  memset(&taskLists, 0U, sizeof(taskLists));
+  memset(&timHandles, 0U, sizeof(timHandles));
 
+  timHandles[TASKTIMER_FREQUENCY_100HZ] = htim100Hz;
   isInitialized = true;
 
-  // Just start the timer
-  if (HAL_OK != HAL_TIM_Base_Start_IT(htim)) {
-    return TASKTIMER_STATUS_ERROR_TIMER;
+  // Start the timers
+  for (uint16_t i = 0; i < TASKTIMER_FREQUENCY_COUNT; ++i) {
+    if (NULL == timHandles[i] || HAL_OK != HAL_TIM_Base_Start_IT(timHandles[i])) {
+      return TASKTIMER_STATUS_ERROR_TIMER;
+    }
   }
 
   REGISTER_STATIC(TASKTIMER, TASKTIMER_STATUS_ERROR_DEPENDS);
@@ -62,28 +65,27 @@ TaskTimer_Status_T TaskTimer_Init(Logging_T* logger, TIM_HandleTypeDef* htim)
 }
 
 //------------------------------------------------------------------------------
-TaskTimer_Status_T TaskTimer_RegisterTask(TaskHandle_t* task, uint32_t divider)
+TaskTimer_Status_T TaskTimer_RegisterTask(
+    TaskHandle_t* task,
+    const TaskTimer_Frequency_T timer)
 {
   DEPEND_ON_STATIC(TASKTIMER, TASKTIMER_STATUS_ERROR_DEPENDS);
 
+  if (timer >= TASKTIMER_FREQUENCY_COUNT) {
+    return TASKTIMER_STATUS_ERROR_INVALID_TIMER;
+  }
+
   // Check size of task list
-  if (TASKTIMER_MAX_TASKS == taskData.numTasks) {
+  if (TASKTIMER_MAX_TASKS == taskLists[timer].numTasks) {
     // Timer list is full
     return TASKTIMER_STATUS_ERROR_FULL;
   }
 
-  // Check divider value
-  if (0 == divider) {
-    // Invalid divider value
-    return TASKTIMER_STATUS_ERROR_INVALID_DIVIDER;
-  }
-
   // Store task
-  taskData.tasks[taskData.numTasks].taskHandle = task;
-  taskData.tasks[taskData.numTasks].divider = divider;
-  taskData.tasks[taskData.numTasks].timerCounter = 1; // timer always counts up from 1
-  taskData.tasks[taskData.numTasks].isSet = true;
-  taskData.numTasks++;
+  uint8_t i = taskLists[timer].numTasks;
+  taskLists[timer].tasks[i].taskHandle = task;
+  taskLists[timer].tasks[i].isSet = true;
+  taskLists[timer].numTasks++;
 
   return TASKTIMER_STATUS_OK;
 }
@@ -96,30 +98,28 @@ void TaskTimer_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
     return;
   }
 
-  // Check that this is the right timer
-  if (htim->Instance == timHandle->Instance) {
-    // Determine what notifications to send
-    size_t i;
-    for (i = 0; i < taskData.numTasks; ++i) {
-      // Check that this is in use
-      if (taskData.tasks[i].isSet && NULL != taskData.tasks[i].taskHandle) {
+  TaskList_T* taskList = NULL;
 
-        // Check timer divider
-        if (taskData.tasks[i].divider == taskData.tasks[i].timerCounter) {
-          // Ready for notification
-          BaseType_t higherPriorityTaskWoken = pdFALSE;
-
-          vTaskNotifyGiveFromISR(*taskData.tasks[i].taskHandle, &higherPriorityTaskWoken);
-          portYIELD_FROM_ISR(higherPriorityTaskWoken);
-
-          // Reset counter
-          taskData.tasks[i].timerCounter = 1;
-        } else {
-          // Increment the counter
-          taskData.tasks[i].timerCounter++;
-        }
-
-      }
+  // Find the relevant task list
+  for (uint16_t i = 0; i < TASKTIMER_FREQUENCY_COUNT; ++i) {
+    if (htim->Instance == timHandles[i]->Instance) {
+      taskList = &taskLists[i];
+      break;
     }
   }
+
+  if (NULL == taskList) {
+    return;
+  }
+
+  // Notify all tasks in the list
+  BaseType_t higherPriorityTaskWoken = pdFALSE;
+  for (uint16_t i = 0; i < taskList->numTasks; ++i) {
+    BaseType_t taskWokenI = pdFALSE;
+    vTaskNotifyGiveFromISR(*taskList->tasks[i].taskHandle, &taskWokenI);
+
+    higherPriorityTaskWoken = (taskWokenI == pdTRUE) ? pdTRUE : higherPriorityTaskWoken;
+  }
+
+  portYIELD_FROM_ISR(higherPriorityTaskWoken);
 }
