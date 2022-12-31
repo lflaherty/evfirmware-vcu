@@ -181,6 +181,7 @@ static ECU_Init_Status_T ECU_Init_System1(void)
   mPCInterface.huartA = Mapping_GetPCDebugUartA();
   mPCInterface.huartB = Mapping_GetPCDebugUartB();
   mPCInterface.crc = &mCrc;
+  mPCInterface.pinToggle = &Mapping_GPIO_DebugToggle;
   PCInterface_Status_T statusPcInterface = PCInterface_Init(&mLog, &mPCInterface);
   if (PCINTERFACE_STATUS_OK != statusPcInterface) {
     Log_Print(&mLog, "PCDebug initialization error\n");
