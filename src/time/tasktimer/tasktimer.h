@@ -20,15 +20,6 @@
 
 REGISTERED_MODULE_STATIC(TASKTIMER);
 
-// /*
-//  * The base tick rate. This can be divided for individual tasks.
-//  * Note that this is configured in main with the TIM_HandleTypeDef Prescaler and Period.
-//  * Duplicated here in units of MS.
-//  * Change this if the Prescaler and Period are updated.
-//  */
-// #define TASKTIMER_BASE_PERIOD_MS 10U
-// #define TASKTIMER_BASE_PERIOD_100US 1U
-
 /*
  * Max number of tasks allowed to be registered
  */
