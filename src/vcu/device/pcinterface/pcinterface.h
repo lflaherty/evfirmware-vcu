@@ -20,6 +20,7 @@
 
 #include "lib/depends/depends.h"
 #include "lib/crc/crc.h"
+#include "io/gpio/gpio.h"
 #include "comm/uart/msgframeencode.h"
 #include "comm/uart/msgframedecode.h"
 #include "vehicleInterface/vehicleState/vehicleState.h"
@@ -47,6 +48,7 @@ typedef struct
   UART_HandleTypeDef* huartA;
   UART_HandleTypeDef* huartB;
   CRC_T* crc;
+  GPIO_T* pinToggle; // toggled at process refresh rate
 
   // ******* Internal use *******
   bool canDebugEnable; // TODO remove

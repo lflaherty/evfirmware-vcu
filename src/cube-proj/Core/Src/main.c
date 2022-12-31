@@ -888,7 +888,8 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOE, P_SW4_Pin|P_SW5_Pin|P_SW6_Pin|MPIO_OUT3_Pin
-                          |MPIO_EN3_Pin|MPIO_OUT2_Pin|P_SW2_Pin|P_SW3_Pin, GPIO_PIN_RESET);
+                          |MPIO_EN3_Pin|MPIO_OUT2_Pin|EXP_GPIO1_Pin|P_SW2_Pin
+                          |P_SW3_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, MPIO_EN2_Pin|MPIO_EN1_Pin|MPIO_OUT1_Pin|P_SW1_Pin, GPIO_PIN_RESET);
@@ -910,9 +911,11 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(STATUS_LED_GPIO_Port, STATUS_LED_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pins : P_SW4_Pin P_SW5_Pin P_SW6_Pin MPIO_OUT3_Pin
-                           MPIO_EN3_Pin MPIO_OUT2_Pin P_SW2_Pin P_SW3_Pin */
+                           MPIO_EN3_Pin MPIO_OUT2_Pin EXP_GPIO1_Pin P_SW2_Pin
+                           P_SW3_Pin */
   GPIO_InitStruct.Pin = P_SW4_Pin|P_SW5_Pin|P_SW6_Pin|MPIO_OUT3_Pin
-                          |MPIO_EN3_Pin|MPIO_OUT2_Pin|P_SW2_Pin|P_SW3_Pin;
+                          |MPIO_EN3_Pin|MPIO_OUT2_Pin|EXP_GPIO1_Pin|P_SW2_Pin
+                          |P_SW3_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;

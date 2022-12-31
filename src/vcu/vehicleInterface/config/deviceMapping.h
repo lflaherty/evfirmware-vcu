@@ -71,6 +71,7 @@ extern uint8_t numPdmChannels;
  * GPIO Config
  */
 extern GPIO_T Mapping_GPIO_LED;
+extern GPIO_T Mapping_GPIO_DebugToggle;
 
 /*
  * GPS Config

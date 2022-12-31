@@ -36,6 +36,10 @@
 
 static Logging_T testLog;
 
+// Pins
+static GPIO_TypeDef gpioBankA;
+static GPIO_T mPinToggle = { .GPIOx = &gpioBankA, .GPIO_Pin = 1U };
+
 static CRC_HandleTypeDef hcrc;
 static UART_HandleTypeDef husartA;
 static UART_HandleTypeDef husartB;
@@ -82,6 +86,7 @@ TEST_GROUP(DEVICE_PCINTERFACE);
 
 TEST_SETUP(DEVICE_PCINTERFACE)
 {
+    mock_GPIO_RegisterPin(mPinToggle.GPIOx, mPinToggle.GPIO_Pin);
     mockSemaphoreSetLocked(false);
 
     // Init logging
@@ -120,6 +125,7 @@ TEST_SETUP(DEVICE_PCINTERFACE)
     mPCInterface.huartA = &husartA;
     mPCInterface.huartB = &husartB;
     mPCInterface.crc = &mCrc;
+    mPCInterface.pinToggle = &mPinToggle;
 
     PCInterface_Status_T status = PCInterface_Init(&testLog, &mPCInterface);
     TEST_ASSERT_EQUAL(PCINTERFACE_STATUS_OK, status);

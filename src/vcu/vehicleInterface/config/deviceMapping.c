@@ -33,6 +33,9 @@ uint8_t numPdmChannels = sizeof(pdmChannels) / sizeof(PDM_Channel_T);
 GPIO_T Mapping_GPIO_LED = {
   .GPIOx = STATUS_LED_GPIO_Port, .GPIO_Pin = STATUS_LED_Pin
 };
+GPIO_T Mapping_GPIO_DebugToggle = {
+  .GPIOx = EXP_GPIO1_GPIO_Port, .GPIO_Pin = EXP_GPIO1_Pin
+};
 
 /*
  * GPS Config

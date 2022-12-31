@@ -11,6 +11,7 @@
 #include "time/tasktimer/tasktimer.h"
 #include "comm/uart/uart.h"
 #include "comm/can/can.h"
+#include "io/gpio/gpio.h"
 
 // ------------------- Private data -------------------
 static Logging_T* mLog;
@@ -74,6 +75,8 @@ static void PCInterface_TaskMethod(PCInterface_T* pcinterface)
     PCInterface_HandleRequests(pcinterface);
     PCInterface_HandlePeriodic(pcinterface);
 
+    // Misc debug extras
+    GPIO_TogglePin(pcinterface->pinToggle);
     periodicCanDebug(pcinterface);
     flushLogMessage(pcinterface);
 

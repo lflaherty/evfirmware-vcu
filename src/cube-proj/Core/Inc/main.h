@@ -94,6 +94,8 @@ void Error_Handler(void);
 #define MPIO_EN3_GPIO_Port GPIOE
 #define MPIO_OUT2_Pin GPIO_PIN_11
 #define MPIO_OUT2_GPIO_Port GPIOE
+#define EXP_GPIO1_Pin GPIO_PIN_15
+#define EXP_GPIO1_GPIO_Port GPIOE
 #define MPIO_EN1_Pin GPIO_PIN_12
 #define MPIO_EN1_GPIO_Port GPIOB
 #define MPIO_OUT1_Pin GPIO_PIN_13
