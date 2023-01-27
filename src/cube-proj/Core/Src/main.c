@@ -29,7 +29,6 @@
 
 #include "startup/initialize.h"
 
-#include "time/tasktimer/tasktimer.h" /* Used for timer callback ISR */
 #include "lib/logging/logging.h"
 
 /* USER CODE END Includes */
@@ -1041,8 +1040,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   }
   /* USER CODE BEGIN Callback 1 */
 
-  // Advance the TaskTimer
-  TaskTimer_TIM_PeriodElapsedCallback(htim);
+  // Board timer handlers
+  TIM_IRQHandler(htim);
 
   /* USER CODE END Callback 1 */
 }
