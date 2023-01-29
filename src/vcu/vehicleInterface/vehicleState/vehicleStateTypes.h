@@ -19,6 +19,7 @@ typedef int16_t HighVoltage_T;    // x10   -3276.8 to +3276.7 volts
 typedef int16_t Torque_T;         // x10   -3276.8 to +3276.7 Nm
 typedef int16_t Current_T;        // x10   -3276.8 to +3276.7 amps
 typedef uint16_t Percent_T;       // x100     0.00 to +100.00 %
+typedef uint16_t RPM_T;           // x1          0 to 65,535 RPM
 
 typedef struct
 {
@@ -68,12 +69,20 @@ typedef struct
 
 typedef struct
 {
+  RPM_T wheelspeedFront;
+  RPM_T wheelspeedRear;
+
+  uint16_t wssCountFront;
+  uint16_t wssCountRear;
+} VehicleState_Wheelspeed_T;
+
+typedef struct
+{
   VehicleState_GPS_T gps;
   VehicleState_SDC_T sdc;
+  VehicleState_Wheelspeed_T wheelspeed;
 
-  // TODO
-  // wheel speed
-  // IMU dynamics
+  // TODO IMU dynamics
 } VehicleState_VehicleSensors_T;
 
 typedef struct
