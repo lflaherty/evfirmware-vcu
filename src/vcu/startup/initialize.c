@@ -292,7 +292,4 @@ void TIM_IRQHandler(TIM_HandleTypeDef *htim)
 {
   // Advance the TaskTimer
   TaskTimer_TIM_PeriodElapsedCallback(htim);
-
-  // Run any GPIO checks
-  GPIO_TIM_PeriodElapsedCallback(htim);
 }
