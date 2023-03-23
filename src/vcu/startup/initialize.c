@@ -54,13 +54,59 @@ static WatchdogTrigger_T mWdtTrigger;
 static PCInterface_T mPCInterface;
 
 // ------------------- Private prototypes -------------------
-static void ECU_Init_Task(void* pvParameters);    // RTOS task method for init
-static ECU_Init_Status_T ECU_Init_System1(void);  // Init basics for logging and running modules
-static ECU_Init_Status_T ECU_Init_System2(void);  // Init remaining internal peripherals
-static ECU_Init_Status_T ECU_Init_System3(void);  // Init external peripherals
-static ECU_Init_Status_T ECU_Init_App1(void);     // Init application vehicle interface (devices depends on this to push data)
-static ECU_Init_Status_T ECU_Init_App2(void);     // Init application devices
-static ECU_Init_Status_T ECU_Init_App3(void);     // Init application processes
+/**
+ * @brief RTOS task method for init
+ * 
+ * @param pvParameters NULL
+ */
+static void ECU_Init_Task(void* pvParameters);
+
+/**
+ * @brief Init basics for logging and running modules
+ * 
+ * @return ECU_Init_Status_T ECU_INIT_OK if ok
+ */
+static ECU_Init_Status_T ECU_Init_System(void);
+
+/**
+ * @brief Init remaining internal peripherals
+ * 
+ * @return ECU_Init_Status_T ECU_INIT_OK if ok
+ */
+static ECU_Init_Status_T ECU_Init_BoardPeriph(void);
+
+/**
+ * @brief Init external peripherals
+ * 
+ * @return ECU_Init_Status_T ECU_INIT_OK if ok
+ */
+static ECU_Init_Status_T ECU_Init_BoardDevs(void);
+
+/**
+ * @brief Init application vehicle interface (devices depends on this to push data)
+ * 
+ * @return ECU_Init_Status_T ECU_INIT_OK if ok
+ */
+static ECU_Init_Status_T ECU_Init_VehicleInterface(void);
+
+/**
+ * @brief Init drivers for devices connected to ECU
+ * 
+ * @return ECU_Init_Status_T ECU_INIT_OK if ok
+ */
+static ECU_Init_Status_T ECU_Init_VehicleDevices(void);
+
+/**
+ * @brief Init vehicle application processes
+ * 
+ * @return ECU_Init_Status_T ECU_INIT_OK if ok
+ */
+static ECU_Init_Status_T ECU_Init_VehicleProccesses(void);
+
+/**
+ * @brief Invoked if initialization failed.
+ * 
+ */
 static void ECU_Init_Hang(void);
 
 //------------------------------------------------------------------------------
@@ -94,22 +140,22 @@ void ECU_Init_Task(void* pvParameters)
   (void)pvParameters;
 
   // Initialize components
-  if (ECU_INIT_OK != ECU_Init_System1()) {
+  if (ECU_INIT_OK != ECU_Init_System()) {
     ECU_Init_Hang();
   }
-  if (ECU_INIT_OK != ECU_Init_System2()) {
+  if (ECU_INIT_OK != ECU_Init_BoardPeriph()) {
     ECU_Init_Hang();
   }
-  if (ECU_INIT_OK != ECU_Init_System3()) {
+  if (ECU_INIT_OK != ECU_Init_BoardDevs()) {
     ECU_Init_Hang();
   }
-  if (ECU_INIT_OK != ECU_Init_App1()) {
+  if (ECU_INIT_OK != ECU_Init_VehicleInterface()) {
     ECU_Init_Hang();
   }
-  if (ECU_INIT_OK != ECU_Init_App2()) {
+  if (ECU_INIT_OK != ECU_Init_VehicleDevices()) {
     ECU_Init_Hang();
   }
-  if (ECU_INIT_OK != ECU_Init_App3()) {
+  if (ECU_INIT_OK != ECU_Init_VehicleProccesses()) {
     ECU_Init_Hang();
   }
 
@@ -119,7 +165,7 @@ void ECU_Init_Task(void* pvParameters)
 }
 
 //------------------------------------------------------------------------------
-static ECU_Init_Status_T ECU_Init_System1(void)
+static ECU_Init_Status_T ECU_Init_System(void)
 {
   // Set up logging
   Logging_Status_T statusLog;
@@ -128,7 +174,7 @@ static ECU_Init_Status_T ECU_Init_System1(void)
     return ECU_INIT_ERROR;
   }
 
-  Log_Print(&mLog, "###### ECU_Init_System1 ######\n");
+  Log_Print(&mLog, "###### ECU_Init_System ######\n");
 
   // Timers
   if (TaskTimer_Init(&mLog, Mapping_GetTaskTimer100Hz()) != TASKTIMER_STATUS_OK) {
@@ -193,9 +239,9 @@ static ECU_Init_Status_T ECU_Init_System1(void)
 }
 
 //------------------------------------------------------------------------------
-static ECU_Init_Status_T ECU_Init_System2(void)
+static ECU_Init_Status_T ECU_Init_BoardPeriph(void)
 {
-  Log_Print(&mLog, "###### ECU_Init_System2 ######\n");
+  Log_Print(&mLog, "###### ECU_Init_BoardPeriph ######\n");
 
   // CAN bus
   CAN_Status_T statusCan;
@@ -223,9 +269,9 @@ static ECU_Init_Status_T ECU_Init_System2(void)
 }
 
 //------------------------------------------------------------------------------
-static ECU_Init_Status_T ECU_Init_System3(void)
+static ECU_Init_Status_T ECU_Init_BoardDevs(void)
 {
-  Log_Print(&mLog, "###### ECU_Init_System3 ######\n");
+  Log_Print(&mLog, "###### ECU_Init_BoardDevs ######\n");
 
   // Not configured in this release
 
@@ -233,9 +279,9 @@ static ECU_Init_Status_T ECU_Init_System3(void)
 }
 
 //------------------------------------------------------------------------------
-static ECU_Init_Status_T ECU_Init_App1(void)
+static ECU_Init_Status_T ECU_Init_VehicleInterface(void)
 {
-  Log_Print(&mLog, "###### ECU_Init_App1 ######\n");
+  Log_Print(&mLog, "###### ECU_Init_VehicleInterface ######\n");
 
   // Vehicle state
   if (VehicleState_Init(&mLog, &mVehicleState) != VEHICLESTATE_STATUS_OK) {
@@ -252,9 +298,9 @@ static ECU_Init_Status_T ECU_Init_App1(void)
 }
 
 //------------------------------------------------------------------------------
-static ECU_Init_Status_T ECU_Init_App2(void)
+static ECU_Init_Status_T ECU_Init_VehicleDevices(void)
 {
-  Log_Print(&mLog, "###### ECU_Init_App2 ######\n");
+  Log_Print(&mLog, "###### ECU_Init_VehicleDevices ######\n");
 
   // GPS
   mGps.pin3dFix = &Mapping_GPS_3dFixPin;
@@ -283,9 +329,9 @@ static ECU_Init_Status_T ECU_Init_App2(void)
 }
 
 //------------------------------------------------------------------------------
-static ECU_Init_Status_T ECU_Init_App3(void)
+static ECU_Init_Status_T ECU_Init_VehicleProccesses(void)
 {
-  Log_Print(&mLog, "###### ECU_Init_App3 ######\n");
+  Log_Print(&mLog, "###### ECU_Init_VehicleProccesses ######\n");
 
   // Watchdog Trigger
   mWdtTrigger.blinkLED = &Mapping_GPIO_LED;
