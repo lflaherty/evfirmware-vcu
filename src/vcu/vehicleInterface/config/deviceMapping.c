@@ -36,6 +36,12 @@ GPIO_T Mapping_GPIO_LED = {
 GPIO_T Mapping_GPIO_DebugToggle = {
   .GPIOx = EXP_GPIO1_GPIO_Port, .GPIO_Pin = EXP_GPIO1_Pin
 };
+GPIO_T Mapping_GPIO_Wheelspeed_Rear = {
+  .GPIOx = DIN_WS_R_GPIO_Port, .GPIO_Pin = DIN_WS_R_Pin
+};
+GPIO_T Mapping_GPIO_Wheelspeed_Front = {
+  .GPIOx = DIN_WS_F_GPIO_Port, .GPIO_Pin = DIN_WS_F_Pin
+};
 
 /*
  * GPS Config
@@ -75,6 +81,12 @@ extern UART_HandleTypeDef huart6;
 
 TIM_HandleTypeDef* Mapping_GetTaskTimer100Hz(void)
 {
+  return &htim2;
+}
+
+TIM_HandleTypeDef* Mapping_GetTaskTimer2kHz(void)
+{
+  // TODO fix
   return &htim2;
 }
 

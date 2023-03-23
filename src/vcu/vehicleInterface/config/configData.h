@@ -33,6 +33,7 @@ typedef struct
     float pedalAbuseAccelThreshold; // percent
     float pedalAbuseBrakeThreshold; // percent
     uint16_t invalidDataTimeout; // [ms]
+    uint16_t numWheelspeedTeeth;
 } Config_InputSensors_T;
 
 typedef struct

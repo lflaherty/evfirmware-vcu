@@ -22,6 +22,7 @@
 #include "device/gps/gps.h"
 #include "device/sdc/sdc.h"
 #include "device/pcinterface/pcinterface.h"
+#include "device/wheelspeed/wheelspeed.h"
 
 #include "vehicleLogic/watchdogTrigger/watchdogTrigger.h"
 
@@ -261,6 +262,20 @@ static ECU_Init_Status_T ECU_Init_App2(void)
   mGps.state = &mVehicleState;
   if (GPS_Init(&mLog, &mGps) != GPS_STATUS_OK) {
     Log_Print(&mLog, "GPS initialization error\n");
+    return ECU_INIT_ERROR;
+  }
+
+  // Wheel speed
+  Wheelspeed_Config_T wsConfig = {
+    .logging = &mLog,
+    .state = &mVehicleState,
+    .frontWsPin = &Mapping_GPIO_Wheelspeed_Front,
+    .rearWsPin = &Mapping_GPIO_Wheelspeed_Rear,
+    .timerInstance = Mapping_GetTaskTimer2kHz()->Instance,
+    .sensorTeeth = 12, // TODO make this a configuration parameter
+  };
+  if (Wheelspeed_Init(&wsConfig) != WHEELSPEED_STATUS_OK) {
+    Log_Print(&mLog, "Wheelspeed initialization error\n");
     return ECU_INIT_ERROR;
   }
 

@@ -72,6 +72,8 @@ extern uint8_t numPdmChannels;
  */
 extern GPIO_T Mapping_GPIO_LED;
 extern GPIO_T Mapping_GPIO_DebugToggle;
+extern GPIO_T Mapping_GPIO_Wheelspeed_Rear;
+extern GPIO_T Mapping_GPIO_Wheelspeed_Front;
 
 /*
  * GPS Config
@@ -83,6 +85,7 @@ UART_HandleTypeDef* Mapping_GPS_GetUARTHandle(void);
  * Getters for device handles
  */
 TIM_HandleTypeDef* Mapping_GetTaskTimer100Hz(void);
+TIM_HandleTypeDef* Mapping_GetTaskTimer2kHz(void);
 UART_HandleTypeDef* Mapping_GetPCDebugUartA(void);
 UART_HandleTypeDef* Mapping_GetPCDebugUartB(void); // Second port for ease of debugging
 RTC_HandleTypeDef* Mapping_GetRTC(void);
