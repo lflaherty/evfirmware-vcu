@@ -70,10 +70,15 @@ extern uint8_t numPdmChannels;
 /*
  * GPIO Config
  */
-extern GPIO_T Mapping_GPIO_LED;
-extern GPIO_T Mapping_GPIO_DebugToggle;
-extern GPIO_T Mapping_GPIO_Wheelspeed_Rear;
-extern GPIO_T Mapping_GPIO_Wheelspeed_Front;
+extern GPIO_T Mapping_GPO_LED;
+extern GPIO_T Mapping_GPO_DebugToggle;
+extern GPIO_T Mapping_GPI_Wheelspeed_Rear;
+extern GPIO_T Mapping_GPI_Wheelspeed_Front;
+extern GPIO_T Mapping_GPI_SDC_BMS;
+extern GPIO_T Mapping_GPI_SDC_BSPD;
+extern GPIO_T Mapping_GPI_SDC_IMD;
+extern GPIO_T Mapping_GPI_SDC_SDCOut;
+extern GPIO_T Mapping_GPO_SDC_ECUError;
 
 /*
  * GPS Config

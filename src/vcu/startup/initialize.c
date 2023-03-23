@@ -250,7 +250,7 @@ static ECU_Init_Status_T ECU_Init_System(void)
   mPCInterface.huartA = Mapping_GetPCDebugUartA();
   mPCInterface.huartB = Mapping_GetPCDebugUartB();
   mPCInterface.crc = &mCrc;
-  mPCInterface.pinToggle = &Mapping_GPIO_DebugToggle;
+  mPCInterface.pinToggle = &Mapping_GPO_DebugToggle;
   PCInterface_Status_T statusPcInterface = PCInterface_Init(&mLog, &mPCInterface);
   if (PCINTERFACE_STATUS_OK != statusPcInterface) {
     Log_Print(&mLog, "PCDebug initialization error\n");
@@ -348,13 +348,27 @@ static ECU_Init_Status_T ECU_Init_VehicleDevices(void)
   Wheelspeed_Config_T wsConfig = {
     .logging = &mLog,
     .state = &mVehicleState,
-    .frontWsPin = &Mapping_GPIO_Wheelspeed_Front,
-    .rearWsPin = &Mapping_GPIO_Wheelspeed_Rear,
+    .frontWsPin = &Mapping_GPI_Wheelspeed_Front,
+    .rearWsPin = &Mapping_GPI_Wheelspeed_Rear,
     .timerInstance = Mapping_GetTaskTimer2kHz()->Instance,
     .sensorTeeth = mConfig.inputs.numWheelspeedTeeth,
   };
   if (Wheelspeed_Init(&wsConfig) != WHEELSPEED_STATUS_OK) {
     Log_Print(&mLog, "Wheelspeed initialization error\n");
+    return ECU_INIT_ERROR;
+  }
+
+  // Shutdown circuit
+  SDC_Config_T sdcConfig = {
+    .state = &mVehicleState,
+    .pinBMS = &Mapping_GPI_SDC_BMS,
+    .pinBSPD = &Mapping_GPI_SDC_BSPD,
+    .pinIMD = &Mapping_GPI_SDC_IMD,
+    .pinSDCOut = &Mapping_GPI_SDC_SDCOut,
+    .pinECUError = &Mapping_GPO_SDC_ECUError,
+  };
+  if (SDC_Init(&mLog, &sdcConfig) != SDC_STATUS_OK) {
+    Log_Print(&mLog, "SDC initialization error\n");
     return ECU_INIT_ERROR;
   }
 
@@ -367,7 +381,7 @@ static ECU_Init_Status_T ECU_Init_VehicleProccesses(void)
   Log_Print(&mLog, "###### ECU_Init_VehicleProccesses ######\n");
 
   // Watchdog Trigger
-  mWdtTrigger.blinkLED = &Mapping_GPIO_LED;
+  mWdtTrigger.blinkLED = &Mapping_GPO_LED;
   if (WatchdogTrigger_Init(&mLog, &mWdtTrigger) != WATCHDOGTRIGGER_STATUS_OK) {
     Log_Print(&mLog, "Watchdog Trigger initialization error\n");
     return ECU_INIT_ERROR;

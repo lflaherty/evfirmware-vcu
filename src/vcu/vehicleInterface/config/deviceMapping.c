@@ -30,17 +30,32 @@ uint8_t numPdmChannels = sizeof(pdmChannels) / sizeof(PDM_Channel_T);
 /*
  * GPIO Config
  */
-GPIO_T Mapping_GPIO_LED = {
+GPIO_T Mapping_GPO_LED = {
   .GPIOx = STATUS_LED_GPIO_Port, .GPIO_Pin = STATUS_LED_Pin
 };
-GPIO_T Mapping_GPIO_DebugToggle = {
+GPIO_T Mapping_GPO_DebugToggle = {
   .GPIOx = EXP_GPIO1_GPIO_Port, .GPIO_Pin = EXP_GPIO1_Pin
 };
-GPIO_T Mapping_GPIO_Wheelspeed_Rear = {
+GPIO_T Mapping_GPI_Wheelspeed_Rear = {
   .GPIOx = DIN_WS_R_GPIO_Port, .GPIO_Pin = DIN_WS_R_Pin
 };
-GPIO_T Mapping_GPIO_Wheelspeed_Front = {
+GPIO_T Mapping_GPI_Wheelspeed_Front = {
   .GPIOx = DIN_WS_F_GPIO_Port, .GPIO_Pin = DIN_WS_F_Pin
+};
+GPIO_T Mapping_GPI_SDC_BMS = {
+  .GPIOx = GPIO_EXTI9_SDCBMS_GPIO_Port, .GPIO_Pin = GPIO_EXTI9_SDCBMS_Pin
+};
+GPIO_T Mapping_GPI_SDC_BSPD = {
+  .GPIOx = GPIO_EXTI15_SDCBSPD_GPIO_Port, .GPIO_Pin = GPIO_EXTI15_SDCBSPD_Pin
+};
+GPIO_T Mapping_GPI_SDC_IMD = {
+  .GPIOx = GPIO_EXTI10_SDCIMD_GPIO_Port, .GPIO_Pin = GPIO_EXTI10_SDCIMD_Pin
+};
+GPIO_T Mapping_GPI_SDC_SDCOut = {
+  .GPIOx = GPIO_EXTI4_SDCOUT_GPIO_Port, .GPIO_Pin = GPIO_EXTI4_SDCOUT_Pin
+};
+GPIO_T Mapping_GPO_SDC_ECUError = {
+  .GPIOx = ECU_SW_Error_GPIO_Port, .GPIO_Pin = ECU_SW_Error_Pin
 };
 
 /*
