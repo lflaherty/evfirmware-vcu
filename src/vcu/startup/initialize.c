@@ -17,6 +17,7 @@
 #include "comm/can/can.h"
 
 #include "vehicleInterface/config/deviceMapping.h"
+#include "vehicleInterface/config/configData.h"
 #include "vehicleInterface/vehicleState/vehicleState.h"
 
 #include "device/gps/gps.h"
@@ -44,14 +45,21 @@ struct InitTask {
 static struct InitTask initTask;
 
 // ------------------- Module structures -------------------
+// MCU peripherals
 static Logging_T mLog;
 static CRC_T mCrc;
 
-static VehicleState_T mVehicleState;
-
+// ECU peripherals
 static GPS_T mGps;
 static WatchdogTrigger_T mWdtTrigger;
 static PCInterface_T mPCInterface;
+
+// Vehicle interface
+static Config_T mConfig;
+static VehicleState_T mVehicleState;
+
+// Vehicle processes
+// TODO
 
 // ------------------- Private prototypes -------------------
 /**
@@ -81,6 +89,13 @@ static ECU_Init_Status_T ECU_Init_BoardPeriph(void);
  * @return ECU_Init_Status_T ECU_INIT_OK if ok
  */
 static ECU_Init_Status_T ECU_Init_BoardDevs(void);
+
+/**
+ * @brief Load config parameters from EEPROM
+ * 
+ * @return ECU_Init_Status_T ECU_INIT_OK if ok
+ */
+static ECU_Init_Status_T ECU_Init_LoadConfig(void);
 
 /**
  * @brief Init application vehicle interface (devices depends on this to push data)
@@ -147,6 +162,9 @@ void ECU_Init_Task(void* pvParameters)
     ECU_Init_Hang();
   }
   if (ECU_INIT_OK != ECU_Init_BoardDevs()) {
+    ECU_Init_Hang();
+  }
+  if (ECU_INIT_OK != ECU_Init_LoadConfig()) {
     ECU_Init_Hang();
   }
   if (ECU_INIT_OK != ECU_Init_VehicleInterface()) {
@@ -283,6 +301,17 @@ static ECU_Init_Status_T ECU_Init_BoardDevs(void)
 }
 
 //------------------------------------------------------------------------------
+ECU_Init_Status_T ECU_Init_LoadConfig(void)
+{
+  memset(&mConfig, 0, sizeof(mConfig));
+
+  // TODO placeholder, update to load from EEPROM
+  mConfig.inputs.numWheelspeedTeeth = 12;
+
+  return ECU_INIT_OK;
+}
+
+//------------------------------------------------------------------------------
 static ECU_Init_Status_T ECU_Init_VehicleInterface(void)
 {
   Log_Print(&mLog, "###### ECU_Init_VehicleInterface ######\n");
@@ -322,7 +351,7 @@ static ECU_Init_Status_T ECU_Init_VehicleDevices(void)
     .frontWsPin = &Mapping_GPIO_Wheelspeed_Front,
     .rearWsPin = &Mapping_GPIO_Wheelspeed_Rear,
     .timerInstance = Mapping_GetTaskTimer2kHz()->Instance,
-    .sensorTeeth = 12, // TODO make this a configuration parameter
+    .sensorTeeth = mConfig.inputs.numWheelspeedTeeth,
   };
   if (Wheelspeed_Init(&wsConfig) != WHEELSPEED_STATUS_OK) {
     Log_Print(&mLog, "Wheelspeed initialization error\n");
