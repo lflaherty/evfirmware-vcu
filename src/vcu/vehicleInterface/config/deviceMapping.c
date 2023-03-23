@@ -73,6 +73,7 @@ extern I2C_HandleTypeDef hi2c4;
 extern RTC_HandleTypeDef hrtc;
 
 extern TIM_HandleTypeDef htim2;
+extern TIM_HandleTypeDef htim3;
 
 extern UART_HandleTypeDef huart1;
 extern UART_HandleTypeDef huart3;
@@ -86,8 +87,7 @@ TIM_HandleTypeDef* Mapping_GetTaskTimer100Hz(void)
 
 TIM_HandleTypeDef* Mapping_GetTaskTimer2kHz(void)
 {
-  // TODO fix
-  return &htim2;
+  return &htim3;
 }
 
 UART_HandleTypeDef* Mapping_GetPCDebugUartA(void)

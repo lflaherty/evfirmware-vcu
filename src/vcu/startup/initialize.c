@@ -178,7 +178,11 @@ static ECU_Init_Status_T ECU_Init_System(void)
 
   // Timers
   if (TaskTimer_Init(&mLog, Mapping_GetTaskTimer100Hz()) != TASKTIMER_STATUS_OK) {
-    Log_Print(&mLog, "Task Timer initialization error\n");
+    Log_Print(&mLog, "Task Timer 100Hz initialization error\n");
+    return ECU_INIT_ERROR;
+  }
+  if (TaskTimer_Init(&mLog, Mapping_GetTaskTimer2kHz()) != TASKTIMER_STATUS_OK) {
+    Log_Print(&mLog, "Task Timer 2kHz initialization error\n");
     return ECU_INIT_ERROR;
   }
 
@@ -353,4 +357,7 @@ void TIM_IRQHandler(TIM_HandleTypeDef *htim)
 {
   // Advance the TaskTimer
   TaskTimer_TIM_PeriodElapsedCallback(htim);
+
+  // Invoke wheel speed handler
+  Wheelspeed_TIM_IRQHandler(htim);
 }
