@@ -27,7 +27,6 @@ typedef enum
   VSM_STATE_HV_CHARGING     = 0x05U,
   VSM_STATE_ACTIVE_NEUTRAL  = 0x06U,
   VSM_STATE_ACTIVE_FORWARD  = 0x07U,
-  VSM_STATE_ACTIVE_REVERSE  = 0x08U
 } VSM_State_T;
 
 typedef struct

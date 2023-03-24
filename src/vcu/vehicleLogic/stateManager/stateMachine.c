@@ -148,37 +148,8 @@ static void stateActiveForward(VSM_T* vsm, FaultStatus_T faultStatus)
 
   if (stateAccess) {
     if (inputBtnPressed && !vsm->inputButtonPrev) {
-      // Go to reverse. Set direction reverse & enable torque output
-      vsm->nextState = VSM_STATE_ACTIVE_REVERSE;
-      ThrottleController_SetMotorDirection(vsm->throttleController, VEHICLESTATE_INVERTER_REVERSE);
-      ThrottleController_SetTorqueEnabled(vsm->throttleController, true);
-      // TODO check result ^
-    }
-
-    vsm->inputButtonPrev = inputBtnPressed;
-  }
-}
-
-static void stateActiveReverse(VSM_T* vsm, FaultStatus_T faultStatus)
-{
-  if (FAULT_NO_FAULT != faultStatus) {
-    vsm->nextState = VSM_STATE_FAULT;
-    return;
-  }
-
-  // Thread-safe acquisition of vehicle sense data
-  bool inputBtnPressed = false;
-  bool stateAccess = VehicleState_AccessAcquire(vsm->inputState);
-  if (stateAccess) {
-    inputBtnPressed = vsm->inputState->data.dash.buttonPressed;
-  }
-  VehicleState_AccessRelease(vsm->inputState);
-
-  if (stateAccess) {
-    if (inputBtnPressed && !vsm->inputButtonPrev) {
-      // Go to neutral. Set direction forward & disable torque output
+      // Go to neutral. Disable torque output.
       vsm->nextState = VSM_STATE_ACTIVE_NEUTRAL;
-      ThrottleController_SetMotorDirection(vsm->throttleController, VEHICLESTATE_INVERTER_FORWARD);
       ThrottleController_SetTorqueEnabled(vsm->throttleController, false);
       // TODO check result ^
     }
@@ -245,10 +216,6 @@ void VSM_Step(VSM_T* vsm)
 
     case VSM_STATE_ACTIVE_FORWARD:
       stateActiveForward(vsm, faultStatus);
-      break;
-    
-    case VSM_STATE_ACTIVE_REVERSE:
-      stateActiveReverse(vsm, faultStatus);
       break;
     
     case VSM_STATE_FAULT:

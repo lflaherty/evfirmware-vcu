@@ -346,7 +346,7 @@ TEST(VEHICLELOGIC_STATEMACHINE, StateActiveForward)
     mVehicleState.data.dash.buttonPressed = true;
 
     // State transitions to active - neutral
-    stepAndAssertStable2(VSM_STATE_ACTIVE_REVERSE, true, VEHICLESTATE_INVERTER_REVERSE);
+    stepAndAssertStable2(VSM_STATE_ACTIVE_NEUTRAL, true, VEHICLESTATE_INVERTER_FORWARD);
 }
 
 TEST(VEHICLELOGIC_STATEMACHINE, StateActiveForwardFault)
@@ -359,41 +359,6 @@ TEST(VEHICLELOGIC_STATEMACHINE, StateActiveForwardFault)
 
     // Stay in HV charging state for a bit (while charging)
     stepAndAssertStable2(VSM_STATE_ACTIVE_FORWARD, true, VEHICLESTATE_INVERTER_FORWARD);
-
-    // Transition to a HV fault
-    mockSet_FaultManager_Step_Status(FAULT_FAULT);
-
-    // State should stay in fault
-    stepAndAssertStable2(VSM_STATE_FAULT, false, VEHICLESTATE_INVERTER_FORWARD);
-}
-
-TEST(VEHICLELOGIC_STATEMACHINE, StateActiveReverse)
-{
-    // Start in HV charging state & no faults
-    setVsmState(VSM_STATE_ACTIVE_REVERSE, 0);
-    mockSet_ThrottleController_TorqueEnable(true);
-    mockSet_ThrottleController_MotorDirection(VEHICLESTATE_INVERTER_REVERSE);
-    mockSet_FaultManager_Step_Status(FAULT_NO_FAULT);
-
-    // Stay in HV charging state for a bit (while charging)
-    stepAndAssertStable2(VSM_STATE_ACTIVE_REVERSE, true, VEHICLESTATE_INVERTER_REVERSE);
-
-    mVehicleState.data.dash.buttonPressed = true;
-
-    // State transitions to active - neutral
-    stepAndAssertStable2(VSM_STATE_ACTIVE_NEUTRAL, false, VEHICLESTATE_INVERTER_FORWARD);
-}
-
-TEST(VEHICLELOGIC_STATEMACHINE, StateActiveReverseFault)
-{
-    // Start in HV charging state & no faults
-    setVsmState(VSM_STATE_ACTIVE_REVERSE, 0);
-    mockSet_ThrottleController_TorqueEnable(true);
-    mockSet_ThrottleController_MotorDirection(VEHICLESTATE_INVERTER_REVERSE);
-    mockSet_FaultManager_Step_Status(FAULT_NO_FAULT);
-
-    // Stay in HV charging state for a bit (while charging)
-    stepAndAssertStable2(VSM_STATE_ACTIVE_REVERSE, true, VEHICLESTATE_INVERTER_REVERSE);
 
     // Transition to a HV fault
     mockSet_FaultManager_Step_Status(FAULT_FAULT);
@@ -446,13 +411,7 @@ TEST(VEHICLELOGIC_STATEMACHINE, StartupProcedure)
     mVehicleState.data.dash.buttonPressed = false;
     stepAndAssertStable2(VSM_STATE_ACTIVE_FORWARD, true, VEHICLESTATE_INVERTER_FORWARD);
 
-    // 8. Active - reverse
-    mVehicleState.data.dash.buttonPressed = true;
-    stepAndAssertStable2(VSM_STATE_ACTIVE_REVERSE, true, VEHICLESTATE_INVERTER_REVERSE);
-    mVehicleState.data.dash.buttonPressed = false;
-    stepAndAssertStable2(VSM_STATE_ACTIVE_REVERSE, true, VEHICLESTATE_INVERTER_REVERSE);
-
-    // 9. Active - neutral
+    // 8. Active - neutral
     mVehicleState.data.dash.buttonPressed = true;
     stepAndAssertStable2(VSM_STATE_ACTIVE_NEUTRAL, false, VEHICLESTATE_INVERTER_FORWARD);
     mVehicleState.data.dash.buttonPressed = false;
@@ -477,8 +436,6 @@ TEST_GROUP_RUNNER(VEHICLELOGIC_STATEMACHINE)
     RUN_TEST_CASE(VEHICLELOGIC_STATEMACHINE, StateActiveNeutralFault);
     RUN_TEST_CASE(VEHICLELOGIC_STATEMACHINE, StateActiveForward);
     RUN_TEST_CASE(VEHICLELOGIC_STATEMACHINE, StateActiveForwardFault);
-    RUN_TEST_CASE(VEHICLELOGIC_STATEMACHINE, StateActiveReverse);
-    RUN_TEST_CASE(VEHICLELOGIC_STATEMACHINE, StateActiveReverseFault);
     RUN_TEST_CASE(VEHICLELOGIC_STATEMACHINE, StartupProcedure);
 }
 
