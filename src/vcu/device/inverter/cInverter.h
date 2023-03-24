@@ -14,18 +14,37 @@
 #include "stm32f7xx_hal.h"
 #include "FreeRTOS.h"
 
+#include "comm/can/can.h"
 #include "vehicleInterface/vehicleState/vehicleState.h"
 
 #include "cInverterCAN.h"  /* Defines offset CAN IDs */
 
+
+#define INVERTER_STACK_SIZE 2000
+#define INVERTER_TASK_PRIORITY 10
+#define INVERTER_QUEUE_LENGTH 256
+#define INVERTER_QUEUE_DATA_SIZE sizeof(CAN_DataFrame_T)
+
+#define INVERTER_CAN_DEVICEID     0
+#define INVERTER_CAN_DEVICEIDMASK 0xF00
+
 typedef struct
 {
   // ******* Setup *******
-  CAN_HandleTypeDef* hcan;    // CAN device connected to inverter
-  uint16_t canIdBase;         // CAN ID to offset all packet IDs from
+  CAN_Device_T canInst;       // CAN device connected to inverter
   VehicleState_T* vehicleState;
 
   // ******* Internal use *******
+  // RTOS task
+  TaskHandle_t taskHandle;
+  StaticTask_t taskBuffer;
+  StackType_t taskStack[VEHICLESTATE_STACK_SIZE];
+
+  // Queue
+  QueueHandle_t canDataQueueHandle;
+  StaticQueue_t canDataQueueBuffer;
+  uint8_t canDataQueueStorageArea[INVERTER_QUEUE_LENGTH*INVERTER_QUEUE_DATA_SIZE];
+
   REGISTERED_MODULE();
 } CInverter_T;
 

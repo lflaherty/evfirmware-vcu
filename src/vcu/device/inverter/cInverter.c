@@ -16,14 +16,16 @@
 
 #include "lib/logging/logging.h"
 #include "comm/can/can.h"
+#include "time/tasktimer/tasktimer.h"
 
 #include "dataConversions.h"
 
 // ------------------- Private data -------------------
 static Logging_T* mLog;
+static const TickType_t mBlockTime = 100 / portTICK_PERIOD_MS; // 100ms
 
 // ------------------- Private methods -------------------
-static void CInverter_Callback_Temperatures1(const CAN_DataFrame_T* data, const void* param)
+static void HandleMsg_Temperatures1(const CAN_DataFrame_T* data, VehicleState_T* state)
 {
   if (data->dlc != 8) {
     return;
@@ -38,14 +40,16 @@ static void CInverter_Callback_Temperatures1(const CAN_DataFrame_T* data, const 
   float gateDriverTemp = msgToTemperature(dataView.fields.gateDriverTemp);
 
   // send to vehicle state
-  VehicleState_T* state = ((CInverter_T*)param)->vehicleState;
-  VehicleState_PushFieldf(state, &state->data.inverter.moduleATemperature, moduleATemp);
-  VehicleState_PushFieldf(state, &state->data.inverter.moduleBTemperature, moduleBTemp);
-  VehicleState_PushFieldf(state, &state->data.inverter.moduleCTemperature, moduleCTemp);
-  VehicleState_PushFieldf(state, &state->data.inverter.gateDriverTemp, gateDriverTemp);
+  if (VehicleState_AccessAcquire(state)) {
+    state->data.inverter.moduleATemperature = moduleATemp;
+    state->data.inverter.moduleBTemperature = moduleBTemp;
+    state->data.inverter.moduleCTemperature = moduleCTemp;
+    state->data.inverter.gateDriverTemp = gateDriverTemp;
+  }
+  VehicleState_AccessRelease(state);
 }
 
-static void CInverter_Callback_Temperatures2(const CAN_DataFrame_T* data, const void* param)
+static void HandleMsg_Temperatures2(const CAN_DataFrame_T* data, VehicleState_T* state)
 {
   if (data->dlc != 8) {
     return;
@@ -57,11 +61,13 @@ static void CInverter_Callback_Temperatures2(const CAN_DataFrame_T* data, const 
   float controlBoardTemp = msgToTemperature(dataView.fields.controlBoardTemp);
 
   // send to vehicle state
-  VehicleState_T* state = ((CInverter_T*)param)->vehicleState;
-  VehicleState_PushFieldf(state, &state->data.inverter.controlBoardTemp, controlBoardTemp);
+  if (VehicleState_AccessAcquire(state)) {
+    state->data.inverter.controlBoardTemp = controlBoardTemp;
+  }
+  VehicleState_AccessRelease(state);
 }
 
-static void CInverter_Callback_Temperatures3(const CAN_DataFrame_T* data, const void* param)
+static void HandleMsg_Temperatures3(const CAN_DataFrame_T* data, VehicleState_T* state)
 {
   if (data->dlc != 8) {
     return;
@@ -73,11 +79,13 @@ static void CInverter_Callback_Temperatures3(const CAN_DataFrame_T* data, const 
   float motorTemp = msgToTemperature(dataView.fields.motorTemp);
 
   // send to vehicle state
-  VehicleState_T* state = ((CInverter_T*)param)->vehicleState;
-  VehicleState_PushFieldf(state, &state->data.motor.temperature, motorTemp);
+  if (VehicleState_AccessAcquire(state)) {
+    state->data.motor.temperature = motorTemp;
+  }
+  VehicleState_AccessRelease(state);
 }
 
-static void CInverter_Callback_MotorPosInfo(const CAN_DataFrame_T* data, const void* param)
+static void HandleMsg_MotorPosInfo(const CAN_DataFrame_T* data, VehicleState_T* state)
 {
   if (data->dlc != 8) {
     return;
@@ -91,13 +99,15 @@ static void CInverter_Callback_MotorPosInfo(const CAN_DataFrame_T* data, const v
   float electricalOutFreq = msgToFrequency(dataView.fields.electricalOutFreq);
 
   // send to vehicle state
-  VehicleState_T* state = ((CInverter_T*)param)->vehicleState;
-  VehicleState_PushFieldf(state, &state->data.motor.angle, motorAngle);
-  VehicleState_PushFieldf(state, &state->data.motor.speed, motorSpeed);
-  VehicleState_PushFieldf(state, &state->data.inverter.outputFrequency, electricalOutFreq);
+  if (VehicleState_AccessAcquire(state)) {
+    state->data.motor.angle = motorAngle;
+    state->data.motor.speed = motorSpeed;
+    state->data.inverter.outputFrequency = electricalOutFreq;
+  }
+  VehicleState_AccessRelease(state);
 }
 
-static void CInverter_Callback_CurrentInfo(const CAN_DataFrame_T* data, const void* param)
+static void HandleMsg_CurrentInfo(const CAN_DataFrame_T* data, VehicleState_T* state)
 {
   if (data->dlc != 8) {
     return;
@@ -112,14 +122,16 @@ static void CInverter_Callback_CurrentInfo(const CAN_DataFrame_T* data, const vo
   float dcBusCurrent = msgToCurrent(dataView.fields.dcBusCurrent);
 
   // send to vehicle state
-  VehicleState_T* state = ((CInverter_T*)param)->vehicleState;
-  VehicleState_PushFieldf(state, &state->data.motor.phaseACurrent, phaseACurrent);
-  VehicleState_PushFieldf(state, &state->data.motor.phaseBCurrent, phaseBCurrent);
-  VehicleState_PushFieldf(state, &state->data.motor.phaseCCurrent, phaseCCurrent);
-  VehicleState_PushFieldf(state, &state->data.inverter.dcBusCurrent, dcBusCurrent);
+  if (VehicleState_AccessAcquire(state)) {
+    state->data.motor.phaseACurrent = phaseACurrent;
+    state->data.motor.phaseBCurrent = phaseBCurrent;
+    state->data.motor.phaseCCurrent = phaseCCurrent;
+    state->data.inverter.dcBusCurrent = dcBusCurrent;
+  }
+  VehicleState_AccessRelease(state);
 }
 
-static void CInverter_Callback_VoltageInfo(const CAN_DataFrame_T* data, const void* param)
+static void HandleMsg_VoltageInfo(const CAN_DataFrame_T* data, VehicleState_T* state)
 {
   if (data->dlc != 8) {
     return;
@@ -134,14 +146,16 @@ static void CInverter_Callback_VoltageInfo(const CAN_DataFrame_T* data, const vo
   float vq = msgToVoltageHigh(dataView.fields.vq);
 
   // send to vehicle state
-  VehicleState_T* state = ((CInverter_T*)param)->vehicleState;
-  VehicleState_PushFieldf(state, &state->data.inverter.dcBusVoltage, dcBusVoltage);
-  VehicleState_PushFieldf(state, &state->data.inverter.outputVoltage, outputVoltage);
-  VehicleState_PushFieldf(state, &state->data.inverter.vd, vd);
-  VehicleState_PushFieldf(state, &state->data.inverter.vq, vq);
+  if (VehicleState_AccessAcquire(state)) {
+    state->data.inverter.dcBusVoltage = dcBusVoltage;
+    state->data.inverter.outputVoltage = outputVoltage;
+    state->data.inverter.vd = vd;
+    state->data.inverter.vq = vq;
+  }
+  VehicleState_AccessRelease(state);
 }
 
-static void CInverter_Callback_FluxInfo(const CAN_DataFrame_T* data, const void* param)
+static void HandleMsg_FluxInfo(const CAN_DataFrame_T* data, VehicleState_T* state)
 {
   if (data->dlc != 8) {
     return;
@@ -156,14 +170,16 @@ static void CInverter_Callback_FluxInfo(const CAN_DataFrame_T* data, const void*
   float iqFeedback = msgToCurrent(dataView.fields.iqFeedback);
 
   // send to vehicle state
-  VehicleState_T* state = ((CInverter_T*)param)->vehicleState;
-  VehicleState_PushFieldf(state, &state->data.inverter.fluxCommand, fluxCommand);
-  VehicleState_PushFieldf(state, &state->data.inverter.fluxFeedback, fluxFeedback);
-  VehicleState_PushFieldf(state, &state->data.inverter.idFeedback, idFeedback);
-  VehicleState_PushFieldf(state, &state->data.inverter.idFeedback, iqFeedback);
+  if (VehicleState_AccessAcquire(state)) {
+    state->data.inverter.fluxCommand = fluxCommand;
+    state->data.inverter.fluxFeedback = fluxFeedback;
+    state->data.inverter.idFeedback = idFeedback;
+    state->data.inverter.idFeedback = iqFeedback;
+  }
+  VehicleState_AccessRelease(state);
 }
 
-static void CInverter_Callback_InternalStates(const CAN_DataFrame_T* data, const void* param)
+static void HandleMsg_InternalStates(const CAN_DataFrame_T* data, VehicleState_T* state)
 {
   if (data->dlc != 8) {
     return;
@@ -178,14 +194,16 @@ static void CInverter_Callback_InternalStates(const CAN_DataFrame_T* data, const
   VehicleState_InverterDirection_T direction = (VehicleState_InverterDirection_T)dataView.fields.direction;
 
   // send to vehicle state
-  VehicleState_T* state = ((CInverter_T*)param)->vehicleState;
-  VehicleState_PushField(state, &state->data.inverter.state, &inverterState, sizeof(inverterState));
-  VehicleState_PushField(state, &state->data.inverter.dischargeState, &activeDischargeState, sizeof(activeDischargeState));
-  VehicleState_PushField(state, &state->data.inverter.enabled, &inverterEnabled, sizeof(inverterEnabled));
-  VehicleState_PushField(state, &state->data.inverter.direction, &direction, sizeof(direction));
+  if (VehicleState_AccessAcquire(state)) {
+    state->data.inverter.state = inverterState;
+    state->data.inverter.dischargeState = activeDischargeState;
+    state->data.inverter.enabled = inverterEnabled;
+    state->data.inverter.direction = direction;
+  }
+  VehicleState_AccessRelease(state);
 }
 
-static void CInverter_Callback_FaultCodes(const CAN_DataFrame_T* data, const void* param)
+static void HandleMsg_FaultCodes(const CAN_DataFrame_T* data, VehicleState_T* state)
 {
   if (data->dlc != 8) {
     return;
@@ -195,12 +213,14 @@ static void CInverter_Callback_FaultCodes(const CAN_DataFrame_T* data, const voi
   memcpy(dataView.raw, data->data, 8*sizeof(uint8_t));
 
   // send to vehicle state
-  VehicleState_T* state = ((CInverter_T*)param)->vehicleState;
-  VehicleState_PushField(state, &state->data.inverter.postFaults, &dataView.fields.postFault, sizeof(uint32_t));
-  VehicleState_PushField(state, &state->data.inverter.runFaults, &dataView.fields.runFault, sizeof(uint32_t));
+  if (VehicleState_AccessAcquire(state)) {
+    state->data.inverter.postFaults = dataView.fields.postFault;
+    state->data.inverter.runFaults = dataView.fields.runFault;
+  }
+  VehicleState_AccessRelease(state);
 }
 
-static void CInverter_Callback_TorqueTimer(const CAN_DataFrame_T* data, const void* param)
+static void HandleMsg_TorqueTimer(const CAN_DataFrame_T* data, VehicleState_T* state)
 {
   if (data->dlc != 8) {
     return;
@@ -214,13 +234,15 @@ static void CInverter_Callback_TorqueTimer(const CAN_DataFrame_T* data, const vo
   uint32_t timerMs = dataView.fields.timer;
 
   // send to vehicle state
-  VehicleState_T* state = ((CInverter_T*)param)->vehicleState;
-  VehicleState_PushFieldf(state, &state->data.inverter.commandedTorque, commandedTorque);
-  VehicleState_PushFieldf(state, &state->data.motor.calculatedTorque, feedbackTorque);
-  VehicleState_PushField(state, &state->data.inverter.timer, &timerMs, sizeof(timerMs));
+  if (VehicleState_AccessAcquire(state)) {
+    state->data.inverter.commandedTorque = commandedTorque;
+    state->data.motor.calculatedTorque = feedbackTorque;
+    state->data.inverter.timer = timerMs;
+  }
+  VehicleState_AccessRelease(state);
 }
 
-static void CInverter_Callback_FluxWeakening(const CAN_DataFrame_T* data, const void* param)
+static void HandleMsg_FluxWeakening(const CAN_DataFrame_T* data, VehicleState_T* state)
 {
   if (data->dlc != 8) {
     return;
@@ -235,11 +257,80 @@ static void CInverter_Callback_FluxWeakening(const CAN_DataFrame_T* data, const 
   float iqCommand = msgToCurrent(dataView.fields.iqCommand);
 
   // send to vehicle state
-  VehicleState_T* state = ((CInverter_T*)param)->vehicleState;
-  VehicleState_PushFieldf(state, &state->data.inverter.modulationIndex, modulationIndex);
-  VehicleState_PushFieldf(state, &state->data.inverter.fluxWeakeningOutput, fluxWeakeningOutput);
-  VehicleState_PushFieldf(state, &state->data.inverter.idCommand, idCommand);
-  VehicleState_PushFieldf(state, &state->data.inverter.iqCommand, iqCommand);
+  if (VehicleState_AccessAcquire(state)) {
+    state->data.inverter.modulationIndex = modulationIndex;
+    state->data.inverter.fluxWeakeningOutput = fluxWeakeningOutput;
+    state->data.inverter.idCommand = idCommand;
+    state->data.inverter.iqCommand = iqCommand;
+  }
+  VehicleState_AccessRelease(state);
+}
+
+static void InverterProcessing(CInverter_T* inv)
+{
+  // TODO
+  (void)inv;
+
+  // Wait for 10ms notification to wake up
+  uint32_t notifiedValue = ulTaskNotifyTake(pdTRUE, mBlockTime);
+  if (notifiedValue > 0) {
+    CAN_DataFrame_T queuedData;
+    while (pdTRUE == xQueueReceive(inv->canDataQueueHandle, &queuedData, 0U)) {
+      if (queuedData.busInstance != inv->canInst) {
+        // Wrong bus, throw away
+        continue;
+      }
+
+      switch (queuedData.msgId) {
+        case CINVERTER_CAN_ID_TEMPERATURES1:
+          HandleMsg_Temperatures1(&queuedData, inv->vehicleState);
+          break;
+        case CINVERTER_CAN_ID_TEMPERATURES2:
+          HandleMsg_Temperatures2(&queuedData, inv->vehicleState);
+          break;
+        case CINVERTER_CAN_ID_TEMPERATURES3:
+          HandleMsg_Temperatures3(&queuedData, inv->vehicleState);
+          break;
+        case CINVERTER_CAN_ID_MOTOR_POS_INFO:
+          HandleMsg_MotorPosInfo(&queuedData, inv->vehicleState);
+          break;
+        case CINVERTER_CAN_ID_CURRENT_INFO:
+          HandleMsg_CurrentInfo(&queuedData, inv->vehicleState);
+          break;
+        case CINVERTER_CAN_ID_VOLTAGE_INFO:
+          HandleMsg_VoltageInfo(&queuedData, inv->vehicleState);
+          break;
+        case CINVERTER_CAN_ID_FLUX_INFO:
+          HandleMsg_FluxInfo(&queuedData, inv->vehicleState);
+          break;
+        case CINVERTER_CAN_ID_INTERNAL_STATES:
+          HandleMsg_InternalStates(&queuedData, inv->vehicleState);
+          break;
+        case CINVERTER_CAN_ID_FAULT_CODES:
+          HandleMsg_FaultCodes(&queuedData, inv->vehicleState);
+          break;
+        case CINVERTER_CAN_ID_TORQUE_TIMER:
+          HandleMsg_TorqueTimer(&queuedData, inv->vehicleState);
+          break;
+        case CINVERTER_CAN_ID_FLUX_WEAKENING:
+          HandleMsg_FluxWeakening(&queuedData, inv->vehicleState);
+          break;
+        default:
+          // Don't know this message ID - throw away message
+          break;
+      }
+    }
+  }
+
+}
+
+static void InverterProcessing_Task(void* pvParameters)
+{
+  CInverter_T* inv = (CInverter_T*)pvParameters;
+
+  while (1) {
+    InverterProcessing(inv);
+  }
 }
 
 // ------------------- Public methods -------------------
@@ -250,20 +341,35 @@ CInverter_Status_T CInverter_Init(Logging_T* logger, CInverter_T* inv)
   DEPEND_ON(logger, CINVERTER_STATUS_ERROR_DEPENDS);
   DEPEND_ON_STATIC(CAN, CINVERTER_STATUS_ERROR_DEPENDS);
 
-  // Register callbacks
-  CAN_Status_T callbackRegStatus = CAN_STATUS_OK;
-  callbackRegStatus |= CAN_RegisterCallback(inv->hcan, CINVERTER_CAN_ID_TEMPERATURES1, CInverter_Callback_Temperatures1, (void*)inv);
-  callbackRegStatus |= CAN_RegisterCallback(inv->hcan, CINVERTER_CAN_ID_TEMPERATURES2, CInverter_Callback_Temperatures2, (void*)inv);
-  callbackRegStatus |= CAN_RegisterCallback(inv->hcan, CINVERTER_CAN_ID_TEMPERATURES3, CInverter_Callback_Temperatures3, (void*)inv);
-  callbackRegStatus |= CAN_RegisterCallback(inv->hcan, CINVERTER_CAN_ID_MOTOR_POS_INFO, CInverter_Callback_MotorPosInfo, (void*)inv);
-  callbackRegStatus |= CAN_RegisterCallback(inv->hcan, CINVERTER_CAN_ID_CURRENT_INFO, CInverter_Callback_CurrentInfo, (void*)inv);
-  callbackRegStatus |= CAN_RegisterCallback(inv->hcan, CINVERTER_CAN_ID_VOLTAGE_INFO, CInverter_Callback_VoltageInfo, (void*)inv);
-  callbackRegStatus |= CAN_RegisterCallback(inv->hcan, CINVERTER_CAN_ID_FLUX_INFO, CInverter_Callback_FluxInfo, (void*)inv);
-  callbackRegStatus |= CAN_RegisterCallback(inv->hcan, CINVERTER_CAN_ID_INTERNAL_STATES, CInverter_Callback_InternalStates, (void*)inv);
-  callbackRegStatus |= CAN_RegisterCallback(inv->hcan, CINVERTER_CAN_ID_FAULT_CODES, CInverter_Callback_FaultCodes, (void*)inv);
-  callbackRegStatus |= CAN_RegisterCallback(inv->hcan, CINVERTER_CAN_ID_TORQUE_TIMER, CInverter_Callback_TorqueTimer, (void*)inv);
-  callbackRegStatus |= CAN_RegisterCallback(inv->hcan, CINVERTER_CAN_ID_FLUX_WEAKENING, CInverter_Callback_FluxWeakening, (void*)inv);
+  // Create queue for receiving CAN data
+  inv->canDataQueueHandle = xQueueCreateStatic(
+      INVERTER_QUEUE_LENGTH,
+      INVERTER_QUEUE_DATA_SIZE,
+      inv->canDataQueueStorageArea,
+      &inv->canDataQueueBuffer);
 
+  // Create RTOS task
+  inv->taskHandle = xTaskCreateStatic(
+      InverterProcessing_Task,
+      "CInverter",
+      INVERTER_STACK_SIZE,   /* Stack size */
+      (void*)inv,  /* Parameter passed as pointer */
+      INVERTER_TASK_PRIORITY,
+      inv->taskStack,
+      &inv->taskBuffer);
+
+  // Register RTOS task for 100Hz updates
+  TaskTimer_Status_T statusTimer = TaskTimer_RegisterTask(&inv->taskHandle, TASKTIMER_FREQUENCY_100HZ);
+  if (TASKTIMER_STATUS_OK != statusTimer) {
+    return VEHICLESTATE_STATUS_ERROR_INIT;
+  }
+
+  // Start receiving CAN data
+  CAN_Status_T callbackRegStatus = CAN_RegisterQueue(
+      inv->canInst,
+      INVERTER_CAN_DEVICEID,
+      INVERTER_CAN_DEVICEIDMASK,
+      inv->canDataQueueHandle);
   if (CAN_STATUS_OK != callbackRegStatus) {
     return CINVERTER_STATUS_ERROR_CAN;
   }
