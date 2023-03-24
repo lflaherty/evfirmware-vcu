@@ -53,21 +53,12 @@ typedef struct
   // Vehicle data
   VehicleState_Data_T data;
 
-  // Mutex lock - must lock this before accessing data
+  // Mutex lock - must lock this via VehicleState_AccessAcquire before
+  // accessing data
   SemaphoreHandle_t mutex;
   StaticSemaphore_t mutexBuffer;
 
   // ******* Internal use *******
-  // RTOS task
-  TaskHandle_t taskHandle;
-  StaticTask_t taskBuffer;
-  StackType_t taskStack[VEHICLESTATE_STACK_SIZE];
-
-  // Queue
-  QueueHandle_t dataQueueHandle;
-  StaticQueue_t dataQueueBuffer;
-  uint8_t dataQueueStorageArea[VEHICLESTATE_QUEUE_LENGTH*VEHICLESTATE_QUEUE_DATA_SIZE];
-
   REGISTERED_MODULE();
 } VehicleState_T;
 
@@ -78,22 +69,6 @@ typedef struct
  * @returns Success status. VEHICLESTATE_STATUS_OK if successful.
  */
 VehicleState_Status_T VehicleState_Init(Logging_T* logger, VehicleState_T* state);
-
-/**
- * @brief Schedule pushing an arbitrary value into the state
- * @param state Pointer to VehicleState object
- * @param dest Pointer to destination (contained within state->data)
- * @returns Success status. VEHICLESTATE_STATUS_OK if successful.
- */
-VehicleState_Status_T VehicleState_PushField(VehicleState_T* state, void* dest, void* value, size_t sz);
-
-/**
- * @brief Schedule pushing a float data field into the state
- * @param state Pointer to VehicleState object
- * @param dest Pointer to destination (contained within state->data)
- * @returns Success status. VEHICLESTATE_STATUS_OK if successful.
- */
-VehicleState_Status_T VehicleState_PushFieldf(VehicleState_T* state, float* dest, float value);
 
 /**
  * @brief Thread safe copy from state->data to dest

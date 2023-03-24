@@ -13,42 +13,6 @@
 
 // ------------------- Private data -------------------
 static Logging_T* mLog;
-static const TickType_t mBlockTime = 100 / portTICK_PERIOD_MS; // 100ms
-
-// ------------------- Private methods -------------------
-static void StateProcessing(VehicleState_T* vehicleState)
-{
-  // Wait for notification to wake up
-  uint32_t notifiedValue = ulTaskNotifyTake(pdTRUE, mBlockTime);
-  if (notifiedValue > 0) {
-
-    // Acquire lock on data
-    if (pdTRUE == xSemaphoreTake(vehicleState->mutex, portMAX_DELAY)) {
-      // Process any waiting data
-      VehicleState_QueuedData_T queuedData;
-      while (pdTRUE == xQueueReceive(vehicleState->dataQueueHandle, &queuedData, 10U)) {
-
-        // copy data out
-        if (queuedData.dest != NULL) {
-          memcpy(queuedData.dest, queuedData.data, queuedData.dataSize);
-        }
-
-      }
-
-      xSemaphoreGive(vehicleState->mutex);
-    }
-
-  }
-}
-
-static void StateProcessing_Task(void* pvParameters)
-{
-  VehicleState_T* obj = (VehicleState_T*)pvParameters;
-
-  while (1) {
-    StateProcessing(obj);
-  }
-}
 
 // ------------------- Public methods -------------------
 VehicleState_Status_T VehicleState_Init(Logging_T* logger, VehicleState_T* state)
@@ -59,70 +23,11 @@ VehicleState_Status_T VehicleState_Init(Logging_T* logger, VehicleState_T* state
 
   memset(&state->data, 0, sizeof(state->data)); // initialize data to 0
 
-  // Create queue
-  state->dataQueueHandle = xQueueCreateStatic(
-      VEHICLESTATE_QUEUE_LENGTH,
-      VEHICLESTATE_QUEUE_DATA_SIZE,
-      state->dataQueueStorageArea,
-      &state->dataQueueBuffer);
-
   // Create mutex lock
   state->mutex = xSemaphoreCreateMutexStatic(&state->mutexBuffer);
 
-  // create main task
-  state->taskHandle = xTaskCreateStatic(
-      StateProcessing_Task,
-      "VehicleState",
-      VEHICLESTATE_STACK_SIZE,   /* Stack size */
-      (void*)state,  /* Parameter passed as pointer */
-      VEHICLESTATE_TASK_PRIORITY,
-      state->taskStack,
-      &state->taskBuffer);
-
-  // Register the task for timer notifications every 10ms (100Hz)
-  TaskTimer_Status_T statusTimer = TaskTimer_RegisterTask(&state->taskHandle, TASKTIMER_FREQUENCY_100HZ);
-  if (TASKTIMER_STATUS_OK != statusTimer) {
-    return VEHICLESTATE_STATUS_ERROR_INIT;
-  }
-
   REGISTER(state, VEHICLESTATE_STATUS_ERROR_DEPENDS);
   Log_Print(mLog, "VehicleState_Init complete\n");
-  return VEHICLESTATE_STATUS_OK;
-}
-
-//------------------------------------------------------------------------------
-VehicleState_Status_T VehicleState_PushField(VehicleState_T* state, void* dest, void* value, size_t sz)
-{
-  if (sz > VEHICLESTATE_QUEUE_MAX_VALUE_SIZE) {
-    return VEHICLESTATE_STATUS_ERROR_SIZE;
-  }
-
-  VehicleState_QueuedData_T queuedData;
-  memcpy(queuedData.data, value, sz);
-  queuedData.dataSize = sz;
-  queuedData.dest = dest;
-
-  BaseType_t status = xQueueSendToBack(state->dataQueueHandle, (void*)&queuedData, (TickType_t)10U);
-  if (pdTRUE != status) {
-    return VEHICLESTATE_STATUS_ERROR_QUEUE;
-  }
-
-  return VEHICLESTATE_STATUS_OK;
-}
-
-//------------------------------------------------------------------------------
-VehicleState_Status_T VehicleState_PushFieldf(VehicleState_T* state, float* dest, float value)
-{
-  VehicleState_QueuedData_T queuedData;
-  memcpy(queuedData.data, &value, sizeof(float));
-  queuedData.dataSize = sizeof(float);
-  queuedData.dest = dest;
-
-  BaseType_t status = xQueueSendToBack(state->dataQueueHandle, (void*)&queuedData, (TickType_t)10U);
-  if (pdTRUE != status) {
-    return VEHICLESTATE_STATUS_ERROR_QUEUE;
-  }
-
   return VEHICLESTATE_STATUS_OK;
 }
 
