@@ -18,6 +18,7 @@ static void stateInit(VSM_T* vsm)
   vsm->nextState = VSM_STATE_LV_STARTUP;
 
   // make sure ECU error is on
+  VehicleControl_SetECUError(vsm->control, true);
 }
 
 static void stateLvStartup(VSM_T* vsm, FaultStatus_T faultStatus)
@@ -49,7 +50,7 @@ static void stateLvReady(VSM_T* vsm, FaultStatus_T faultStatus)
   if (stateAccess) {
     if (inputBtnPressed && !vsm->inputButtonPrev) {
       vsm->nextState = VSM_STATE_HV_ACTIVE;
-      // TODO disable ECU faults
+      VehicleControl_SetECUError(vsm->control, false);
     }
 
     vsm->inputButtonPrev = inputBtnPressed;
@@ -162,7 +163,7 @@ static void stateFault(VSM_T* vsm)
 {
   ThrottleController_SetMotorDirection(vsm->throttleController, VEHICLESTATE_INVERTER_FORWARD);
   ThrottleController_SetTorqueEnabled(vsm->throttleController, false);
-  // TODO assert ECU fault
+  VehicleControl_SetECUError(vsm->control, true);
 }
 
 // ------------------- Public methods -------------------

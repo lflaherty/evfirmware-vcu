@@ -346,7 +346,7 @@ TEST(VEHICLELOGIC_STATEMACHINE, StateActiveForward)
     mVehicleState.data.dash.buttonPressed = true;
 
     // State transitions to active - neutral
-    stepAndAssertStable2(VSM_STATE_ACTIVE_NEUTRAL, true, VEHICLESTATE_INVERTER_FORWARD);
+    stepAndAssertStable2(VSM_STATE_ACTIVE_NEUTRAL, false, VEHICLESTATE_INVERTER_FORWARD);
 }
 
 TEST(VEHICLELOGIC_STATEMACHINE, StateActiveForwardFault)
