@@ -17,6 +17,7 @@
 #include "time/tasktimer/MockTasktimer.h" // Needed for vehicle state
 #include "lib/logging/MockLogging.h"
 #include "device/inverter/MockCInverter.h"
+#include "device/pdm/MockPdm.h"
 
 // source code under test
 #include "vehicleInterface/vehicleControl/vehicleControl.c"
@@ -40,6 +41,7 @@ static Logging_T testLog;
 static VehicleState_T testVehicleState;
 static SDC_Config_T sdcConfig;
 static CInverter_T mInverter;
+static PDM_T mPdm;
 
 static VehicleControl_T mVehicleControl;
 
@@ -107,9 +109,11 @@ TEST_SETUP(VEHICLEINTERFACE_VEHICLECONTROL)
 
     // Init mocks required for vehicle control
     TEST_ASSERT_EQUAL(CINVERTER_STATUS_OK, CInverter_Init(&testLog, &mInverter));
+    TEST_ASSERT_EQUAL(PDM_STATUS_OK, PDM_Init(&testLog, &mPdm));
 
     memset(&mVehicleControl, 0, sizeof(VehicleControl_T));
     mVehicleControl.inverter = &mInverter;
+    mVehicleControl.pdm = &mPdm;
     VehicleControl_Status_T status = VehicleControl_Init(&testLog, &mVehicleControl);
     TEST_ASSERT_EQUAL(VEHICLECONTROL_STATUS_OK, status);
 

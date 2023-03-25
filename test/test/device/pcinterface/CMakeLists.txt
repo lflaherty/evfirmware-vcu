@@ -19,6 +19,7 @@ target_sources(TestPCInterface PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/mock
 target_sources(TestPCInterface PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/mock/time/tasktimer/MockTasktimer.c)
 target_sources(TestPCInterface PRIVATE ${PROJECT_SOURCE_DIR}/mock/Application/vehicleInterface/vehicleControl/MockVehicleControl.c)
 target_sources(TestPCInterface PRIVATE ${PROJECT_SOURCE_DIR}/mock/Application/device/inverter/MockCInverter.c)
+target_sources(TestPCInterface PRIVATE ${PROJECT_SOURCE_DIR}/mock/Application/device/pdm/MockPdm.c)
 # Production code
 target_sources(TestPCInterface PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/lib/depends/depends.c)
 target_sources(TestPCInterface PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/comm/can/can.c)

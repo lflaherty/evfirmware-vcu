@@ -24,6 +24,7 @@ VehicleControl_Status_T VehicleControl_Init(
   DEPEND_ON_STATIC(SDC, VEHICLECONTROL_STATUS_ERROR_DEPENDS);
 
   DEPEND_ON(control->inverter, VEHICLECONTROL_STATUS_ERROR_DEPENDS);
+  DEPEND_ON(control->pdm, VEHICLECONTROL_STATUS_ERROR_DEPENDS);
 
   REGISTER(control, VEHICLECONTROL_STATUS_ERROR_DEPENDS);
   Log_Print(mLog, "VehicleControl_Init complete\n");
@@ -53,11 +54,9 @@ VehicleControl_Status_T VehicleControl_RequestMotorTorque(VehicleControl_T* vc, 
 
 VehicleControl_Status_T VehicleControl_SetPowerChannel(VehicleControl_T* vc, uint8_t channel, bool enabled)
 {
-  (void)vc;
-  (void)channel;
-  (void)enabled;
-  // TODO
-  return VEHICLECONTROL_STATUS_OK;
+  PDM_Status_T status = PDM_SetOutputEnabled(vc->pdm, channel, enabled);
+  return (status == PDM_STATUS_OK) ?
+    VEHICLECONTROL_STATUS_OK : VEHICLECONTROL_STATUS_ERROR_DRIVER;
 }
 
 VehicleControl_Status_T VehicleControl_SetECUError(VehicleControl_T* vc, bool error)

@@ -47,6 +47,7 @@ static CRC_T mCrc;
 static VehicleState_T mVehicleState;
 
 static CInverter_T mInverter;
+static PDM_T mPdm;
 static VehicleControl_T mVehicleControl;
 
 static PCInterface_T mPCInterface;
@@ -116,9 +117,11 @@ TEST_SETUP(DEVICE_PCINTERFACE)
 
     // Init mock inverter (required for vehicle control)
     TEST_ASSERT_EQUAL(CINVERTER_STATUS_OK, CInverter_Init(&testLog, &mInverter));
+    TEST_ASSERT_EQUAL(PDM_STATUS_OK, PDM_Init(&testLog, &mPdm));
 
     // Init vehicle control interface
     mVehicleControl.inverter = &mInverter;
+    mVehicleControl.pdm = &mPdm;
     TEST_ASSERT_EQUAL(
         VEHICLECONTROL_STATUS_OK,
         VehicleControl_Init(&testLog, &mVehicleControl));
