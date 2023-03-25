@@ -81,6 +81,14 @@ static inline float msgToTorque(const uint16_t encodedInt)
 }
 
 /**
+ * @return Torque in message integer format
+ */
+static inline int16_t torqueToMsg(const float torque)
+{
+  return (int16_t)(10.0f * torque);
+}
+
+/**
  * @returns Modulation index (unitless)
  */
 static inline float msgToModulationIndex(const uint16_t encodedInt)

@@ -23,7 +23,7 @@ VehicleControl_Status_T VehicleControl_Init(
   Log_Print(mLog, "VehicleControl_Init begin\n");
   DEPEND_ON_STATIC(SDC, VEHICLECONTROL_STATUS_ERROR_DEPENDS);
 
-  // Nothing to do
+  DEPEND_ON(control->inverter, VEHICLECONTROL_STATUS_ERROR_DEPENDS);
 
   REGISTER(control, VEHICLECONTROL_STATUS_ERROR_DEPENDS);
   Log_Print(mLog, "VehicleControl_Init complete\n");
@@ -32,25 +32,23 @@ VehicleControl_Status_T VehicleControl_Init(
 
 VehicleControl_Status_T VehicleControl_EnableInverter(VehicleControl_T* vc)
 {
-  (void)vc;
-  // TODO
-  return VEHICLECONTROL_STATUS_OK;
+  CInverter_Status_T status = CInverter_SendInverterEnabled(vc->inverter, true);
+  return (status == CINVERTER_STATUS_OK) ?
+    VEHICLECONTROL_STATUS_OK : VEHICLECONTROL_STATUS_ERROR_DRIVER;
 }
 
 VehicleControl_Status_T VehicleControl_DisableInverter(VehicleControl_T* vc)
 {
-  (void)vc;
-  // TODO
-  return VEHICLECONTROL_STATUS_OK;
+  CInverter_Status_T status = CInverter_SendInverterEnabled(vc->inverter, false);
+  return (status == CINVERTER_STATUS_OK) ?
+    VEHICLECONTROL_STATUS_OK : VEHICLECONTROL_STATUS_ERROR_DRIVER;
 }
 
 VehicleControl_Status_T VehicleControl_RequestMotorTorque(VehicleControl_T* vc, float torque, VehicleState_InverterDirection_T direction)
 {
-  (void)vc;
-  (void)torque;
-  (void)direction;
-  // TODO
-  return VEHICLECONTROL_STATUS_OK;
+  CInverter_Status_T status = CInverter_SendTorqueCommand(vc->inverter, torque, direction);
+  return (status == CINVERTER_STATUS_OK) ?
+    VEHICLECONTROL_STATUS_OK : VEHICLECONTROL_STATUS_ERROR_DRIVER;
 }
 
 VehicleControl_Status_T VehicleControl_SetPowerChannel(VehicleControl_T* vc, uint8_t channel, bool enabled)

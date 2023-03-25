@@ -28,6 +28,15 @@
 #define INVERTER_CAN_DEVICEID     0
 #define INVERTER_CAN_DEVICEIDMASK 0xF00
 
+struct CInverterCommand {
+  bool inverterEnabled;
+  bool dischargeModeEnabled;
+
+  // Mutex lock for commanding state
+  SemaphoreHandle_t mutex;
+  StaticSemaphore_t mutexBuffer;
+};
+
 typedef struct
 {
   // ******* Setup *******
@@ -45,14 +54,19 @@ typedef struct
   StaticQueue_t canDataQueueBuffer;
   uint8_t canDataQueueStorageArea[INVERTER_QUEUE_LENGTH*INVERTER_QUEUE_DATA_SIZE];
 
+  // Commanding state:
+  struct CInverterCommand commandData;
+
   REGISTERED_MODULE();
 } CInverter_T;
 
 typedef enum
 {
-  CINVERTER_STATUS_OK             = 0x00U,
-  CINVERTER_STATUS_ERROR_CAN      = 0x01U,
-  CINVERTER_STATUS_ERROR_DEPENDS  = 0x02U,
+  CINVERTER_STATUS_OK                 = 0x00U,
+  CINVERTER_STATUS_ERROR_CAN          = 0x01U,
+  CINVERTER_STATUS_ERROR_DEPENDS      = 0x02U,
+  CINVERTER_STATUS_ERROR_LOCK         = 0x03U,
+  CINVERTER_STATUS_ERROR_NOT_ENABLED  = 0x04U,
 } CInverter_Status_T;
 
 /**
@@ -62,7 +76,36 @@ typedef enum
  */
 CInverter_Status_T CInverter_Init(Logging_T* logger, CInverter_T* inv);
 
-// TODO add inverter control
+/**
+ * @brief Send a normal torque command to instruct inverter to power to the
+ * required value of Nm.
+ * CInverter_SendInverterEnabled must be used to enable the inverter before
+ * torque can be requested.
+ * 
+ * @param inv Inverter module
+ * @param torqueNm Torque to motor to [Nm]
+ * @param direction Direction of motion
+ * @return CInverter_Status_T CINVERTER_STATUS_OK if request sent successfully
+ */
+CInverter_Status_T CInverter_SendTorqueCommand(CInverter_T* inv, const float torqueNm, const VehicleState_InverterDirection_T direction);
 
+/**
+ * @brief Enable or disable the inverter power output.
+ * 
+ * @param inv Inverter module
+ * @param enabled Enable or disable inverter power output.
+ * @return CInverter_Status_T CINVERTER_STATUS_OK if request sent successfully
+ */
+CInverter_Status_T CInverter_SendInverterEnabled(CInverter_T* inv, const bool enabled);
+
+/**
+ * @brief Enable or disable discharge mode in inverter.
+ * Enabling discharge mode will disable power output.
+ * 
+ * @param inv Inverter module
+ * @param dischargeModeEnabled Enable or disbale discharge mode.
+ * @return CInverter_Status_T CINVERTER_STATUS_OK if request sent successfully
+ */
+CInverter_Status_T CInverter_SendInverterDischarge(CInverter_T* inv, const bool dischargeModeEnabled);
 
 #endif /* DEVICE_INVERTER_CINVERTER_H_ */

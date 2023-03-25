@@ -10,6 +10,9 @@
 
 #include <stdint.h>
 
+// Also need to mock out the devices that VehicleControl depends on
+#include "device/inverter/MockCInverter.h"
+
 // Redefine methods to be mocked
 #define VehicleControl_Init stub_VehicleControl_Init
 #define VehicleControl_EnableInverter stub_VehicleControl_EnableInverter

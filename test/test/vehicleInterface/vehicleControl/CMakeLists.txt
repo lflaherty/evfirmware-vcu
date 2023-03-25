@@ -18,6 +18,7 @@ target_sources(TestVehicleControl PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/m
 # Mocks for 1st party
 target_sources(TestVehicleControl PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/mock/lib/logging/MockLogging.c)
 target_sources(TestVehicleControl PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/mock/time/tasktimer/MockTasktimer.c)
+target_sources(TestVehicleControl PRIVATE ${PROJECT_SOURCE_DIR}/mock/Application/device/inverter/MockCInverter.c)
 # Production code
 target_sources(TestVehicleControl PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/comm/can/can.c)
 target_sources(TestVehicleControl PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/io/gpio/gpio.c)

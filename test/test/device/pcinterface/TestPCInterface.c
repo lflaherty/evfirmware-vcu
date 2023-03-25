@@ -45,6 +45,8 @@ static UART_HandleTypeDef husartA;
 static UART_HandleTypeDef husartB;
 static CRC_T mCrc;
 static VehicleState_T mVehicleState;
+
+static CInverter_T mInverter;
 static VehicleControl_T mVehicleControl;
 
 static PCInterface_T mPCInterface;
@@ -112,7 +114,11 @@ TEST_SETUP(DEVICE_PCINTERFACE)
         VEHICLESTATE_STATUS_OK,
         VehicleState_Init(&testLog, &mVehicleState));
 
+    // Init mock inverter (required for vehicle control)
+    TEST_ASSERT_EQUAL(CINVERTER_STATUS_OK, CInverter_Init(&testLog, &mInverter));
+
     // Init vehicle control interface
+    mVehicleControl.inverter = &mInverter;
     TEST_ASSERT_EQUAL(
         VEHICLECONTROL_STATUS_OK,
         VehicleControl_Init(&testLog, &mVehicleControl));

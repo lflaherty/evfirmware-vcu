@@ -25,6 +25,32 @@ static Logging_T* mLog;
 static const TickType_t mBlockTime = 100 / portTICK_PERIOD_MS; // 100ms
 
 // ------------------- Private methods -------------------
+static bool SendCANCommand(
+    const CAN_Device_T canInstance,
+    const float torqueNm,
+    const VehicleState_InverterDirection_T direction,
+    const bool inverterEnable,
+    const bool dischargeEnable)
+{
+  CInverter_CAN_Command_T dataView = { 0 };
+
+  dataView.fields.torqueNm = torqueToMsg(torqueNm);
+  dataView.fields.speed = 0; // speed mode unused
+  dataView.fields.directionCommand = direction & 0x1;
+  dataView.fields.inverterEnable = inverterEnable & 0x1;
+  dataView.fields.inverterDischarge = dischargeEnable & 0x1;
+  dataView.fields.speedModeEnabled = 0; // speed mode never used
+  dataView.fields.torqueLim = 0; // use EEPROM params for limits
+
+  CAN_Status_T canStatus = CAN_SendMessage(
+    canInstance,
+    CINVERTER_CAN_ID_COMMAND,
+    dataView.raw,
+    8);
+
+  return CAN_STATUS_OK == canStatus;
+}
+
 static void HandleMsg_Temperatures1(const CAN_DataFrame_T* data, VehicleState_T* state)
 {
   if (data->dlc != 8) {
@@ -268,9 +294,6 @@ static void HandleMsg_FluxWeakening(const CAN_DataFrame_T* data, VehicleState_T*
 
 static void InverterProcessing(CInverter_T* inv)
 {
-  // TODO
-  (void)inv;
-
   // Wait for 10ms notification to wake up
   uint32_t notifiedValue = ulTaskNotifyTake(pdTRUE, mBlockTime);
   if (notifiedValue > 0) {
@@ -348,6 +371,9 @@ CInverter_Status_T CInverter_Init(Logging_T* logger, CInverter_T* inv)
       inv->canDataQueueStorageArea,
       &inv->canDataQueueBuffer);
 
+  // Create mutex for commanding data
+  inv->commandData.mutex = xSemaphoreCreateMutexStatic(&inv->commandData.mutexBuffer);
+
   // Create RTOS task
   inv->taskHandle = xTaskCreateStatic(
       InverterProcessing_Task,
@@ -377,4 +403,95 @@ CInverter_Status_T CInverter_Init(Logging_T* logger, CInverter_T* inv)
   REGISTER(inv, CINVERTER_STATUS_ERROR_DEPENDS);
   Log_Print(mLog, "CInverter_Init complete\n");
   return CINVERTER_STATUS_OK;
+}
+
+CInverter_Status_T CInverter_SendTorqueCommand(
+    CInverter_T* inv,
+    float torqueNm,
+    VehicleState_InverterDirection_T direction)
+{
+  BaseType_t result = xSemaphoreTake(inv->commandData.mutex, portMAX_DELAY);
+  if (pdTRUE != result) {
+    return CINVERTER_STATUS_ERROR_LOCK;
+  }
+
+  // state machine needs to enable the inverter first
+  if (!inv->commandData.inverterEnabled) {
+    return CINVERTER_STATUS_ERROR_NOT_ENABLED;
+  }
+
+  // send normal command message
+  bool canSucc = SendCANCommand(
+    inv->canInst,
+    torqueNm,
+    direction,
+    true, // inverter enable
+    false // discharge disable
+  );
+
+  xSemaphoreGive(inv->commandData.mutex);
+  return canSucc ? CINVERTER_STATUS_OK : CINVERTER_STATUS_ERROR_CAN;
+}
+
+CInverter_Status_T CInverter_SendInverterEnabled(CInverter_T* inv, bool enabled)
+{
+  BaseType_t result = xSemaphoreTake(inv->commandData.mutex, portMAX_DELAY);
+  if (pdTRUE != result) {
+    return CINVERTER_STATUS_ERROR_LOCK;
+  }
+
+  bool canSucc = true;
+
+  if (!inv->commandData.inverterEnabled && enabled) {
+    // TODO probably want to source this from information received form the inverter data instead
+    // Transition from disabled to enabled
+    // Inverter needs "inverter enable lockout" flag set, so send a disable message first
+    canSucc |= SendCANCommand(
+      inv->canInst,
+      0.0f,
+      VEHICLESTATE_INVERTER_FORWARD,
+      false, // inverter disable
+      false // discharge disable
+    );
+  }
+
+  inv->commandData.inverterEnabled = enabled;
+
+  // send inverter enable message
+  canSucc |= SendCANCommand(
+    inv->canInst,
+    0.0f,
+    VEHICLESTATE_INVERTER_FORWARD,
+    true, // inverter enable
+    false // discharge disable
+  );
+
+  xSemaphoreGive(inv->commandData.mutex);
+  return canSucc ? CINVERTER_STATUS_OK : CINVERTER_STATUS_ERROR_CAN;
+}
+
+CInverter_Status_T CInverter_SendInverterDischarge(CInverter_T* inv, bool dischargeModeEnabled)
+{
+  BaseType_t result = xSemaphoreTake(inv->commandData.mutex, portMAX_DELAY);
+  if (pdTRUE != result) {
+    return CINVERTER_STATUS_ERROR_LOCK;
+  }
+
+  inv->commandData.dischargeModeEnabled = dischargeModeEnabled;
+  if (dischargeModeEnabled) {
+    // Can't enable torque output and discharge at the same time
+    inv->commandData.inverterEnabled = false;
+  }
+
+  // send discharge message
+  bool canSucc = SendCANCommand(
+    inv->canInst,
+    0.0f,
+    VEHICLESTATE_INVERTER_FORWARD,
+    true, // inverter disable
+    true // discharge enable
+  );
+
+  xSemaphoreGive(inv->commandData.mutex);
+  return canSucc ? CINVERTER_STATUS_OK : CINVERTER_STATUS_ERROR_CAN;
 }

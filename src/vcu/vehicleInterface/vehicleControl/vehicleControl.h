@@ -15,16 +15,20 @@
 #include "lib/depends/depends.h"
 #include "vehicleInterface/vehicleState/vehicleStateTypes.h"
 
+#include "device/inverter/cInverter.h"
 #include "device/sdc/sdc.h"
 
 typedef enum
 {
   VEHICLECONTROL_STATUS_OK            = 0x00U,
   VEHICLECONTROL_STATUS_ERROR_DEPENDS = 0x01U,
+  VEHICLECONTROL_STATUS_ERROR_DRIVER  = 0x02U,
 } VehicleControl_Status_T;
 
 typedef struct
 {
+  // Pointers to modules required to control vehicle:
+  CInverter_T* inverter;
   REGISTERED_MODULE();
 } VehicleControl_T;
 

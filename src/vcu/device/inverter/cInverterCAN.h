@@ -15,10 +15,12 @@
 #define CINVERTER_CAN_ID_CURRENT_INFO        ((uint16_t) 0x0A6U)
 #define CINVERTER_CAN_ID_VOLTAGE_INFO        ((uint16_t) 0x0A7U)
 #define CINVERTER_CAN_ID_FLUX_INFO           ((uint16_t) 0x0A8U)
-#define CINVERTER_CAN_ID_INTERNAL_STATES     ((uint16_t) 0x0A9U)
+#define CINVERTER_CAN_ID_INTERNAL_STATES     ((uint16_t) 0x0AAU)
 #define CINVERTER_CAN_ID_FAULT_CODES         ((uint16_t) 0x0ABU)
 #define CINVERTER_CAN_ID_TORQUE_TIMER        ((uint16_t) 0x0ACU)
 #define CINVERTER_CAN_ID_FLUX_WEAKENING      ((uint16_t) 0x0ADU)
+
+#define CINVERTER_CAN_ID_COMMAND             ((uint16_t) 0x0C0U)
 
 
 typedef union
@@ -142,6 +144,19 @@ typedef union
   uint8_t raw[8];
 } CInverter_CAN_FluxWeakening_T;
 
+typedef union {
+  struct {
+    int16_t torqueNm;
+    int16_t speed;
+    uint8_t directionCommand;
+    uint8_t inverterEnable : 1;
+    uint8_t inverterDischarge : 1;
+    uint8_t speedModeEnabled : 1;
+    uint8_t unused : 5;
+    int16_t torqueLim;
+  } fields;
+  uint8_t raw[8];
+} CInverter_CAN_Command_T;
 
 
 #endif /* DEVICE_INVERTER_CINVERTERCAN_H_ */

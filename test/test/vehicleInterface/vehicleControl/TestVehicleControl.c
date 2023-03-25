@@ -16,6 +16,7 @@
 
 #include "time/tasktimer/MockTasktimer.h" // Needed for vehicle state
 #include "lib/logging/MockLogging.h"
+#include "device/inverter/MockCInverter.h"
 
 // source code under test
 #include "vehicleInterface/vehicleControl/vehicleControl.c"
@@ -38,6 +39,7 @@ static GPIO_T testPinECUErrorGpio;
 static Logging_T testLog;
 static VehicleState_T testVehicleState;
 static SDC_Config_T sdcConfig;
+static CInverter_T mInverter;
 
 static VehicleControl_T mVehicleControl;
 
@@ -103,9 +105,13 @@ TEST_SETUP(VEHICLEINTERFACE_VEHICLECONTROL)
     TEST_ASSERT_EQUAL(SDC_STATUS_OK, SDC_Init(&testLog, &sdcConfig));
     mockLogClear();
 
+    // Init mocks required for vehicle control
+    TEST_ASSERT_EQUAL(CINVERTER_STATUS_OK, CInverter_Init(&testLog, &mInverter));
+
     memset(&mVehicleControl, 0, sizeof(VehicleControl_T));
+    mVehicleControl.inverter = &mInverter;
     VehicleControl_Status_T status = VehicleControl_Init(&testLog, &mVehicleControl);
-    TEST_ASSERT(VEHICLECONTROL_STATUS_OK == status);
+    TEST_ASSERT_EQUAL(VEHICLECONTROL_STATUS_OK, status);
 
     const char* expectedLogging =
         "VehicleControl_Init begin\n"

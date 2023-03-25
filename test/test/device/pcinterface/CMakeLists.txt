@@ -18,6 +18,7 @@ target_sources(TestPCInterface PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/mock
 # Mocks for 1st party
 target_sources(TestPCInterface PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/mock/time/tasktimer/MockTasktimer.c)
 target_sources(TestPCInterface PRIVATE ${PROJECT_SOURCE_DIR}/mock/Application/vehicleInterface/vehicleControl/MockVehicleControl.c)
+target_sources(TestPCInterface PRIVATE ${PROJECT_SOURCE_DIR}/mock/Application/device/inverter/MockCInverter.c)
 # Production code
 target_sources(TestPCInterface PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/lib/depends/depends.c)
 target_sources(TestPCInterface PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/comm/can/can.c)
@@ -27,4 +28,3 @@ target_sources(TestPCInterface PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/comm/
 target_sources(TestPCInterface PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/lib/crc/crc.c)
 target_sources(TestPCInterface PRIVATE ${PROJECT_SOURCE_DIR}/../src/vcu/device/sdc/sdc.c)
 target_sources(TestPCInterface PRIVATE ${PROJECT_SOURCE_DIR}/../src/vcu/vehicleInterface/vehicleState/vehicleState.c)
-target_sources(TestPCInterface PRIVATE ${PROJECT_SOURCE_DIR}/../src/vcu/vehicleInterface/vehicleControl/vehicleControl.c)
