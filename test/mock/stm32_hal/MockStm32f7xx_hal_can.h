@@ -159,6 +159,9 @@ typedef struct
 #define CAN_IT_RX_FIFO1_FULL        ((uint32_t)5)
 #define CAN_IT_RX_FIFO1_OVERRUN     ((uint32_t)6)
 
+// Interrupts
+void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef* hcan);
+void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef* hcan);
 
 // ================== Define methods ==================
 HAL_StatusTypeDef stubHAL_CAN_GetRxMessage(CAN_HandleTypeDef *hcan, uint32_t RxFifo, CAN_RxHeaderTypeDef *pHeader, uint8_t aData[]);

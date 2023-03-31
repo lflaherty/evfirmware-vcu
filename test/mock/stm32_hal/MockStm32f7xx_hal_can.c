@@ -68,7 +68,7 @@ HAL_StatusTypeDef stubHAL_CAN_GetRxMessage(CAN_HandleTypeDef *hcan, uint32_t RxF
     }
 
     *pHeader = mRxHeaderData[mRxNext];
-    memcpy(aData, mTxMsgData[mRxNext], mRxHeaderData[mRxNext].DLC);
+    memcpy(aData, mRxMsgData[mRxNext], mRxHeaderData[mRxNext].DLC);
 
     mRxNext++;
     return mStatusGetRxMessage;
