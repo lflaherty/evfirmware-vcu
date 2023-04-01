@@ -28,6 +28,9 @@
 #define INVERTER_CAN_DEVICEID     0
 #define INVERTER_CAN_DEVICEIDMASK 0xF00
 
+// Maximum supported torque value in message format
+#define INVERTER_MAX_TORQUE 3276.7f
+
 struct CInverterCommand {
   bool inverterEnabled;
   bool dischargeModeEnabled;
@@ -62,11 +65,15 @@ typedef struct
 
 typedef enum
 {
-  CINVERTER_STATUS_OK                 = 0x00U,
-  CINVERTER_STATUS_ERROR_CAN          = 0x01U,
-  CINVERTER_STATUS_ERROR_DEPENDS      = 0x02U,
-  CINVERTER_STATUS_ERROR_LOCK         = 0x03U,
-  CINVERTER_STATUS_ERROR_NOT_ENABLED  = 0x04U,
+  CINVERTER_STATUS_OK                   = 0x00U,
+  CINVERTER_STATUS_ERROR_INIT           = 0x01U,
+  CINVERTER_STATUS_ERROR_CAN            = 0x02U,
+  CINVERTER_STATUS_ERROR_DEPENDS        = 0x03U,
+  CINVERTER_STATUS_ERROR_LOCK           = 0x04U,
+  CINVERTER_STATUS_ERROR_NOT_ENABLED    = 0x05U,
+  CINVERTER_STATUS_ERROR_NOT_DISIABLED  = 0x06U,
+  CINVERTER_STATUS_ERROR_DISCHARGE      = 0x07U,
+  CINVERTER_STATUS_ERROR_VALUE          = 0x08U,
 } CInverter_Status_T;
 
 /**

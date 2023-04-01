@@ -200,7 +200,7 @@ static void HandleMsg_FluxInfo(const CAN_DataFrame_T* data, VehicleState_T* stat
     state->data.inverter.fluxCommand = fluxCommand;
     state->data.inverter.fluxFeedback = fluxFeedback;
     state->data.inverter.idFeedback = idFeedback;
-    state->data.inverter.idFeedback = iqFeedback;
+    state->data.inverter.iqFeedback = iqFeedback;
   }
   VehicleState_AccessRelease(state);
 }
@@ -214,6 +214,7 @@ static void HandleMsg_InternalStates(const CAN_DataFrame_T* data, VehicleState_T
   CInverter_CAN_InternalStates_T dataView;
   memcpy(dataView.raw, data->data, 8*sizeof(uint8_t));
 
+  VehicleState_InverterVSMState_T inverterVSMState = (VehicleState_InverterVSMState_T)dataView.fields.vsmState;
   VehicleState_InverterState_T inverterState = (VehicleState_InverterState_T)dataView.fields.inverterState;
   VehicleState_InverterDischargeState_T activeDischargeState = (VehicleState_InverterDischargeState_T)dataView.fields.activeDischargeState;
   VehicleState_InverterEnabled_T inverterEnabled = (VehicleState_InverterEnabled_T)dataView.fields.inverterEnabled;
@@ -221,7 +222,8 @@ static void HandleMsg_InternalStates(const CAN_DataFrame_T* data, VehicleState_T
 
   // send to vehicle state
   if (VehicleState_AccessAcquire(state)) {
-    state->data.inverter.state = inverterState;
+    state->data.inverter.vsmState = inverterVSMState;
+    state->data.inverter.inverterState = inverterState;
     state->data.inverter.dischargeState = activeDischargeState;
     state->data.inverter.enabled = inverterEnabled;
     state->data.inverter.direction = direction;
@@ -257,13 +259,13 @@ static void HandleMsg_TorqueTimer(const CAN_DataFrame_T* data, VehicleState_T* s
 
   float commandedTorque = msgToTorque(dataView.fields.commandedTorque);
   float feedbackTorque = msgToTorque(dataView.fields.feedbackTorque);
-  uint32_t timerMs = dataView.fields.timer;
+  uint32_t timerCounts = dataView.fields.timer;
 
   // send to vehicle state
   if (VehicleState_AccessAcquire(state)) {
     state->data.inverter.commandedTorque = commandedTorque;
     state->data.motor.calculatedTorque = feedbackTorque;
-    state->data.inverter.timer = timerMs;
+    state->data.inverter.timerCounts = timerCounts;
   }
   VehicleState_AccessRelease(state);
 }
@@ -371,7 +373,8 @@ CInverter_Status_T CInverter_Init(Logging_T* logger, CInverter_T* inv)
       inv->canDataQueueStorageArea,
       &inv->canDataQueueBuffer);
 
-  // Create mutex for commanding data
+  // Init command data storage
+  memset(&inv->commandData, 0, sizeof(struct CInverterCommand));
   inv->commandData.mutex = xSemaphoreCreateMutexStatic(&inv->commandData.mutexBuffer);
 
   // Create RTOS task
@@ -387,7 +390,7 @@ CInverter_Status_T CInverter_Init(Logging_T* logger, CInverter_T* inv)
   // Register RTOS task for 100Hz updates
   TaskTimer_Status_T statusTimer = TaskTimer_RegisterTask(&inv->taskHandle, TASKTIMER_FREQUENCY_100HZ);
   if (TASKTIMER_STATUS_OK != statusTimer) {
-    return VEHICLESTATE_STATUS_ERROR_INIT;
+    return CINVERTER_STATUS_ERROR_INIT;
   }
 
   // Start receiving CAN data
@@ -410,6 +413,10 @@ CInverter_Status_T CInverter_SendTorqueCommand(
     float torqueNm,
     VehicleState_InverterDirection_T direction)
 {
+  if (torqueNm < 0.0f || torqueNm > INVERTER_MAX_TORQUE) {
+    return CINVERTER_STATUS_ERROR_VALUE;
+  }
+
   BaseType_t result = xSemaphoreTake(inv->commandData.mutex, portMAX_DELAY);
   if (pdTRUE != result) {
     return CINVERTER_STATUS_ERROR_LOCK;
@@ -417,6 +424,7 @@ CInverter_Status_T CInverter_SendTorqueCommand(
 
   // state machine needs to enable the inverter first
   if (!inv->commandData.inverterEnabled) {
+    xSemaphoreGive(inv->commandData.mutex);
     return CINVERTER_STATUS_ERROR_NOT_ENABLED;
   }
 
@@ -438,6 +446,11 @@ CInverter_Status_T CInverter_SendInverterEnabled(CInverter_T* inv, bool enabled)
   BaseType_t result = xSemaphoreTake(inv->commandData.mutex, portMAX_DELAY);
   if (pdTRUE != result) {
     return CINVERTER_STATUS_ERROR_LOCK;
+  }
+
+  if (inv->commandData.dischargeModeEnabled && enabled) {
+    xSemaphoreGive(inv->commandData.mutex);
+    return CINVERTER_STATUS_ERROR_DISCHARGE;
   }
 
   bool canSucc = true;
@@ -462,7 +475,7 @@ CInverter_Status_T CInverter_SendInverterEnabled(CInverter_T* inv, bool enabled)
     inv->canInst,
     0.0f,
     VEHICLESTATE_INVERTER_FORWARD,
-    true, // inverter enable
+    enabled, // inverter enable/disable
     false // discharge disable
   );
 
@@ -477,6 +490,12 @@ CInverter_Status_T CInverter_SendInverterDischarge(CInverter_T* inv, bool discha
     return CINVERTER_STATUS_ERROR_LOCK;
   }
 
+  if (inv->commandData.inverterEnabled && dischargeModeEnabled) {
+    // Don't allow discharge mode with inverter still enabled
+    xSemaphoreGive(inv->commandData.mutex);
+    return CINVERTER_STATUS_ERROR_NOT_DISIABLED;
+  }
+
   inv->commandData.dischargeModeEnabled = dischargeModeEnabled;
   if (dischargeModeEnabled) {
     // Can't enable torque output and discharge at the same time
@@ -488,8 +507,8 @@ CInverter_Status_T CInverter_SendInverterDischarge(CInverter_T* inv, bool discha
     inv->canInst,
     0.0f,
     VEHICLESTATE_INVERTER_FORWARD,
-    true, // inverter disable
-    true // discharge enable
+    false, // inverter disable
+    dischargeModeEnabled // discharge enable
   );
 
   xSemaphoreGive(inv->commandData.mutex);

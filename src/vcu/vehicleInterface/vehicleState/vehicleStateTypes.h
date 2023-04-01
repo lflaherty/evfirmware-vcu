@@ -98,7 +98,7 @@ typedef struct
 {
   float temperature; // Degrees C
   float angle; // degrees
-  float speed; // rpm
+  int16_t speed; // rpm
   float phaseACurrent; // amps
   float phaseBCurrent; // amps
   float phaseCCurrent; // amps
@@ -107,14 +107,24 @@ typedef struct
 
 typedef enum
 {
-  VEHICLESTATE_INVERTERSTATE_START = 0x0U,
-  VEHICLESTATE_INVERTERSTATE_PRECHARGEINIT = 0x1U,
-  VEHICLESTATE_INVERTERSTATE_PRECHARGEACTIVE = 0x2U,
-  VEHICLESTATE_INVERTERSTATE_PRECHARGECOMPLETE = 0x3U,
-  VEHICLESTATE_INVERTERSTATE_WAIT = 0x4U,
-  VEHICLESTATE_INVERTERSTATE_READY = 0x5U,
-  VEHICLESTATE_INVERTERSTATE_MOTORRUNNING = 0x6U,
-  VEHICLESTATE_INVERTERSTATE_FAULT = 0x7U
+  VEHICLESTATE_INVERTERVSMSTATE_START = 0x0U,
+  VEHICLESTATE_INVERTERVSMSTATE_PRECHARGEINIT = 0x1U,
+  VEHICLESTATE_INVERTERVSMSTATE_PRECHARGEACTIVE = 0x2U,
+  VEHICLESTATE_INVERTERVSMSTATE_PRECHARGECOMPLETE = 0x3U,
+  VEHICLESTATE_INVERTERVSMSTATE_WAIT = 0x4U,
+  VEHICLESTATE_INVERTERVSMSTATE_READY = 0x5U,
+  VEHICLESTATE_INVERTERVSMSTATE_MOTORRUNNING = 0x6U,
+  VEHICLESTATE_INVERTERVSMSTATE_FAULT = 0x7U
+} VehicleState_InverterVSMState_T;
+
+typedef enum
+{
+  VEHICLESTATE_INVERTERSTATE_POWERON = 0x0U,
+  VEHICLESTATE_INVERTERSTATE_STOP = 0x1U,
+  VEHICLESTATE_INVERTERSTATE_OPENLOOP = 0x2U,
+  VEHICLESTATE_INVERTERSTATE_CLOSEDLOOP = 0x3U,
+  VEHICLESTATE_INVERTERSTATE_IDLERUN = 0x8U,
+  VEHICLESTATE_INVERTERSTATE_IDLESTOP = 0x9U
 } VehicleState_InverterState_T;
 
 typedef enum
@@ -162,11 +172,12 @@ typedef struct
   float modulationIndex; // p.u.
   float fluxWeakeningOutput; // Amps
   // state data
-  VehicleState_InverterState_T state;
+  VehicleState_InverterVSMState_T vsmState;
+  VehicleState_InverterState_T inverterState;
   VehicleState_InverterDischargeState_T dischargeState;
   VehicleState_InverterEnabled_T enabled;
   VehicleState_InverterDirection_T direction;
-  uint32_t timer; // milliseconds
+  uint32_t timerCounts; // 3ms counts
   uint32_t runFaults; // binary encoded
   uint32_t postFaults; // binary encoded
 } VehicleState_Inverter_T;

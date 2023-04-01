@@ -45,9 +45,9 @@ static inline float msgToFrequency(const uint16_t encodedInt)
 }
 
 /**
- * @returns amps
+ * @returns amps (signed)
  */
-static inline float msgToCurrent(const uint16_t encodedInt)
+static inline float msgToCurrent(const int16_t encodedInt)
 {
   float value = (float)encodedInt;
   return value / 10.0f;

@@ -1,4 +1,5 @@
 add_subdirectory(gps)
+add_subdirectory(inverter)
 add_subdirectory(pcinterface)
 add_subdirectory(pdm)
 add_subdirectory(sdc)

@@ -103,7 +103,7 @@ TEST_SETUP(VEHICLELOGIC_STATEMACHINE)
     mVsm.inputState = &mVehicleState;
     mVsm.vehicleConfig = &mConfig;
     mVsm.throttleController = &mThrottleController;
-    mVehicleState.data.inverter.state = VEHICLESTATE_INVERTERSTATE_START;
+    mVehicleState.data.inverter.vsmState = VEHICLESTATE_INVERTERVSMSTATE_START;
 
     VSM_Init(&testLog, &mVsm);
 
@@ -250,12 +250,12 @@ TEST(VEHICLELOGIC_STATEMACHINE, StateHvChargingOk)
     // Start in HV charging state & no faults
     setVsmState(VSM_STATE_HV_CHARGING, 0);
     mockSet_FaultManager_Step_Status(FAULT_NO_FAULT);
-    mVehicleState.data.inverter.state = VEHICLESTATE_INVERTERSTATE_START;
+    mVehicleState.data.inverter.vsmState = VEHICLESTATE_INVERTERVSMSTATE_START;
 
     // Stay in HV charging state for a bit (while charging)
     stepAndAssertStable(VSM_STATE_HV_CHARGING);
 
-    mVehicleState.data.inverter.state = VEHICLESTATE_INVERTERSTATE_READY;
+    mVehicleState.data.inverter.vsmState = VEHICLESTATE_INVERTERVSMSTATE_READY;
 
     // State transitions to active - neutral
     stepAndAssertStable(VSM_STATE_ACTIVE_NEUTRAL);
@@ -266,7 +266,7 @@ TEST(VEHICLELOGIC_STATEMACHINE, StateHvChargingFault)
     // Start in HV charging state & no faults
     setVsmState(VSM_STATE_HV_CHARGING, 0);
     mockSet_FaultManager_Step_Status(FAULT_NO_FAULT);
-    mVehicleState.data.inverter.state = VEHICLESTATE_INVERTERSTATE_PRECHARGEACTIVE;
+    mVehicleState.data.inverter.vsmState = VEHICLESTATE_INVERTERVSMSTATE_PRECHARGEACTIVE;
 
     // Stay in HV charging state for a bit (while charging)
     stepAndAssertStable(VSM_STATE_HV_CHARGING);
@@ -283,7 +283,7 @@ TEST(VEHICLELOGIC_STATEMACHINE, StateHvChargingTimeout)
     // Start in HV charging state & no faults
     setVsmState(VSM_STATE_HV_CHARGING, 0);
     mockSet_FaultManager_Step_Status(FAULT_NO_FAULT);
-    mVehicleState.data.inverter.state = VEHICLESTATE_INVERTERSTATE_PRECHARGEACTIVE;
+    mVehicleState.data.inverter.vsmState = VEHICLESTATE_INVERTERVSMSTATE_PRECHARGEACTIVE;
 
     // Stay in HV charging state while not timed out
     // (+ 1 to exceed the timeout)
@@ -402,7 +402,7 @@ TEST(VEHICLELOGIC_STATEMACHINE, StartupProcedure)
     stepAndAssertStable2(VSM_STATE_HV_CHARGING, false, VEHICLESTATE_INVERTER_FORWARD);
 
     // 6. Active - neutral
-    mVehicleState.data.inverter.state = VEHICLESTATE_INVERTERSTATE_READY;
+    mVehicleState.data.inverter.vsmState = VEHICLESTATE_INVERTERVSMSTATE_READY;
     stepAndAssertStable2(VSM_STATE_ACTIVE_NEUTRAL, false, VEHICLESTATE_INVERTER_FORWARD);
 
     // 7. Active - forward

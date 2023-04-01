@@ -70,10 +70,10 @@ typedef union
 typedef union
 {
   struct {
-    uint16_t phaseACurrent;
-    uint16_t phaseBCurrent;
-    uint16_t phaseCCurrent;
-    uint16_t dcBusCurrent;
+    int16_t phaseACurrent;
+    int16_t phaseBCurrent;
+    int16_t phaseCCurrent;
+    int16_t dcBusCurrent;
   } fields;
   uint8_t raw[8];
 } CInverter_CAN_CurrentInfo_T;
@@ -94,8 +94,8 @@ typedef union
   struct {
     uint16_t fluxCommand;
     uint16_t fluxFeedback;
-    uint16_t idFeedback;
-    uint16_t iqFeedback;
+    int16_t idFeedback;
+    int16_t iqFeedback;
   } fields;
   uint8_t raw[8];
 } CInverter_CAN_FluxInfo_T;
@@ -103,13 +103,18 @@ typedef union
 typedef union
 {
   struct {
-    uint16_t inverterState;
+    uint8_t vsmState;
     uint8_t reserved1;
+    uint8_t inverterState;
     uint8_t relayState;
-    uint8_t activeDischargeState;
-    uint8_t reserved2;
-    uint8_t inverterEnabled;
-    uint8_t direction;
+    uint8_t inverterRunMode : 1;
+    uint8_t reserved2 : 4;
+    uint8_t activeDischargeState : 3;
+    uint8_t reserved3;
+    uint8_t inverterEnabled : 1;
+    uint8_t reversed4 : 7;
+    uint8_t direction : 1;
+    uint8_t reserved5 : 7;
   } fields;
   uint8_t raw[8];
 } CInverter_CAN_InternalStates_T;
@@ -137,9 +142,9 @@ typedef union
 {
   struct {
     uint16_t modulationIndex;
-    uint16_t fluxWeakeningOutput;
-    uint16_t idCommand;
-    uint16_t iqCommand;
+    int16_t fluxWeakeningOutput;
+    int16_t idCommand;
+    int16_t iqCommand;
   } fields;
   uint8_t raw[8];
 } CInverter_CAN_FluxWeakening_T;

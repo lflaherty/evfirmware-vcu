@@ -81,15 +81,15 @@ static void stateHvCharging(VSM_T* vsm, FaultStatus_T faultStatus)
   }
 
   // Thread-safe acquisition of vehicle sense data
-  VehicleState_InverterState_T inverterState = VEHICLESTATE_INVERTERSTATE_START;
+  VehicleState_InverterVSMState_T inverterState = VEHICLESTATE_INVERTERVSMSTATE_START;
   bool stateAccess = VehicleState_AccessAcquire(vsm->inputState);
   if (stateAccess) {
-    inverterState = vsm->inputState->data.inverter.state;
+    inverterState = vsm->inputState->data.inverter.vsmState;
   }
   VehicleState_AccessRelease(vsm->inputState);
 
   if (stateAccess) {
-    if (VEHICLESTATE_INVERTERSTATE_READY == inverterState) {
+    if (VEHICLESTATE_INVERTERVSMSTATE_READY == inverterState) {
       vsm->nextState = VSM_STATE_ACTIVE_NEUTRAL;
       return;
     }
