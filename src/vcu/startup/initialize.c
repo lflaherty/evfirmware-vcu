@@ -158,6 +158,14 @@ void ECU_Init_Task(void* pvParameters)
   if (ECU_INIT_OK != ECU_Init_System()) {
     ECU_Init_Hang();
   }
+
+  Log_Print(&mLog, "\n\n\n");
+  Log_Print(&mLog, "####################################\n");
+  Log_Print(&mLog, "#                                  #\n");
+  Log_Print(&mLog, "#               DFEA               #\n");
+  Log_Print(&mLog, "#                                  #\n");
+  Log_Print(&mLog, "####################################\n");
+
   if (ECU_INIT_OK != ECU_Init_BoardPeriph()) {
     ECU_Init_Hang();
   }
@@ -197,10 +205,6 @@ static ECU_Init_Status_T ECU_Init_System(void)
   // Timers
   if (TaskTimer_Init(&mLog, Mapping_GetTaskTimer100Hz()) != TASKTIMER_STATUS_OK) {
     Log_Print(&mLog, "Task Timer 100Hz initialization error\n");
-    return ECU_INIT_ERROR;
-  }
-  if (TaskTimer_Init(&mLog, Mapping_GetTaskTimer2kHz()) != TASKTIMER_STATUS_OK) {
-    Log_Print(&mLog, "Task Timer 2kHz initialization error\n");
     return ECU_INIT_ERROR;
   }
 
