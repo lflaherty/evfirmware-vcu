@@ -92,7 +92,6 @@ extern TIM_HandleTypeDef htim3;
 
 extern UART_HandleTypeDef huart1;
 extern UART_HandleTypeDef huart3;
-extern UART_HandleTypeDef huart6;
 
 
 TIM_HandleTypeDef* Mapping_GetTaskTimer100Hz(void)
