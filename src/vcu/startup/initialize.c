@@ -19,10 +19,13 @@
 #include "vehicleInterface/config/deviceMapping.h"
 #include "vehicleInterface/config/configData.h"
 #include "vehicleInterface/vehicleState/vehicleState.h"
+#include "vehicleInterface/vehicleControl/vehicleControl.h"
 
 #include "device/gps/gps.h"
 #include "device/sdc/sdc.h"
+#include "device/pdm/pdm.h"
 #include "device/pcinterface/pcinterface.h"
+#include "device/inverter/cInverter.h"
 #include "device/wheelspeed/wheelspeed.h"
 
 #include "vehicleLogic/watchdogTrigger/watchdogTrigger.h"
@@ -44,6 +47,8 @@ struct InitTask {
 };
 static struct InitTask initTask;
 
+extern const char* welcomeMsg;
+
 // ------------------- Module structures -------------------
 // MCU peripherals
 static Logging_T mLog;
@@ -53,10 +58,13 @@ static CRC_T mCrc;
 static GPS_T mGps;
 static WatchdogTrigger_T mWdtTrigger;
 static PCInterface_T mPCInterface;
+static PDM_T mPdm;
+static CInverter_T mInverter;
 
 // Vehicle interface
 static Config_T mConfig;
 static VehicleState_T mVehicleState;
+static VehicleControl_T mVehicleControl;
 
 // Vehicle processes
 // TODO
@@ -98,11 +106,13 @@ static ECU_Init_Status_T ECU_Init_BoardDevs(void);
 static ECU_Init_Status_T ECU_Init_LoadConfig(void);
 
 /**
- * @brief Init application vehicle interface (devices depends on this to push data)
+ * @brief Init application vehicle interface
+ * Runs before vehicle device init.
+ * Devices depend on this to push data.
  * 
  * @return ECU_Init_Status_T ECU_INIT_OK if ok
  */
-static ECU_Init_Status_T ECU_Init_VehicleInterface(void);
+static ECU_Init_Status_T ECU_Init_VehicleInterface1(void);
 
 /**
  * @brief Init drivers for devices connected to ECU
@@ -110,6 +120,15 @@ static ECU_Init_Status_T ECU_Init_VehicleInterface(void);
  * @return ECU_Init_Status_T ECU_INIT_OK if ok
  */
 static ECU_Init_Status_T ECU_Init_VehicleDevices(void);
+
+/**
+ * @brief Init application vehicle interface.
+ * Runs after vehicle device init.
+ * Modules here depend on devices to control vehicle.
+ * 
+ * @return ECU_Init_Status_T ECU_INIT_OK if ok
+ */
+static ECU_Init_Status_T ECU_Init_VehicleInterface2(void);
 
 /**
  * @brief Init vehicle application processes
@@ -160,11 +179,7 @@ void ECU_Init_Task(void* pvParameters)
   }
 
   Log_Print(&mLog, "\n\n\n");
-  Log_Print(&mLog, "####################################\n");
-  Log_Print(&mLog, "#                                  #\n");
-  Log_Print(&mLog, "#               DFEA               #\n");
-  Log_Print(&mLog, "#                                  #\n");
-  Log_Print(&mLog, "####################################\n");
+  Log_Print(&mLog, welcomeMsg);
 
   if (ECU_INIT_OK != ECU_Init_BoardPeriph()) {
     ECU_Init_Hang();
@@ -175,10 +190,13 @@ void ECU_Init_Task(void* pvParameters)
   if (ECU_INIT_OK != ECU_Init_LoadConfig()) {
     ECU_Init_Hang();
   }
-  if (ECU_INIT_OK != ECU_Init_VehicleInterface()) {
+  if (ECU_INIT_OK != ECU_Init_VehicleInterface1()) {
     ECU_Init_Hang();
   }
   if (ECU_INIT_OK != ECU_Init_VehicleDevices()) {
+    ECU_Init_Hang();
+  }
+  if (ECU_INIT_OK != ECU_Init_VehicleInterface2()) {
     ECU_Init_Hang();
   }
   if (ECU_INIT_OK != ECU_Init_VehicleProccesses()) {
@@ -299,8 +317,6 @@ static ECU_Init_Status_T ECU_Init_BoardDevs(void)
 {
   Log_Print(&mLog, "###### ECU_Init_BoardDevs ######\n");
 
-  // Not configured in this release
-
   return ECU_INIT_OK;
 }
 
@@ -316,9 +332,9 @@ ECU_Init_Status_T ECU_Init_LoadConfig(void)
 }
 
 //------------------------------------------------------------------------------
-static ECU_Init_Status_T ECU_Init_VehicleInterface(void)
+static ECU_Init_Status_T ECU_Init_VehicleInterface1(void)
 {
-  Log_Print(&mLog, "###### ECU_Init_VehicleInterface ######\n");
+  Log_Print(&mLog, "###### ECU_Init_VehicleInterface1 ######\n");
 
   // Vehicle state
   if (VehicleState_Init(&mLog, &mVehicleState) != VEHICLESTATE_STATUS_OK) {
@@ -373,6 +389,43 @@ static ECU_Init_Status_T ECU_Init_VehicleDevices(void)
   };
   if (SDC_Init(&mLog, &sdcConfig) != SDC_STATUS_OK) {
     Log_Print(&mLog, "SDC initialization error\n");
+    return ECU_INIT_ERROR;
+  }
+
+  // Power distribution module (PDM)
+  mPdm.channels = pdmChannels;
+  mPdm.numChannels = numPdmChannels;
+  mPdm.vehicleState = &mVehicleState;
+  if (PDM_Init(&mLog, &mPdm) != PDM_STATUS_OK) {
+    Log_Print(&mLog, "PDM initialization error\n");
+    return ECU_INIT_ERROR;
+  }
+
+  // Inverter
+  mInverter.canInst = CAN_DEV1;
+  mInverter.vehicleState = &mVehicleState;
+  if (CInverter_Init(&mLog, &mInverter) != CINVERTER_STATUS_OK) {
+    Log_Print(&mLog, "Inverter initialization error\n");
+    return ECU_INIT_ERROR;
+  }
+
+  return ECU_INIT_OK;
+}
+
+//------------------------------------------------------------------------------
+static ECU_Init_Status_T ECU_Init_VehicleInterface2(void)
+{
+  Log_Print(&mLog, "###### ECU_Init_VehicleInterface2 ######\n");
+
+  // Vehicle control
+  mVehicleControl.pdm = &mPdm;
+  mVehicleControl.inverter = &mInverter;
+  if (VehicleControl_Init(&mLog, &mVehicleControl)) {
+    Log_Print(&mLog, "VehicleControl initialization error\n");
+    return ECU_INIT_ERROR;
+  }
+  if (PCInterface_SetVehicleControl(&mPCInterface, &mVehicleControl) != PCINTERFACE_STATUS_OK) {
+    Log_Print(&mLog, "PCInterface_SetVehicleControl error\n");
     return ECU_INIT_ERROR;
   }
 
