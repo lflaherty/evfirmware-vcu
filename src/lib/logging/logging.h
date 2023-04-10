@@ -16,7 +16,7 @@
 
 #include "lib/depends/depends.h"
 
-#define LOGGING_MAX_MSG_LEN 256
+#define LOGGING_MAX_MSG_LEN 512
 
 /**
  * These error statuses are arranged to be bit fields.
