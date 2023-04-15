@@ -307,16 +307,16 @@ TEST(VEHICLELOGIC_FAULTMANAGER, FaultBMSCellTemperature)
     uint16_t timeoutCount = bmsInvalidTimeout / tickRateMs;
 
     // valid voltage
-    mVehicleState.data.battery.upperCellTemperature = 500; // 50 deg
+    mVehicleState.data.battery.maxCellTemperature = 500; // 50 deg
     stepAndAssert(FAULT_NO_FAULT, timeoutCount);
 
     // voltage too high
-    mVehicleState.data.battery.upperCellTemperature = 1000; // 100 deg
+    mVehicleState.data.battery.maxCellTemperature = 1000; // 100 deg
     stepAndAssert(FAULT_NO_FAULT, timeoutCount);
     stepAndAssert(FAULT_FAULT, timeoutCount);
 
     // fault sticks
-    mVehicleState.data.battery.upperCellTemperature = 500; // 50 dec
+    mVehicleState.data.battery.maxCellTemperature = 500; // 50 dec
     stepAndAssert(FAULT_FAULT, timeoutCount);
 }
 
@@ -325,16 +325,16 @@ TEST(VEHICLELOGIC_FAULTMANAGER, FaultBMSCurrent)
     uint16_t timeoutCount = bmsInvalidTimeout / tickRateMs;
 
     // valid current
-    mVehicleState.data.battery.current = 2000; // 200 Amps
+    mVehicleState.data.battery.dcCurrent = 2000; // 200 Amps
     stepAndAssert(FAULT_NO_FAULT, timeoutCount);
 
     // current too high
-    mVehicleState.data.battery.current = 10000; // 1,000 Amps
+    mVehicleState.data.battery.dcCurrent = 10000; // 1,000 Amps
     stepAndAssert(FAULT_NO_FAULT, timeoutCount);
     stepAndAssert(FAULT_FAULT, timeoutCount);
 
     // fault sticks
-    mVehicleState.data.battery.current = 0; // 0 Amps
+    mVehicleState.data.battery.dcCurrent = 0; // 0 Amps
     stepAndAssert(FAULT_FAULT, timeoutCount);
 }
 
@@ -343,16 +343,16 @@ TEST(VEHICLELOGIC_FAULTMANAGER, FaultBMSCellVoltage)
     uint16_t timeoutCount = bmsInvalidTimeout / tickRateMs;
 
     // valid voltage
-    mVehicleState.data.battery.upperCellVoltage = 360; // 3.6v
+    mVehicleState.data.battery.maxCellVoltage = 360; // 3.6v
     stepAndAssert(FAULT_NO_FAULT, timeoutCount);
 
     // voltage too high
-    mVehicleState.data.battery.upperCellVoltage = 480; // 4.8v
+    mVehicleState.data.battery.maxCellVoltage = 480; // 4.8v
     stepAndAssert(FAULT_NO_FAULT, timeoutCount);
     stepAndAssert(FAULT_FAULT, timeoutCount);
 
     // fault sticks
-    mVehicleState.data.battery.upperCellVoltage = 360; // 3.6v
+    mVehicleState.data.battery.maxCellVoltage = 360; // 3.6v
     stepAndAssert(FAULT_FAULT, timeoutCount);
 }
 

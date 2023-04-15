@@ -131,7 +131,7 @@ static uint32_t isFaultBMS(FaultManager_T* faultMgr, VehicleState_Data_T* data)
 
   // Cell temperature over threshold
   bool cellTempOverCondition =
-      data->battery.upperCellTemperature > faultMgr->vehicleConfig->bms.maxCellTemp;
+      data->battery.maxCellTemperature > faultMgr->vehicleConfig->bms.maxCellTemp;
   bool cellTempOverCheck = handleTimedCondition(
       cellTempOverCondition,
       &faultMgr->internal.cellTempOverTimer,
@@ -143,7 +143,7 @@ static uint32_t isFaultBMS(FaultManager_T* faultMgr, VehicleState_Data_T* data)
 
   // battery current draw too high
   bool currentOverDrawCondition =
-      data->battery.current > faultMgr->vehicleConfig->bms.maxCurrent;
+      data->battery.dcCurrent > faultMgr->vehicleConfig->bms.maxCurrent;
   bool currentOverDrawCheck = handleTimedCondition(
       currentOverDrawCondition,
       &faultMgr->internal.currentOverDrawTimer,
@@ -155,7 +155,7 @@ static uint32_t isFaultBMS(FaultManager_T* faultMgr, VehicleState_Data_T* data)
 
   // Cell voltage over threshold
   bool cellVoltageOverCondition =
-      data->battery.upperCellVoltage > faultMgr->vehicleConfig->bms.maxCellVoltage;
+      data->battery.maxCellVoltage > faultMgr->vehicleConfig->bms.maxCellVoltage;
   bool cellVoltageOverCheck = handleTimedCondition(
       cellVoltageOverCondition,
       &faultMgr->internal.cellVoltageOverTimer,

@@ -87,11 +87,19 @@ typedef struct
 
 typedef struct
 {
-  LowVoltage_T upperCellVoltage;      // highest voltage of any cell
-  Temperature_T upperCellTemperature; // highest temp. of any cell
-  Current_T current;                  // Current draw from battery
-  Percent_T stateOfCarge;             // Battery pack SoC
-  bool bmsFaultIndicator;             // BMS indicates fault
+  float maxCellVoltage;             // highest voltage of any cell
+  float maxCellTemperature;         // highest temp. of any cell
+  float minCellVoltage;             // lowest voltage of any cell
+  float minCellTemperature;         // lowest temp. of any cell
+  uint8_t maxCellVoltageCellID;     // Cell with highest voltage
+  uint8_t maxCellTemperatureCellID; // Cell with highest temp
+  uint8_t minCellVoltageCellID;     // Cell with lowest voltage
+  uint8_t minCellTemperatureCellID; // Cell with lowest temp
+  float dcCurrent;                  // Current draw from battery
+  float dcVoltage;                  // Total battery pack voltage
+  float stateOfCarge;               // Battery pack SoC
+  bool bmsFaultIndicator;           // BMS indicates fault
+  uint32_t bmsCounter;              // Increments every BMS counter message
 } VehicleState_Battery_T;
 
 typedef struct
