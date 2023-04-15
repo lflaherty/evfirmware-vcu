@@ -33,7 +33,7 @@ struct uartInfo {
   uint8_t uartDmaTx[UART_MAX_DMA_LEN];
 
   // Interrupts
-  IRQn_Type rxIrq;
+  IRQn_Type txIrq;
 
   // tx info
   volatile bool txInProgress;
@@ -188,7 +188,7 @@ UART_Status_T UART_Config(UART_DeviceConfig_T* devConfig)
   // Init this UART interface
   memset(uartInfo, 0, sizeof(struct uartInfo));
   uartInfo->handle = devConfig->handle;
-  uartInfo->rxIrq = devConfig->rxIrq;
+  uartInfo->txIrq = devConfig->txIrq;
   uartInfo->txPendingStreamHandle = xStreamBufferCreateStatic(
       UART_MAX_DMA_LEN,
       1U,
@@ -238,7 +238,7 @@ UART_Status_T UART_SendMessage(const UART_Device_T dev, uint8_t* data, uint16_t 
   UART_Status_T ret = UART_STATUS_OK;
 
   // disable HAL_UART_TxCpltCallback to make this section atomic
-  HAL_NVIC_DisableIRQ(uartInfo->rxIrq);
+  HAL_NVIC_DisableIRQ(uartInfo->txIrq);
 
   if (uartInfo->txInProgress) {
     // queue for when hardware is done
@@ -256,7 +256,7 @@ UART_Status_T UART_SendMessage(const UART_Device_T dev, uint8_t* data, uint16_t 
   }
 
   // atomic section complete
-  HAL_NVIC_EnableIRQ(uartInfo->rxIrq);
+  HAL_NVIC_EnableIRQ(uartInfo->txIrq);
 
   return ret;
 }

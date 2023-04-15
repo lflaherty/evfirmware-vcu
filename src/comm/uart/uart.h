@@ -46,7 +46,7 @@ typedef enum
 typedef struct {
   UART_Device_T dev;
   UART_HandleTypeDef* handle;
-  IRQn_Type rxIrq;
+  IRQn_Type txIrq;
 } UART_DeviceConfig_T;
 
 /**

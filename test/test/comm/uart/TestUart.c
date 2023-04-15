@@ -27,7 +27,7 @@ static UART_HandleTypeDef husart1 = {
 static UART_DeviceConfig_T configUart = {
   .dev = UART_DEV1,
   .handle = &husart1,
-  .rxIrq = DMA2_Stream1_IRQn,
+  .txIrq = DMA2_Stream1_IRQn,
 };
 
 TEST_GROUP(COMM_UART);
@@ -43,7 +43,7 @@ TEST_SETUP(COMM_UART)
     mockLogClear();
 
     // Enable interrupts (important for test as UART code enables and disables these)
-    HAL_NVIC_EnableIRQ(configUart.rxIrq);
+    HAL_NVIC_EnableIRQ(configUart.txIrq);
 
     // Perform init
     TEST_ASSERT_EQUAL(UART_STATUS_OK, UART_Init(&testLog));
@@ -66,7 +66,7 @@ TEST_SETUP(COMM_UART)
 TEST_TEAR_DOWN(COMM_UART)
 {
     // UART should always leave IRQ enabled after use
-    TEST_ASSERT_TRUE(mockGet_HAL_Cortex_IRQEnabled(configUart.rxIrq));
+    TEST_ASSERT_TRUE(mockGet_HAL_Cortex_IRQEnabled(configUart.txIrq));
     mockLogClear();
 }
 
