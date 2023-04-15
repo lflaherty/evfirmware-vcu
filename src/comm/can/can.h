@@ -16,13 +16,12 @@
 
 REGISTERED_MODULE_STATIC(CAN);
 
-#define CAN_NUM_INSTANCES 3
-
 typedef enum
 {
-  CAN_DEV1 = 0x00U,
-  CAN_DEV2 = 0x01U,
-  CAN_DEV3 = 0x02U
+  CAN_DEV1 = 0,
+  CAN_DEV2,
+  CAN_DEV3,
+  CAN_NUM_INSTANCES, /* Max number of CAN interfaces */
 } CAN_Device_T;
 
 #define CAN_MAX_RECV_QUEUES 8  // queues per CAN bus instance
