@@ -135,8 +135,8 @@ TEST(LIB_LOGGING, TestLogLongMessages)
     // To protect against missing \0 characters, the output will truncate
 
     // create 500 'X' characters
-    char longMessage[500] = {0};
-    for (size_t i = 0; i < 500; ++i) {
+    char longMessage[LOGGING_MAX_MSG_LEN] = {0};
+    for (size_t i = 0; i < LOGGING_MAX_MSG_LEN; ++i) {
         longMessage[i] = 'X';
     }
 
@@ -149,7 +149,7 @@ TEST(LIB_LOGGING, TestLogLongMessages)
     TEST_ASSERT_EQUAL_STRING(expectedPrintf, printfOut);
 
     // Serial
-    TEST_ASSERT_EQUAL(256, mockGetStreamBufferLen(mSerialStream));
+    TEST_ASSERT_EQUAL(LOGGING_MAX_MSG_LEN, mockGetStreamBufferLen(mSerialStream));
     char streamBufferData[STREAM_BUFFER_MAX_LEN] = {0};
     mockGetStreamBufferData(mSerialStream, (char*)streamBufferData, STREAM_BUFFER_MAX_LEN);
     TEST_ASSERT_EQUAL_CHAR_ARRAY(longMessage, streamBufferData, 256);
