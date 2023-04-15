@@ -76,7 +76,7 @@ DMA_HandleTypeDef hdma_usart6_rx;
 DMA_HandleTypeDef hdma_usart6_tx;
 
 /* USER CODE BEGIN PV */
-
+static InitData_T initData;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -151,7 +151,7 @@ int main(void)
 
   printf("\n");
   printf("Entering ECU_Init...\n");
-  ECU_Init();
+  ECU_Init(&initData);
 
   /* USER CODE END 2 */
 

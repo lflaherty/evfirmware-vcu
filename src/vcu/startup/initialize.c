@@ -31,12 +31,6 @@
 #include "vehicleLogic/watchdogTrigger/watchdogTrigger.h"
 
 
-typedef enum
-{
-  ECU_INIT_OK     = 0x00U,
-  ECU_INIT_ERROR  = 0x01
-} ECU_Init_Status_T;
-
 // ------------------- Private data -------------------
 #define INIT_STACK_SIZE 1500U
 #define INIT_TASK_PRIORITY 15U
@@ -69,7 +63,7 @@ static VehicleControl_T mVehicleControl;
 // Vehicle processes
 // TODO
 
-// ------------------- Private prototypes -------------------
+// ------------------- Private methods -------------------
 /**
  * @brief RTOS task method for init
  * 
@@ -79,87 +73,74 @@ static void ECU_Init_Task(void* pvParameters);
 
 /**
  * @brief Init basics for logging and running modules
- * 
- * @return ECU_Init_Status_T ECU_INIT_OK if ok
  */
-static ECU_Init_Status_T ECU_Init_System(void);
+static void ECU_Init_System(void);
 
 /**
  * @brief Init remaining internal peripherals
- * 
- * @return ECU_Init_Status_T ECU_INIT_OK if ok
  */
-static ECU_Init_Status_T ECU_Init_BoardPeriph(void);
+static void ECU_Init_BoardPeriph(void);
 
 /**
  * @brief Init external peripherals
- * 
- * @return ECU_Init_Status_T ECU_INIT_OK if ok
  */
-static ECU_Init_Status_T ECU_Init_BoardDevs(void);
+static void ECU_Init_BoardDevs(void);
 
 /**
  * @brief Load config parameters from EEPROM
- * 
- * @return ECU_Init_Status_T ECU_INIT_OK if ok
  */
-static ECU_Init_Status_T ECU_Init_LoadConfig(void);
+static void ECU_Init_LoadConfig(void);
 
 /**
  * @brief Init application vehicle interface
  * Runs before vehicle device init.
  * Devices depend on this to push data.
- * 
- * @return ECU_Init_Status_T ECU_INIT_OK if ok
  */
-static ECU_Init_Status_T ECU_Init_VehicleInterface1(void);
+static void ECU_Init_VehicleInterface1(void);
 
 /**
  * @brief Init drivers for devices connected to ECU
- * 
- * @return ECU_Init_Status_T ECU_INIT_OK if ok
  */
-static ECU_Init_Status_T ECU_Init_VehicleDevices(void);
+static void ECU_Init_VehicleDevices(void);
 
 /**
  * @brief Init application vehicle interface.
  * Runs after vehicle device init.
  * Modules here depend on devices to control vehicle.
- * 
- * @return ECU_Init_Status_T ECU_INIT_OK if ok
  */
-static ECU_Init_Status_T ECU_Init_VehicleInterface2(void);
+static void ECU_Init_VehicleInterface2(void);
 
 /**
  * @brief Init vehicle application processes
- * 
- * @return ECU_Init_Status_T ECU_INIT_OK if ok
  */
-static ECU_Init_Status_T ECU_Init_VehicleProccesses(void);
+static void ECU_Init_VehicleProccesses(void);
 
 /**
  * @brief Invoked if initialization failed.
  * 
  */
-static void ECU_Init_Hang(void);
+static void ECU_Init_Error(const char* msg);
 
 //------------------------------------------------------------------------------
-void ECU_Init_Hang(void)
+void ECU_Init_Error(const char* msg)
 {
+  Log_Print(&mLog, msg);
   Log_Print(&mLog, "ECU Failed to initialize\n");
+
+  // TODO should flash LED here and assert ECU fault pin
 
   while (1);
 }
 
 //------------------------------------------------------------------------------
-void ECU_Init(void)
+void ECU_Init(const InitData_T* initData)
 {
   // Add init task
   initTask.taskHandle = xTaskCreateStatic(
       ECU_Init_Task,
       "init",
       INIT_STACK_SIZE,
-      NULL,
+      (void*)initData,
       INIT_TASK_PRIORITY,
       initTask.taskStack,
       &initTask.taskBuffer);
@@ -171,37 +152,23 @@ void ECU_Init(void)
 //------------------------------------------------------------------------------
 void ECU_Init_Task(void* pvParameters)
 {
-  (void)pvParameters;
+  const InitData_T* initData = (const InitData_T*)pvParameters;
+  (void)initData;
+  // TODO use initData
 
   // Initialize components
-  if (ECU_INIT_OK != ECU_Init_System()) {
-    ECU_Init_Hang();
-  }
+  ECU_Init_System();
 
   Log_Print(&mLog, "\n\n\n");
   Log_Print(&mLog, welcomeMsg);
 
-  if (ECU_INIT_OK != ECU_Init_BoardPeriph()) {
-    ECU_Init_Hang();
-  }
-  if (ECU_INIT_OK != ECU_Init_BoardDevs()) {
-    ECU_Init_Hang();
-  }
-  if (ECU_INIT_OK != ECU_Init_LoadConfig()) {
-    ECU_Init_Hang();
-  }
-  if (ECU_INIT_OK != ECU_Init_VehicleInterface1()) {
-    ECU_Init_Hang();
-  }
-  if (ECU_INIT_OK != ECU_Init_VehicleDevices()) {
-    ECU_Init_Hang();
-  }
-  if (ECU_INIT_OK != ECU_Init_VehicleInterface2()) {
-    ECU_Init_Hang();
-  }
-  if (ECU_INIT_OK != ECU_Init_VehicleProccesses()) {
-    ECU_Init_Hang();
-  }
+  ECU_Init_BoardPeriph();
+  ECU_Init_BoardDevs();
+  ECU_Init_LoadConfig();
+  ECU_Init_VehicleInterface1();
+  ECU_Init_VehicleDevices();
+  ECU_Init_VehicleInterface2();
+  ECU_Init_VehicleProccesses();
 
   Log_Print(&mLog, "ECU_Init complete\n");
   Log_Print(&mLog, "ECU_Init deleting init task\n");
@@ -209,13 +176,13 @@ void ECU_Init_Task(void* pvParameters)
 }
 
 //------------------------------------------------------------------------------
-static ECU_Init_Status_T ECU_Init_System(void)
+static void ECU_Init_System(void)
 {
   // Set up logging
   Logging_Status_T statusLog;
   statusLog = Log_Init(&mLog);
   if (LOGGING_STATUS_OK != statusLog) {
-    return ECU_INIT_ERROR;
+    ECU_Init_Error("Log_Init error\n");
   }
 
   Log_Print(&mLog, "###### ECU_Init_System ######\n");
@@ -223,38 +190,33 @@ static ECU_Init_Status_T ECU_Init_System(void)
   // Timers
   if (TaskTimer_Init(&mLog, Mapping_GetTaskTimer100Hz()) != TASKTIMER_STATUS_OK) {
     Log_Print(&mLog, "Task Timer 100Hz initialization error\n");
-    return ECU_INIT_ERROR;
   }
 
   // statusLog = Log_EnableSWO(&mLog);
   // if (LOGGING_STATUS_OK != statusLog) {
-  //   return ECU_INIT_ERROR;
+  //   ECU_Init_Error("Log_EnableSWO error\n");
   // }
 
   // UART
   UART_Status_T statusUart;
   statusUart = UART_Init(&mLog);
   if (UART_STATUS_OK != statusUart) {
-    Log_Print(&mLog, "UART initialization error\n");
-    return ECU_INIT_ERROR;
+    ECU_Init_Error("UART initialization error\n");
   }
 
   statusUart = UART_Config(Mapping_GetPCDebugUartA());
   if (UART_STATUS_OK != statusUart) {
-    Log_Print(&mLog, "USART1 (PCDebug A) config error\n");
-    return ECU_INIT_ERROR;
+    ECU_Init_Error("USART1 (PCDebug A) config error\n");
   }
 
   statusUart = UART_Config(Mapping_GetPCDebugUartB());
   if (UART_STATUS_OK != statusUart) {
-    Log_Print(&mLog, "USART3 (PCDebug B) config error\n");
-    return ECU_INIT_ERROR;
+    ECU_Init_Error("USART3 (PCDebug B) config error\n");
   }
 
   statusUart = UART_Config(Mapping_GPS_GetUARTHandle());
   if (UART_STATUS_OK != statusUart) {
-    Log_Print(&mLog, "USART6 (GPS) config error\n");
-    return ECU_INIT_ERROR;
+    ECU_Init_Error("USART6 (GPS) config error\n");
   }
 
   // CRC
@@ -262,8 +224,7 @@ static ECU_Init_Status_T ECU_Init_System(void)
   CRC_Status_T statusCrc;
   statusCrc = CRC_Init(&mLog, &mCrc);
   if (CRC_STATUS_OK != statusCrc) {
-    Log_Print(&mLog, "CRC initialization error\n");
-    return ECU_INIT_ERROR;
+    ECU_Init_Error("CRC initialization error\n");
   }
 
   // Create PC Debug driver
@@ -275,15 +236,12 @@ static ECU_Init_Status_T ECU_Init_System(void)
   mPCInterface.pinToggle = &Mapping_GPO_DebugToggle;
   PCInterface_Status_T statusPcInterface = PCInterface_Init(&mLog, &mPCInterface);
   if (PCINTERFACE_STATUS_OK != statusPcInterface) {
-    Log_Print(&mLog, "PCDebug initialization error\n");
-    return ECU_INIT_ERROR;
+    ECU_Init_Error("PCDebug initialization error\n");
   }
-
-  return ECU_INIT_OK;
 }
 
 //------------------------------------------------------------------------------
-static ECU_Init_Status_T ECU_Init_BoardPeriph(void)
+static void ECU_Init_BoardPeriph(void)
 {
   Log_Print(&mLog, "###### ECU_Init_BoardPeriph ######\n");
 
@@ -291,14 +249,12 @@ static ECU_Init_Status_T ECU_Init_BoardPeriph(void)
   CAN_Status_T statusCan;
   statusCan = CAN_Init(&mLog);
   if (CAN_STATUS_OK != statusCan) {
-    Log_Print(&mLog, "CAN initialization error\n");
-    return ECU_INIT_ERROR;
+    ECU_Init_Error("CAN initialization error\n");
   }
 
   statusCan = CAN_Config(CAN_DEV1, Mapping_GetCAN1());
   if (CAN_STATUS_OK != statusCan) {
-    Log_Print(&mLog, "CAN1 config error\n");
-    return ECU_INIT_ERROR;
+    ECU_Init_Error("CAN1 config error\n");
   }
 
   mPCInterface.canDebugEnable = true; // TODO remove
@@ -308,50 +264,40 @@ static ECU_Init_Status_T ECU_Init_BoardPeriph(void)
 
   // RTC
   // Not configured in this release
-
-  return ECU_INIT_OK;
 }
 
 //------------------------------------------------------------------------------
-static ECU_Init_Status_T ECU_Init_BoardDevs(void)
+static void ECU_Init_BoardDevs(void)
 {
   Log_Print(&mLog, "###### ECU_Init_BoardDevs ######\n");
-
-  return ECU_INIT_OK;
 }
 
 //------------------------------------------------------------------------------
-ECU_Init_Status_T ECU_Init_LoadConfig(void)
+static void ECU_Init_LoadConfig(void)
 {
   memset(&mConfig, 0, sizeof(mConfig));
 
   // TODO placeholder, update to load from EEPROM
   mConfig.inputs.numWheelspeedTeeth = 12;
-
-  return ECU_INIT_OK;
 }
 
 //------------------------------------------------------------------------------
-static ECU_Init_Status_T ECU_Init_VehicleInterface1(void)
+static void ECU_Init_VehicleInterface1(void)
 {
   Log_Print(&mLog, "###### ECU_Init_VehicleInterface1 ######\n");
 
   // Vehicle state
   if (VehicleState_Init(&mLog, &mVehicleState) != VEHICLESTATE_STATUS_OK) {
-    Log_Print(&mLog, "VehicleState initialization error\n");
-    return ECU_INIT_ERROR;
+    ECU_Init_Error("VehicleState initialization error\n");
   }
 
   if (PCInterface_SetVehicleState(&mPCInterface, &mVehicleState) != PCINTERFACE_STATUS_OK) {
-    Log_Print(&mLog, "PCInterface_SetVehicleState failed\n");
-    return ECU_INIT_ERROR;
+    ECU_Init_Error("PCInterface_SetVehicleState failed\n");
   }
-
-  return ECU_INIT_OK;
 }
 
 //------------------------------------------------------------------------------
-static ECU_Init_Status_T ECU_Init_VehicleDevices(void)
+static void ECU_Init_VehicleDevices(void)
 {
   Log_Print(&mLog, "###### ECU_Init_VehicleDevices ######\n");
 
@@ -360,8 +306,7 @@ static ECU_Init_Status_T ECU_Init_VehicleDevices(void)
   mGps.huart = Mapping_GPS_GetUARTHandle();
   mGps.state = &mVehicleState;
   if (GPS_Init(&mLog, &mGps) != GPS_STATUS_OK) {
-    Log_Print(&mLog, "GPS initialization error\n");
-    return ECU_INIT_ERROR;
+    ECU_Init_Error("GPS initialization error\n");
   }
 
   // Wheel speed
@@ -374,8 +319,7 @@ static ECU_Init_Status_T ECU_Init_VehicleDevices(void)
     .sensorTeeth = mConfig.inputs.numWheelspeedTeeth,
   };
   if (Wheelspeed_Init(&wsConfig) != WHEELSPEED_STATUS_OK) {
-    Log_Print(&mLog, "Wheelspeed initialization error\n");
-    return ECU_INIT_ERROR;
+    ECU_Init_Error("Wheelspeed initialization error\n");
   }
 
   // Shutdown circuit
@@ -388,8 +332,7 @@ static ECU_Init_Status_T ECU_Init_VehicleDevices(void)
     .pinECUError = &Mapping_GPO_SDC_ECUError,
   };
   if (SDC_Init(&mLog, &sdcConfig) != SDC_STATUS_OK) {
-    Log_Print(&mLog, "SDC initialization error\n");
-    return ECU_INIT_ERROR;
+    ECU_Init_Error("SDC initialization error\n");
   }
 
   // Power distribution module (PDM)
@@ -397,23 +340,19 @@ static ECU_Init_Status_T ECU_Init_VehicleDevices(void)
   mPdm.numChannels = numPdmChannels;
   mPdm.vehicleState = &mVehicleState;
   if (PDM_Init(&mLog, &mPdm) != PDM_STATUS_OK) {
-    Log_Print(&mLog, "PDM initialization error\n");
-    return ECU_INIT_ERROR;
+    ECU_Init_Error("PDM initialization error\n");
   }
 
   // Inverter
   mInverter.canInst = CAN_DEV1;
   mInverter.vehicleState = &mVehicleState;
   if (CInverter_Init(&mLog, &mInverter) != CINVERTER_STATUS_OK) {
-    Log_Print(&mLog, "Inverter initialization error\n");
-    return ECU_INIT_ERROR;
+    ECU_Init_Error("Inverter initialization error\n");
   }
-
-  return ECU_INIT_OK;
 }
 
 //------------------------------------------------------------------------------
-static ECU_Init_Status_T ECU_Init_VehicleInterface2(void)
+static void ECU_Init_VehicleInterface2(void)
 {
   Log_Print(&mLog, "###### ECU_Init_VehicleInterface2 ######\n");
 
@@ -421,30 +360,23 @@ static ECU_Init_Status_T ECU_Init_VehicleInterface2(void)
   mVehicleControl.pdm = &mPdm;
   mVehicleControl.inverter = &mInverter;
   if (VehicleControl_Init(&mLog, &mVehicleControl)) {
-    Log_Print(&mLog, "VehicleControl initialization error\n");
-    return ECU_INIT_ERROR;
+    ECU_Init_Error("VehicleControl initialization error\n");
   }
   if (PCInterface_SetVehicleControl(&mPCInterface, &mVehicleControl) != PCINTERFACE_STATUS_OK) {
-    Log_Print(&mLog, "PCInterface_SetVehicleControl error\n");
-    return ECU_INIT_ERROR;
+    ECU_Init_Error("PCInterface_SetVehicleControl error\n");
   }
-
-  return ECU_INIT_OK;
 }
 
 //------------------------------------------------------------------------------
-static ECU_Init_Status_T ECU_Init_VehicleProccesses(void)
+static void ECU_Init_VehicleProccesses(void)
 {
   Log_Print(&mLog, "###### ECU_Init_VehicleProccesses ######\n");
 
   // Watchdog Trigger
   mWdtTrigger.blinkLED = &Mapping_GPO_LED;
   if (WatchdogTrigger_Init(&mLog, &mWdtTrigger) != WATCHDOGTRIGGER_STATUS_OK) {
-    Log_Print(&mLog, "Watchdog Trigger initialization error\n");
-    return ECU_INIT_ERROR;
+    ECU_Init_Error("Watchdog Trigger initialization error\n");
   }
-
-  return ECU_INIT_OK;
 }
 
 // TODO move this somewhere more appropriate
