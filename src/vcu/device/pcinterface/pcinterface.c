@@ -38,8 +38,8 @@ static void flushLogMessage(PCInterface_T* pcinterface)
     MsgFrameEncode_UpdateCRC(&pcinterface->mfLogData);
 
     // Duplicate the data on both ports (hardware probing is easier this way)
-    UART_SendMessage(pcinterface->huartA, pcinterface->mfLogDataBuffer, PCINTERFACE_MSG_LOG_MSGLEN);
-    UART_SendMessage(pcinterface->huartB, pcinterface->mfLogDataBuffer, PCINTERFACE_MSG_LOG_MSGLEN);
+    UART_SendMessage(pcinterface->uartA, pcinterface->mfLogDataBuffer, PCINTERFACE_MSG_LOG_MSGLEN);
+    UART_SendMessage(pcinterface->uartB, pcinterface->mfLogDataBuffer, PCINTERFACE_MSG_LOG_MSGLEN);
   }
 }
 
@@ -172,10 +172,10 @@ PCInterface_Status_T PCInterface_Init(
       PCINTERFACE_RECV_STREAM_TRIGGER_LEVEL_BYTES,
       pcinterface->recvStreamStorage,
       &pcinterface->recvStreamStruct);
-  if (UART_STATUS_OK != UART_SetRecvStream(pcinterface->huartA, pcinterface->recvStreamHandle)) {
+  if (UART_STATUS_OK != UART_SetRecvStream(pcinterface->uartA, pcinterface->recvStreamHandle)) {
     return PCINTERFACE_STATUS_ERROR_INIT;
   }
-  if (UART_STATUS_OK != UART_SetRecvStream(pcinterface->huartB, pcinterface->recvStreamHandle)) {
+  if (UART_STATUS_OK != UART_SetRecvStream(pcinterface->uartB, pcinterface->recvStreamHandle)) {
     return PCINTERFACE_STATUS_ERROR_INIT;
   }
 

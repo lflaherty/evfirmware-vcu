@@ -12,6 +12,7 @@
 #include <stdint.h>
 #include "io/adc/adc.h" /* Needed for ADC_Channel_T */
 #include "io/gpio/gpio.h" /* Needed for GPIO_T */
+#include "comm/uart/uart.h"
 #include "device/pdm/pdm.h"
 
 /*
@@ -81,10 +82,19 @@ extern GPIO_T Mapping_GPI_SDC_SDCOut;
 extern GPIO_T Mapping_GPO_SDC_ECUError;
 
 /*
+ * PC interface config
+ */
+#define MAPPING_PCINTERFACE_UARTADEV  ((UART_Device_T)UART_DEV1)
+#define MAPPING_PCINTERFACE_UARTBDEV  ((UART_Device_T)UART_DEV3)
+extern UART_DeviceConfig_T Mapping_PCInterface_UARTA;
+extern UART_DeviceConfig_T Mapping_PCInterface_UARTB;
+
+/*
  * GPS Config
  */
+#define MAPPING_GPS_UARTDEV  ((UART_Device_T)UART_DEV6)
 extern GPIO_T Mapping_GPS_3dFixPin;
-UART_HandleTypeDef* Mapping_GPS_GetUARTHandle(void);
+extern UART_DeviceConfig_T Mapping_GPS_UART;
 
 /*
  * Getters for device handles

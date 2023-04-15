@@ -47,11 +47,11 @@ static void sendStateField(
 
   // Send to both interfaces
   UART_SendMessage(
-      pcinterface->huartA,
+      pcinterface->uartA,
       pcinterface->mfStateUpdateBuffer,
       PCINTERFACE_MSG_STATEUPDATE_MSGLEN);
   UART_SendMessage(
-      pcinterface->huartB,
+      pcinterface->uartB,
       pcinterface->mfStateUpdateBuffer,
       PCINTERFACE_MSG_STATEUPDATE_MSGLEN);
 }

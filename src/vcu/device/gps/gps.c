@@ -108,7 +108,7 @@ GPS_Status_T GPS_Init(
   DEPEND_ON(gps->state, GPS_STATUS_ERROR_DEPENDS);
   DEPEND_ON_STATIC(UART, GPS_STATUS_ERROR_DEPENDS);
 
-  if (NULL == gps->huart || NULL == gps->pin3dFix || NULL == gps->state) {
+  if (NULL == gps->pin3dFix || NULL == gps->state) {
     return GPS_STATUS_ERROR_INIT;
   }
 
@@ -130,7 +130,7 @@ GPS_Status_T GPS_Init(
       GPS_RECV_STREAM_TRIGGER_LEVEL_BYTES,
       gps->recvStreamStorage,
       &gps->recvStreamStruct);
-  if (UART_STATUS_OK != UART_SetRecvStream(gps->huart, gps->recvStreamHandle)) {
+  if (UART_STATUS_OK != UART_SetRecvStream(gps->uart, gps->recvStreamHandle)) {
     return GPS_STATUS_ERROR_INIT;
   }
 

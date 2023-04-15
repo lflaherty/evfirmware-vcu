@@ -33,7 +33,14 @@
 static GPIO_T pin3dFix;
 
 static Logging_T testLog;
-static UART_HandleTypeDef husart;
+static UART_HandleTypeDef husart = {
+    .Instance = USART1,
+};
+static UART_DeviceConfig_T configUart = {
+    .dev = UART_DEV1,
+    .handle = &husart,
+    .rxIrq = DMA2_Stream1_IRQn,
+};
 static VehicleState_T mVehicleState;
 static GPS_T mGps;
 
@@ -51,9 +58,9 @@ TEST_SETUP(DEVICE_GPS)
     mockSet_TaskTimer_RegisterTask_Status(TASKTIMER_STATUS_OK);
 
     // Init UART
-    husart.Instance = USART1;
+    HAL_NVIC_EnableIRQ(configUart.rxIrq);
     TEST_ASSERT_EQUAL(UART_STATUS_OK, UART_Init(&testLog));
-    TEST_ASSERT_EQUAL(UART_STATUS_OK, UART_Config(&husart));
+    TEST_ASSERT_EQUAL(UART_STATUS_OK, UART_Config(&configUart));
 
     // Init vehicle state
     TEST_ASSERT_EQUAL(
@@ -64,7 +71,7 @@ TEST_SETUP(DEVICE_GPS)
     
     // Init GPS
     memset(&mGps, 0U, sizeof(GPS_T));
-    mGps.huart = &husart;
+    mGps.uart = UART_DEV1;
     mGps.pin3dFix = &pin3dFix;
     mGps.state = &mVehicleState;
 
@@ -83,6 +90,7 @@ TEST_SETUP(DEVICE_GPS)
 TEST_TEAR_DOWN(DEVICE_GPS)
 {
     TEST_ASSERT_FALSE(mockSempahoreGetLocked());
+    TEST_ASSERT_TRUE(mockGet_HAL_Cortex_IRQEnabled(configUart.rxIrq));
     mockClear_HAL_UART_Data();
     mockClearStreamBufferData(mGps.recvStreamHandle);
 }
@@ -113,7 +121,7 @@ TEST(DEVICE_GPS, GpsReceiveGPGGA)
     TEST_ASSERT_EQUAL(0, mVehicleState.data.vehicle.gps.nSatellites);
 
     // Load in mock data
-    memcpy(usart1.uartDmaRx, msg, msgLen); // copy into DMA buffer
+    memcpy(interfaces[UART_DEV1].uartDmaRx, msg, msgLen); // copy into DMA buffer
     mockSet_HAL_UART_Data(msg, msgLen);
     HAL_UARTEx_RxEventCallback(&husart, msgLen);
 

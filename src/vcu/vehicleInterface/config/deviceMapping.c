@@ -9,6 +9,31 @@
 #include "stm32f7xx_hal.h"
 
 /*
+ * Device handles auto-generated in main.c
+ */
+extern ADC_HandleTypeDef hadc1;
+extern DMA_HandleTypeDef hdma_adc1;
+
+extern CAN_HandleTypeDef hcan1;
+extern CAN_HandleTypeDef hcan2;
+extern CAN_HandleTypeDef hcan3;
+
+extern CRC_HandleTypeDef hcrc;
+
+extern I2C_HandleTypeDef hi2c2;
+extern I2C_HandleTypeDef hi2c4;
+
+extern RTC_HandleTypeDef hrtc;
+
+extern TIM_HandleTypeDef htim2;
+extern TIM_HandleTypeDef htim3;
+
+extern UART_HandleTypeDef huart1;
+extern UART_HandleTypeDef huart3;
+extern UART_HandleTypeDef huart6;
+
+
+/*
  * PDM Config
  */
 static GPIO_T pinPdmChannel1 = { .GPIOx = P_SW1_GPIO_Port, .GPIO_Pin = P_SW1_Pin };
@@ -59,41 +84,34 @@ GPIO_T Mapping_GPO_SDC_ECUError = {
 };
 
 /*
+ * PC interface config
+ */
+UART_DeviceConfig_T Mapping_PCInterface_UARTA = {
+  .dev = MAPPING_PCINTERFACE_UARTADEV,
+  .handle = &huart1,
+  .rxIrq = DMA2_Stream7_IRQn,
+};
+UART_DeviceConfig_T Mapping_PCInterface_UARTB = {
+  .dev = MAPPING_PCINTERFACE_UARTBDEV,
+  .handle = &huart3,
+  .rxIrq = DMA1_Stream1_IRQn,
+};
+
+/*
  * GPS Config
  */
 GPIO_T Mapping_GPS_3dFixPin = {
   .GPIOx = GPS_FIX_GPIO_Port, .GPIO_Pin = GPS_FIX_Pin
 };
-extern UART_HandleTypeDef huart6;
-UART_HandleTypeDef* Mapping_GPS_GetUARTHandle(void)
-{
-  return &huart6;
-}
+UART_DeviceConfig_T Mapping_GPS_UART = {
+  .dev = MAPPING_GPS_UARTDEV,
+  .handle = &huart6,
+  .rxIrq = DMA2_Stream1_IRQn,
+};
 
 /*
- * Device handles
+ * Getters for device handles
  */
-extern ADC_HandleTypeDef hadc1;
-extern DMA_HandleTypeDef hdma_adc1;
-
-extern CAN_HandleTypeDef hcan1;
-extern CAN_HandleTypeDef hcan2;
-extern CAN_HandleTypeDef hcan3;
-
-extern CRC_HandleTypeDef hcrc;
-
-extern I2C_HandleTypeDef hi2c2;
-extern I2C_HandleTypeDef hi2c4;
-
-extern RTC_HandleTypeDef hrtc;
-
-extern TIM_HandleTypeDef htim2;
-extern TIM_HandleTypeDef htim3;
-
-extern UART_HandleTypeDef huart1;
-extern UART_HandleTypeDef huart3;
-
-
 TIM_HandleTypeDef* Mapping_GetTaskTimer100Hz(void)
 {
   return &htim2;

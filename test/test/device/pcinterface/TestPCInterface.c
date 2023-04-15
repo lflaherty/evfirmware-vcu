@@ -41,11 +41,25 @@ static GPIO_TypeDef gpioBankA;
 static GPIO_T mPinToggle = { .GPIOx = &gpioBankA, .GPIO_Pin = 1U };
 
 static CRC_HandleTypeDef hcrc;
-static UART_HandleTypeDef husartA;
-static UART_HandleTypeDef husartB;
 static CRC_T mCrc;
-static VehicleState_T mVehicleState;
+static UART_HandleTypeDef husartA = {
+    .Instance = USART1,
+};
+static UART_HandleTypeDef husartB = {
+    .Instance = USART3,
+};
+static UART_DeviceConfig_T configUartA = {
+  .dev = UART_DEV1,
+  .handle = &husartA,
+  .rxIrq = DMA2_Stream1_IRQn,
+};
+static UART_DeviceConfig_T configUartB = {
+  .dev = UART_DEV3,
+  .handle = &husartB,
+  .rxIrq = DMA2_Stream2_IRQn,
+};
 
+static VehicleState_T mVehicleState;
 static CInverter_T mInverter;
 static PDM_T mPdm;
 static VehicleControl_T mVehicleControl;
@@ -69,7 +83,7 @@ static size_t expectStateMsg(void)
     TEST_ASSERT_EQUAL(PCINTERFACE_MSG_STATEUPDATE_MSGLEN, mockGet_HAL_UART_Len());
     // Flush the first message to expose the second
     mockClear_HAL_UART_Data();
-    HAL_UART_TxCpltCallback(mPCInterface.huartA);
+    HAL_UART_TxCpltCallback(&husartA);
 
     size_t remainingBytes = 0;
     if (STATEUPDATE_NUMMSGS > 1) {
@@ -79,7 +93,7 @@ static size_t expectStateMsg(void)
         TEST_ASSERT_GREATER_OR_EQUAL(remainingBytes, mockGet_HAL_UART_Len());
         // Flush the first message to expose the second
         // mockClear_HAL_UART_Data();
-        // HAL_UART_TxCpltCallback(mPCInterface.huartA);
+        // HAL_UART_TxCpltCallback(&husartA);
     }
 
     return remainingBytes;
@@ -105,10 +119,11 @@ TEST_SETUP(DEVICE_PCINTERFACE)
     TEST_ASSERT_EQUAL(CRC_STATUS_OK, CRC_Init(&testLog, &mCrc));
 
     // Init UART
-    husartA.Instance = USART1;
-    husartB.Instance = USART3;
+    HAL_NVIC_EnableIRQ(configUartA.rxIrq);
+    HAL_NVIC_EnableIRQ(configUartB.rxIrq);
     TEST_ASSERT_EQUAL(UART_STATUS_OK, UART_Init(&testLog));
-    TEST_ASSERT_EQUAL(UART_STATUS_OK, UART_Config(&husartA));
+    TEST_ASSERT_EQUAL(UART_STATUS_OK, UART_Config(&configUartA));
+    TEST_ASSERT_EQUAL(UART_STATUS_OK, UART_Config(&configUartB));
 
     // Init vehicle state
     TEST_ASSERT_EQUAL(
@@ -131,8 +146,8 @@ TEST_SETUP(DEVICE_PCINTERFACE)
     
     // Init PC Debug
     memset(&mPCInterface, 0U, sizeof(PCInterface_T));
-    mPCInterface.huartA = &husartA;
-    mPCInterface.huartB = &husartB;
+    mPCInterface.uartA = UART_DEV1;
+    mPCInterface.uartB = UART_DEV3;
     mPCInterface.crc = &mCrc;
     mPCInterface.pinToggle = &mPinToggle;
 
@@ -153,7 +168,7 @@ TEST_SETUP(DEVICE_PCINTERFACE)
 
     // clear again for coming tests (because init prints)
     mockClearStreamBufferData(mPCInterface.logStreamHandle);
-    mockClearStreamBufferData(usart1.txPendingStreamHandle);
+    mockClearStreamBufferData(interfaces[UART_DEV1].txPendingStreamHandle);
     mockClear_HAL_UART_Data();
     mockClearPrintf();
     mockReset_VehicleControl();
@@ -162,6 +177,9 @@ TEST_SETUP(DEVICE_PCINTERFACE)
 TEST_TEAR_DOWN(DEVICE_PCINTERFACE)
 {
     TEST_ASSERT_FALSE(mockSempahoreGetLocked());
+    // UART should always leave IRQ enabled after use
+    TEST_ASSERT_TRUE(mockGet_HAL_Cortex_IRQEnabled(configUartA.rxIrq));
+    TEST_ASSERT_TRUE(mockGet_HAL_Cortex_IRQEnabled(configUartB.rxIrq));
     mockClear_HAL_UART_Data();
 }
 
@@ -278,7 +296,7 @@ TEST(DEVICE_PCINTERFACE, TestLogSerialLongMsg)
     // Prompt UART to send next message...
     mockClear_HAL_UART_Data();
     HAL_UART_TxCpltCallback(&husartA);
-    mockClearStreamBufferData(usart1.txPendingStreamHandle);
+    mockClearStreamBufferData(interfaces[UART_DEV1].txPendingStreamHandle);
 
     // 2nd message should be on UART now, with no further queued messages
     TEST_ASSERT_EQUAL(0, mockGet_HAL_UART_Len());
@@ -335,7 +353,7 @@ TEST(DEVICE_PCINTERFACE, PeriodicStateUpdates)
 
     // Copy the pending bytes to the bus
     mockClear_HAL_UART_Data();
-    HAL_UART_TxCpltCallback(mPCInterface.huartA);
+    HAL_UART_TxCpltCallback(&husartA);
 
     const size_t numMessages = 1U;
     TEST_ASSERT_EQUAL(numMessages*PCINTERFACE_MSG_STATEUPDATE_MSGLEN, mockGet_HAL_UART_Len());
@@ -363,7 +381,7 @@ TEST(DEVICE_PCINTERFACE, TestCommandSDC)
     _Static_assert(sizeof(testMsg) == PCINTERFACE_MSG_COMMON_MSGLEN, "message length");
 
     // UART recieve on DMA:
-    memcpy(usart1.uartDmaRx, testMsg, testMsgLen); // copy into DMA buffer
+    memcpy(interfaces[UART_DEV1].uartDmaRx, testMsg, testMsgLen); // copy into DMA buffer
     HAL_UARTEx_RxEventCallback(&husartA, testMsgLen);
     mockSetTaskNotifyValue(1); // to wake up
     PCInterface_TaskMethod(&mPCInterface);
@@ -374,7 +392,7 @@ TEST(DEVICE_PCINTERFACE, TestCommandSDC)
     // (note that this only works because we're faking the hardware CRC)
     testMsg[12] = 0x01;
 
-    memcpy(usart1.uartDmaRx, testMsg, testMsgLen); // copy into DMA buffer
+    memcpy(interfaces[UART_DEV1].uartDmaRx, testMsg, testMsgLen); // copy into DMA buffer
     HAL_UARTEx_RxEventCallback(&husartA, testMsgLen);
     mockSetTaskNotifyValue(1); // to wake up
     PCInterface_TaskMethod(&mPCInterface);
@@ -384,7 +402,7 @@ TEST(DEVICE_PCINTERFACE, TestCommandSDC)
     // And toggle it back off...
     testMsg[12] = 0x00;
 
-    memcpy(usart1.uartDmaRx, testMsg, testMsgLen); // copy into DMA buffer
+    memcpy(interfaces[UART_DEV1].uartDmaRx, testMsg, testMsgLen); // copy into DMA buffer
     HAL_UARTEx_RxEventCallback(&husartA, testMsgLen);
     mockSetTaskNotifyValue(1); // to wake up
     PCInterface_TaskMethod(&mPCInterface);
@@ -410,7 +428,7 @@ TEST(DEVICE_PCINTERFACE, TestCommandPDM)
     _Static_assert(sizeof(testMsg) == PCINTERFACE_MSG_COMMON_MSGLEN, "message length");
 
     // UART recieve on DMA:
-    memcpy(usart1.uartDmaRx, testMsg, testMsgLen); // copy into DMA buffer
+    memcpy(interfaces[UART_DEV1].uartDmaRx, testMsg, testMsgLen); // copy into DMA buffer
     HAL_UARTEx_RxEventCallback(&husartA, testMsgLen);
     mockSetTaskNotifyValue(1); // to wake up
     PCInterface_TaskMethod(&mPCInterface);
@@ -431,7 +449,7 @@ TEST(DEVICE_PCINTERFACE, TestCommandPDM)
 
         testMsg[i + 7U] = 0x01; // PDM i
 
-        memcpy(usart1.uartDmaRx, testMsg, testMsgLen); // copy into DMA buffer
+        memcpy(interfaces[UART_DEV1].uartDmaRx, testMsg, testMsgLen); // copy into DMA buffer
         HAL_UARTEx_RxEventCallback(&husartA, testMsgLen);
         mockSetTaskNotifyValue(1); // to wake up
         PCInterface_TaskMethod(&mPCInterface);
@@ -452,7 +470,7 @@ TEST(DEVICE_PCINTERFACE, TestCommandPDM)
     testMsg[11] = 0x00;
     testMsg[12] = 0x00;
 
-    memcpy(usart1.uartDmaRx, testMsg, testMsgLen); // copy into DMA buffer
+    memcpy(interfaces[UART_DEV1].uartDmaRx, testMsg, testMsgLen); // copy into DMA buffer
     HAL_UARTEx_RxEventCallback(&husartA, testMsgLen);
     mockSetTaskNotifyValue(1); // to wake up
     PCInterface_TaskMethod(&mPCInterface);

@@ -17,6 +17,7 @@
 #include "lib/depends/depends.h"
 #include "lib/logging/logging.h"
 #include "io/gpio/gpio.h"
+#include "comm/uart/uart.h"
 #include "comm/uart/nmeadecode.h"
 
 #include "vehicleInterface/vehicleState/vehicleState.h"
@@ -36,7 +37,7 @@ typedef enum
 
 typedef struct
 {
-  UART_HandleTypeDef* huart; // UART handle to receive GPS data from
+  UART_Device_T uart; // UART handle to receive GPS data from
   GPIO_T* pin3dFix; // GPIO pin for 3D fix input
   VehicleState_T* state; // Vehicle state object to push data to
 

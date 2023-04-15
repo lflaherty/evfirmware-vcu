@@ -204,17 +204,18 @@ static void ECU_Init_System(void)
     ECU_Init_Error("UART initialization error\n");
   }
 
-  statusUart = UART_Config(Mapping_GetPCDebugUartA());
+  statusUart = UART_Config(&Mapping_PCInterface_UARTA);
   if (UART_STATUS_OK != statusUart) {
     ECU_Init_Error("USART1 (PCDebug A) config error\n");
   }
 
-  statusUart = UART_Config(Mapping_GetPCDebugUartB());
+  statusUart = UART_Config(&Mapping_PCInterface_UARTB);
   if (UART_STATUS_OK != statusUart) {
     ECU_Init_Error("USART3 (PCDebug B) config error\n");
   }
 
-  statusUart = UART_Config(Mapping_GPS_GetUARTHandle());
+  // TODO move this to GPS section
+  statusUart = UART_Config(&Mapping_GPS_UART);
   if (UART_STATUS_OK != statusUart) {
     ECU_Init_Error("USART6 (GPS) config error\n");
   }
@@ -230,8 +231,8 @@ static void ECU_Init_System(void)
   // Create PC Debug driver
   // Create it this early so we get serial output, we'll enable the other
   // functionality later on
-  mPCInterface.huartA = Mapping_GetPCDebugUartA();
-  mPCInterface.huartB = Mapping_GetPCDebugUartB();
+  mPCInterface.uartA = MAPPING_PCINTERFACE_UARTADEV;
+  mPCInterface.uartB = MAPPING_PCINTERFACE_UARTBDEV;
   mPCInterface.crc = &mCrc;
   mPCInterface.pinToggle = &Mapping_GPO_DebugToggle;
   PCInterface_Status_T statusPcInterface = PCInterface_Init(&mLog, &mPCInterface);
@@ -303,7 +304,7 @@ static void ECU_Init_VehicleDevices(void)
 
   // GPS
   mGps.pin3dFix = &Mapping_GPS_3dFixPin;
-  mGps.huart = Mapping_GPS_GetUARTHandle();
+  mGps.uart = MAPPING_GPS_UARTDEV;
   mGps.state = &mVehicleState;
   if (GPS_Init(&mLog, &mGps) != GPS_STATUS_OK) {
     ECU_Init_Error("GPS initialization error\n");
