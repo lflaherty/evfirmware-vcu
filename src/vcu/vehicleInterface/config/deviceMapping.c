@@ -89,12 +89,12 @@ GPIO_T Mapping_GPO_SDC_ECUError = {
 UART_DeviceConfig_T Mapping_PCInterface_UARTA = {
   .dev = MAPPING_PCINTERFACE_UARTADEV,
   .handle = &huart1,
-  .rxIrq = DMA2_Stream7_IRQn,
+  .txIrq = DMA2_Stream7_IRQn,
 };
 UART_DeviceConfig_T Mapping_PCInterface_UARTB = {
   .dev = MAPPING_PCINTERFACE_UARTBDEV,
   .handle = &huart3,
-  .rxIrq = DMA1_Stream1_IRQn,
+  .txIrq = DMA1_Stream3_IRQn,
 };
 
 /*
@@ -106,7 +106,7 @@ GPIO_T Mapping_GPS_3dFixPin = {
 UART_DeviceConfig_T Mapping_GPS_UART = {
   .dev = MAPPING_GPS_UARTDEV,
   .handle = &huart6,
-  .rxIrq = DMA2_Stream1_IRQn,
+  .txIrq = DMA2_Stream6_IRQn,
 };
 
 /*
