@@ -12,6 +12,7 @@ target_sources(TestUart PRIVATE ${PROJECT_SOURCE_DIR}/mock/FreeRTOS/mockSemphr.c
 target_sources(TestUart PRIVATE ${PROJECT_SOURCE_DIR}/mock/std/MockStdio.c)
 target_sources(TestUart PRIVATE ${PROJECT_SOURCE_DIR}/mock/stm32_hal/MockStm32f7xx_hal.c)
 target_sources(TestUart PRIVATE ${PROJECT_SOURCE_DIR}/mock/stm32_hal/MockStm32f7xx_hal_uart.c)
+target_sources(TestUart PRIVATE ${PROJECT_SOURCE_DIR}/mock/stm32_hal/MockStm32f7xx_hal_cortex.c)
 # Mocks for 1st party
 target_sources(TestUart PRIVATE ${PROJECT_SOURCE_DIR}/mock/lib/logging/MockLogging.c)
 # Production code

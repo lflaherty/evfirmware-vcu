@@ -18,6 +18,18 @@
 
 REGISTERED_MODULE_STATIC(UART);
 
+typedef enum
+{
+  UART_DEV1 = 0,
+  UART_DEV2,
+  UART_DEV3,
+  UART_DEV4,
+  UART_DEV5,
+  UART_DEV6,
+  UART_NUM_INTERFACES, /* Max number of U(S)ART interfaces */
+  UART_DEV_INVALID
+} UART_Device_T;
+
 #define UART_NUM_CALLBACKS 16     /* Max number of UART callbacks on any device */
 #define UART_MAX_DMA_LEN 128   /* Max number of bytes in one message */
 
@@ -27,9 +39,15 @@ typedef enum
   UART_STATUS_NOT_READY           = 0x01U,
   UART_STATUS_ERROR_TX            = 0x02U,
   UART_STATUS_ERROR_SB_FULL       = 0x03U,
-  UART_STATUS_ERROR_NOT_SUPPORTED = 0x04U,
-  UART_STATUS_ERROR_DEPENDS       = 0x05U,
+  UART_STATUS_ERROR_DEPENDS       = 0x04U,
+  UART_STATUS_ERROR_INVALID_DEV   = 0x05U,
 } UART_Status_T;
+
+typedef struct {
+  UART_Device_T dev;
+  UART_HandleTypeDef* handle;
+  IRQn_Type rxIrq;
+} UART_DeviceConfig_T;
 
 /**
  * @brief Initialize UART driver interface
@@ -43,7 +61,7 @@ UART_Status_T UART_Init(Logging_T* logger);
  *
  * @return Return status. UART_STATUS_OK for success. See UART_Status_T for more.
  */
-UART_Status_T UART_Config(UART_HandleTypeDef* handle);
+UART_Status_T UART_Config(UART_DeviceConfig_T* devConfig);
 
 /**
  * @biref Sets the output stream buffer for a particular UART device
@@ -53,7 +71,7 @@ UART_Status_T UART_Config(UART_HandleTypeDef* handle);
  * @return Return status. UART_STATUS_OK for success. See UART_Status_T for more.
  */
 UART_Status_T UART_SetRecvStream(
-    const UART_HandleTypeDef* handle,
+    const UART_Device_T dev,
     const StreamBufferHandle_t sb);
 
 /**
@@ -64,7 +82,7 @@ UART_Status_T UART_SetRecvStream(
  * @param n Length of data array
  * @return Return status. UART_STATUS_OK for success. See UART_Status_T for more.
  */
-UART_Status_T UART_SendMessage(UART_HandleTypeDef* handle, uint8_t* data, uint16_t len);
+UART_Status_T UART_SendMessage(const UART_Device_T dev, uint8_t* data, uint16_t len);
 
 
 #endif /* COMM_UART_UART_H_ */
