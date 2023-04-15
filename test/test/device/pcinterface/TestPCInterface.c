@@ -51,12 +51,12 @@ static UART_HandleTypeDef husartB = {
 static UART_DeviceConfig_T configUartA = {
   .dev = UART_DEV1,
   .handle = &husartA,
-  .rxIrq = DMA2_Stream1_IRQn,
+  .txIrq = DMA2_Stream1_IRQn,
 };
 static UART_DeviceConfig_T configUartB = {
   .dev = UART_DEV3,
   .handle = &husartB,
-  .rxIrq = DMA2_Stream2_IRQn,
+  .txIrq = DMA2_Stream2_IRQn,
 };
 
 static VehicleState_T mVehicleState;
@@ -119,8 +119,8 @@ TEST_SETUP(DEVICE_PCINTERFACE)
     TEST_ASSERT_EQUAL(CRC_STATUS_OK, CRC_Init(&testLog, &mCrc));
 
     // Init UART
-    HAL_NVIC_EnableIRQ(configUartA.rxIrq);
-    HAL_NVIC_EnableIRQ(configUartB.rxIrq);
+    HAL_NVIC_EnableIRQ(configUartA.txIrq);
+    HAL_NVIC_EnableIRQ(configUartB.txIrq);
     TEST_ASSERT_EQUAL(UART_STATUS_OK, UART_Init(&testLog));
     TEST_ASSERT_EQUAL(UART_STATUS_OK, UART_Config(&configUartA));
     TEST_ASSERT_EQUAL(UART_STATUS_OK, UART_Config(&configUartB));
@@ -178,8 +178,8 @@ TEST_TEAR_DOWN(DEVICE_PCINTERFACE)
 {
     TEST_ASSERT_FALSE(mockSempahoreGetLocked());
     // UART should always leave IRQ enabled after use
-    TEST_ASSERT_TRUE(mockGet_HAL_Cortex_IRQEnabled(configUartA.rxIrq));
-    TEST_ASSERT_TRUE(mockGet_HAL_Cortex_IRQEnabled(configUartB.rxIrq));
+    TEST_ASSERT_TRUE(mockGet_HAL_Cortex_IRQEnabled(configUartA.txIrq));
+    TEST_ASSERT_TRUE(mockGet_HAL_Cortex_IRQEnabled(configUartB.txIrq));
     mockClear_HAL_UART_Data();
 }
 

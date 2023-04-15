@@ -39,7 +39,7 @@ static UART_HandleTypeDef husart = {
 static UART_DeviceConfig_T configUart = {
     .dev = UART_DEV1,
     .handle = &husart,
-    .rxIrq = DMA2_Stream1_IRQn,
+    .txIrq = DMA2_Stream1_IRQn,
 };
 static VehicleState_T mVehicleState;
 static GPS_T mGps;
@@ -58,7 +58,7 @@ TEST_SETUP(DEVICE_GPS)
     mockSet_TaskTimer_RegisterTask_Status(TASKTIMER_STATUS_OK);
 
     // Init UART
-    HAL_NVIC_EnableIRQ(configUart.rxIrq);
+    HAL_NVIC_EnableIRQ(configUart.txIrq);
     TEST_ASSERT_EQUAL(UART_STATUS_OK, UART_Init(&testLog));
     TEST_ASSERT_EQUAL(UART_STATUS_OK, UART_Config(&configUart));
 
@@ -90,7 +90,7 @@ TEST_SETUP(DEVICE_GPS)
 TEST_TEAR_DOWN(DEVICE_GPS)
 {
     TEST_ASSERT_FALSE(mockSempahoreGetLocked());
-    TEST_ASSERT_TRUE(mockGet_HAL_Cortex_IRQEnabled(configUart.rxIrq));
+    TEST_ASSERT_TRUE(mockGet_HAL_Cortex_IRQEnabled(configUart.txIrq));
     mockClear_HAL_UART_Data();
     mockClearStreamBufferData(mGps.recvStreamHandle);
 }
