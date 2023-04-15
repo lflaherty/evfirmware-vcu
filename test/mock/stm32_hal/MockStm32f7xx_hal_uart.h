@@ -29,7 +29,10 @@ typedef struct
 // of the mock, unique numbers cast to a pointer will work fine.
 // Don't dereference them...
 #define USART1 ((USART_TypeDef*)0x1)
+#define USART2 ((USART_TypeDef*)0x2)
 #define USART3 ((USART_TypeDef*)0x3)
+#define UART4  ((USART_TypeDef*)0x4)
+#define UART5  ((USART_TypeDef*)0x5)
 #define USART6 ((USART_TypeDef*)0x6)
 
 // ================== Define methods ==================

@@ -14,6 +14,7 @@
 #include "stm32_hal/MockStm32f7xx_hal_gpio.h"
 #include "stm32_hal/MockStm32f7xx_hal_tim.h"
 #include "stm32_hal/MockStm32f7xx_hal_crc.h"
+#include "stm32_hal/MockStm32f7xx_hal_cortex.h"
 
 #include <stdint.h>
 
