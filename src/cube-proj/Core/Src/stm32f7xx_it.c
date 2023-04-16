@@ -402,6 +402,20 @@ void DMA2_Stream2_IRQHandler(void)
 }
 
 /**
+  * @brief This function handles CAN2 TX interrupts.
+  */
+void CAN2_TX_IRQHandler(void)
+{
+  /* USER CODE BEGIN CAN2_TX_IRQn 0 */
+
+  /* USER CODE END CAN2_TX_IRQn 0 */
+  HAL_CAN_IRQHandler(&hcan2);
+  /* USER CODE BEGIN CAN2_TX_IRQn 1 */
+
+  /* USER CODE END CAN2_TX_IRQn 1 */
+}
+
+/**
   * @brief This function handles CAN2 RX0 interrupts.
   */
 void CAN2_RX0_IRQHandler(void)
@@ -413,6 +427,20 @@ void CAN2_RX0_IRQHandler(void)
   /* USER CODE BEGIN CAN2_RX0_IRQn 1 */
 
   /* USER CODE END CAN2_RX0_IRQn 1 */
+}
+
+/**
+  * @brief This function handles CAN2 RX1 interrupt.
+  */
+void CAN2_RX1_IRQHandler(void)
+{
+  /* USER CODE BEGIN CAN2_RX1_IRQn 0 */
+
+  /* USER CODE END CAN2_RX1_IRQn 0 */
+  HAL_CAN_IRQHandler(&hcan2);
+  /* USER CODE BEGIN CAN2_RX1_IRQn 1 */
+
+  /* USER CODE END CAN2_RX1_IRQn 1 */
 }
 
 /**
@@ -458,6 +486,20 @@ void USART6_IRQHandler(void)
 }
 
 /**
+  * @brief This function handles CAN3 TX interrupt.
+  */
+void CAN3_TX_IRQHandler(void)
+{
+  /* USER CODE BEGIN CAN3_TX_IRQn 0 */
+
+  /* USER CODE END CAN3_TX_IRQn 0 */
+  HAL_CAN_IRQHandler(&hcan3);
+  /* USER CODE BEGIN CAN3_TX_IRQn 1 */
+
+  /* USER CODE END CAN3_TX_IRQn 1 */
+}
+
+/**
   * @brief This function handles CAN3 RX0 interrupt.
   */
 void CAN3_RX0_IRQHandler(void)
@@ -469,6 +511,20 @@ void CAN3_RX0_IRQHandler(void)
   /* USER CODE BEGIN CAN3_RX0_IRQn 1 */
 
   /* USER CODE END CAN3_RX0_IRQn 1 */
+}
+
+/**
+  * @brief This function handles CAN3 RX1 interrupt.
+  */
+void CAN3_RX1_IRQHandler(void)
+{
+  /* USER CODE BEGIN CAN3_RX1_IRQn 0 */
+
+  /* USER CODE END CAN3_RX1_IRQn 0 */
+  HAL_CAN_IRQHandler(&hcan3);
+  /* USER CODE BEGIN CAN3_RX1_IRQn 1 */
+
+  /* USER CODE END CAN3_RX1_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */
