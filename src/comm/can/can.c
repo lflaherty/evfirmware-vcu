@@ -238,10 +238,12 @@ CAN_Status_T CAN_Config(CAN_Device_T device, CAN_HandleTypeDef* handle)
   canDev->handle = handle;
   canDev->inUse = true;
 
-  // Filter config
+  // Filter config:
+  // Assign each CAN interface to a dedicated filter bank.
+  // Accept all incoming messages.
   CAN_FilterTypeDef sFilterConfig;
 
-  sFilterConfig.FilterBank = 0;
+  sFilterConfig.FilterBank = device;
   sFilterConfig.FilterMode = CAN_FILTERMODE_IDMASK;
   sFilterConfig.FilterScale = CAN_FILTERSCALE_32BIT;
   sFilterConfig.FilterIdHigh = 0x0000;
@@ -250,7 +252,7 @@ CAN_Status_T CAN_Config(CAN_Device_T device, CAN_HandleTypeDef* handle)
   sFilterConfig.FilterMaskIdLow = 0x0000;
   sFilterConfig.FilterFIFOAssignment = CAN_RX_FIFO0;
   sFilterConfig.FilterActivation = ENABLE;
-  sFilterConfig.SlaveStartFilterBank = 14;
+  sFilterConfig.SlaveStartFilterBank = device;
 
   if (HAL_CAN_ConfigFilter(handle, &sFilterConfig) != HAL_OK) {
     return CAN_STATUS_ERROR_CFG_FILTER;
