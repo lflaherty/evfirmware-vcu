@@ -13,6 +13,7 @@
 #include "io/adc/adc.h" /* Needed for ADC_Channel_T */
 #include "io/gpio/gpio.h" /* Needed for GPIO_T */
 #include "comm/uart/uart.h"
+#include "comm/can/can.h"
 #include "device/pdm/pdm.h"
 
 /*
@@ -80,6 +81,20 @@ extern GPIO_T Mapping_GPI_SDC_BSPD;
 extern GPIO_T Mapping_GPI_SDC_IMD;
 extern GPIO_T Mapping_GPI_SDC_SDCOut;
 extern GPIO_T Mapping_GPO_SDC_ECUError;
+
+/*
+ * BMS config
+ */
+#define MAPPING_BMS_CANBUS  CAN_DEV2
+
+/*
+ * Inverter config
+ */
+#define MAPPING_INVERTER_CANBUS CAN_DEV1
+
+/*
+ *
+ */
 
 /*
  * PC interface config

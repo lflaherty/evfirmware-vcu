@@ -26,6 +26,7 @@
 #include "device/pdm/pdm.h"
 #include "device/pcinterface/pcinterface.h"
 #include "device/inverter/cInverter.h"
+#include "device/bms/bms.h"
 #include "device/wheelspeed/wheelspeed.h"
 
 #include "vehicleLogic/watchdogTrigger/watchdogTrigger.h"
@@ -53,7 +54,10 @@ static GPS_T mGps;
 static WatchdogTrigger_T mWdtTrigger;
 static PCInterface_T mPCInterface;
 static PDM_T mPdm;
+
+// Vehicle devices
 static CInverter_T mInverter;
+static BMS_T mBms;
 
 // Vehicle interface
 static Config_T mConfig;
@@ -345,10 +349,17 @@ static void ECU_Init_VehicleDevices(void)
   }
 
   // Inverter
-  mInverter.canInst = CAN_DEV1;
+  mInverter.canInst = MAPPING_INVERTER_CANBUS;
   mInverter.vehicleState = &mVehicleState;
   if (CInverter_Init(&mLog, &mInverter) != CINVERTER_STATUS_OK) {
     ECU_Init_Error("Inverter initialization error\n");
+  }
+
+  // BMS
+  mBms.canInst = MAPPING_BMS_CANBUS;
+  mBms.vehicleState = &mVehicleState;
+  if (BMS_Init(&mLog, &mBms)) {
+    ECU_Init_Error("BMS initialization error\n");
   }
 }
 

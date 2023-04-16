@@ -54,11 +54,11 @@ typedef enum
 } BMS_Status_T;
 
 /**
- * @brief Initialize the inverter driver
+ * @brief Initialize the BMS driver
  * @param logger Pointer to logging settings
- * @param inv inverter data
+ * @param bms BMS data
  */
-BMS_Status_T BMS_Init(Logging_T* logger, BMS_T* inv);
+BMS_Status_T BMS_Init(Logging_T* logger, BMS_T* bms);
 
 
 #endif /* DEVICE_BMS_BMS_H_ */
