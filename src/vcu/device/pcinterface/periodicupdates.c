@@ -8,6 +8,9 @@
  */
 
 #include "pcinterface.h"
+#include <stdio.h> /* for snprintf */
+#include <string.h>
+
 #include "fieldId.h"
 
 #include "comm/uart/uart.h"
@@ -54,6 +57,19 @@ static void sendStateField(
       pcinterface->uartB,
       pcinterface->mfStateUpdateBuffer,
       PCINTERFACE_MSG_STATEUPDATE_MSGLEN);
+}
+
+static void sendStateFieldf(
+    PCInterface_T* pcinterface,
+    const uint16_t fieldId,
+    const float field)
+{
+  _Static_assert(sizeof(float) == sizeof(uint32_t), "impl assumes float is 32bits");
+
+  uint32_t fieldU32;
+  memcpy(&fieldU32, &field, sizeof(uint32_t));
+
+  sendStateField(pcinterface, fieldId, sizeof(uint32_t), fieldU32);
 }
 
 /**
@@ -103,6 +119,48 @@ static void sendStatePdm(
 }
 
 /**
+ * @brief Send battery state data messages.
+ * Not thread safe. Data must be a safe copy of state.
+ * 
+ * @param pcinterface PCInterface object
+ * @param data Pointer to copy of state data.
+ */
+static void sendStateBattery(
+    PCInterface_T* pcinterface,
+    VehicleState_Battery_T* data)
+{
+  _Static_assert(sizeof(float) <= 4, "float size");
+
+  sendStateFieldf(pcinterface,
+      PCCONTROLLER_FIELDID_BATTERY_MAXCELLVOLT,
+      data->maxCellVoltage);
+  sendStateField(pcinterface,
+      PCCONTROLLER_FIELDID_BATTERY_MAXCELLVOLTID,
+      sizeof(data->maxCellVoltageCellID), data->maxCellVoltageCellID);
+  sendStateFieldf(pcinterface,
+      PCCONTROLLER_FIELDID_BATTERY_MAXCELLTEMP,
+      data->maxCellTemperature);
+  sendStateField(pcinterface,
+      PCCONTROLLER_FIELDID_BATTERY_MAXCELLTEMPID,
+      sizeof(data->minCellTemperatureCellID), data->minCellTemperatureCellID);
+  sendStateFieldf(pcinterface,
+      PCCONTROLLER_FIELDID_BATTERY_DCCURRENT,
+      data->dcCurrent);
+  sendStateFieldf(pcinterface,
+      PCCONTROLLER_FIELDID_BATTERY_DCVOLTAGE,
+      data->dcVoltage);
+  sendStateFieldf(pcinterface,
+      PCCONTROLLER_FIELDID_BATTERY_SOC,
+      data->stateOfCarge);
+  sendStateField(pcinterface,
+      PCCONTROLLER_FIELDID_BATTERY_COUNTER,
+      sizeof(data->bmsCounter), data->bmsCounter);
+  sendStateField(pcinterface,
+      PCCONTROLLER_FIELDID_BMS_FAULTINDICATOR,
+      sizeof(data->bmsFaultIndicator), data->bmsFaultIndicator);
+}
+
+/**
  * @brief At 1Hz, transmit internal state
  * 
  * @param pcinterface 
@@ -128,6 +186,7 @@ static void periodicStateUpdate(PCInterface_T* pcinterface)
 
   sendStateSdc(pcinterface, &data.vehicle.sdc);
   sendStatePdm(pcinterface, &data.glv);
+  sendStateBattery(pcinterface, &data.battery);
 }
 
 /**

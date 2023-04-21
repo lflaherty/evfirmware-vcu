@@ -93,7 +93,7 @@ TEST(DEVICE_ORIONBMS, InitOk)
 
 TEST(DEVICE_ORIONBMS, RecvMaxCellState)
 {
-    uint32_t recvId = 0xB01;
+    uint32_t recvId = 0x301;
     uint8_t recvMsg[] = {
         0x38, 0x02, // Max cell temp = 56.8 deg
         0x21,       // Max cell temp ID = 33
@@ -120,7 +120,7 @@ TEST(DEVICE_ORIONBMS, RecvMaxCellState)
 
 TEST(DEVICE_ORIONBMS, RecvMinCellState)
 {
-    uint32_t recvId = 0xB02;
+    uint32_t recvId = 0x302;
     uint8_t recvMsg[] = {
         0x01, 0x00, // Min cell temp = 0.1 deg
         0x00,       // Min cell temp ID = 0
@@ -147,7 +147,7 @@ TEST(DEVICE_ORIONBMS, RecvMinCellState)
 
 TEST(DEVICE_ORIONBMS, RecvPackState)
 {
-    uint32_t recvId = 0xB03;
+    uint32_t recvId = 0x303;
     uint8_t recvMsg[] = {
         0xC3, 0x0B, // DC current = 301.1 A
         0x4A, 0x18, // DC voltage = 621.8 V
@@ -172,7 +172,7 @@ TEST(DEVICE_ORIONBMS, RecvPackState)
 
 TEST(DEVICE_ORIONBMS, RecvCounter)
 {
-    uint32_t recvId = 0xB04;
+    uint32_t recvId = 0x304;
     uint8_t recvMsg[] = {
         0xF0, 0x4F, 0x67, 0xB9, // arbitrary counter value
         0x00, 0x00, 0x00, 0x00

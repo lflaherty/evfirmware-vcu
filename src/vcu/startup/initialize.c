@@ -261,6 +261,14 @@ static void ECU_Init_BoardPeriph(void)
   if (CAN_STATUS_OK != statusCan) {
     ECU_Init_Error("CAN1 config error\n");
   }
+  statusCan = CAN_Config(CAN_DEV2, Mapping_GetCAN2());
+  if (CAN_STATUS_OK != statusCan) {
+    ECU_Init_Error("CAN2 config error\n");
+  }
+  statusCan = CAN_Config(CAN_DEV3, Mapping_GetCAN3());
+  if (CAN_STATUS_OK != statusCan) {
+    ECU_Init_Error("CAN3 config error\n");
+  }
 
   mPCInterface.canDebugEnable = true; // TODO remove
 
