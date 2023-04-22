@@ -31,7 +31,7 @@ typedef enum
 } UART_Device_T;
 
 #define UART_NUM_CALLBACKS 16     /* Max number of UART callbacks on any device */
-#define UART_MAX_DMA_LEN 128   /* Max number of bytes in one message */
+#define UART_MAX_DMA_LEN 512   /* Max number of bytes in one message */
 
 typedef enum
 {
