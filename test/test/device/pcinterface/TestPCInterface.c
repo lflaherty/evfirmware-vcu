@@ -27,6 +27,12 @@
 // MockLogging.h is deliberately not used here - need the stream internals of
 // logging to work correctly. Use MockStdio to capture SWO printfs instead
 
+// hack to deal with the UART scheduling
+// don't want to deal with that in this test, that's covered by TestUart
+#include "comm/uart/uart.h"
+#undef UART_MAX_DMA_LEN
+#define UART_MAX_DMA_LEN 65535
+
 // source code under test
 #include "comm/uart/uart.c"
 #include "device/pcinterface/pcinterface.c"
@@ -66,7 +72,15 @@ static VehicleControl_T mVehicleControl;
 
 static PCInterface_T mPCInterface;
 
-#define STATEUPDATE_NUMMSGS 2
+// Number of state update messages are sent in succession
+const uint32_t STATEUPDATE_NUMMSGS_SDC = 1;
+const uint32_t STATEUPDATE_NUMMSGS_PDM = 1;
+const uint32_t STATEUPDATE_NUMMSGS_BATTERY = 9;
+const uint32_t STATEUPDATE_NUMMSGS =
+        STATEUPDATE_NUMMSGS_SDC +
+        STATEUPDATE_NUMMSGS_PDM +
+        STATEUPDATE_NUMMSGS_BATTERY;
+
 /**
  * @brief The state message is often the first to send - at 1Hz, but it is sent
  * on the first invocation of the task method
@@ -355,7 +369,7 @@ TEST(DEVICE_PCINTERFACE, PeriodicStateUpdates)
     mockClear_HAL_UART_Data();
     HAL_UART_TxCpltCallback(&husartA);
 
-    const size_t numMessages = 1U;
+    const size_t numMessages = STATEUPDATE_NUMMSGS - 1;
     TEST_ASSERT_EQUAL(numMessages*PCINTERFACE_MSG_STATEUPDATE_MSGLEN, mockGet_HAL_UART_Len());
     TEST_ASSERT_EQUAL_UINT8_ARRAY(expectedMsgPDM,
         mockGet_HAL_UART_Data(),
