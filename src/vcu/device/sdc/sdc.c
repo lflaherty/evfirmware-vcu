@@ -42,6 +42,7 @@ static void SDC_TaskMethod(void)
   }
 }
 
+// LCOV_EXCL_START
 static void SDC_Task(void* pvParameters)
 {
   (void)pvParameters;
@@ -50,6 +51,7 @@ static void SDC_Task(void* pvParameters)
     SDC_TaskMethod();
   }
 }
+// LCOV_EXCL_STOP
 
 /**
  * @brief Update an internal GPIO input state variable from IRQ.

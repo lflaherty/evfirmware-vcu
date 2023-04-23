@@ -349,6 +349,7 @@ static void InverterProcessing(CInverter_T* inv)
 
 }
 
+// LCOV_EXCL_START
 static void InverterProcessing_Task(void* pvParameters)
 {
   CInverter_T* inv = (CInverter_T*)pvParameters;
@@ -357,6 +358,7 @@ static void InverterProcessing_Task(void* pvParameters)
     InverterProcessing(inv);
   }
 }
+// LCOV_EXCL_STOP
 
 // ------------------- Public methods -------------------
 CInverter_Status_T CInverter_Init(Logging_T* logger, CInverter_T* inv)

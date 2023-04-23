@@ -64,6 +64,7 @@ static void ThrottleController(ThrottleController_T* throttleControl)
   }
 }
 
+// LCOV_EXCL_START
 static void ThrottleController_Task(void* pvParameters)
 {
   ThrottleController_T* obj = (ThrottleController_T*)pvParameters;
@@ -72,6 +73,7 @@ static void ThrottleController_Task(void* pvParameters)
     ThrottleController(obj);
   }
 }
+// LCOV_EXCL_STOP
 
 // ------------------- Public methods -------------------
 ThrottleController_Status_T ThrottleController_Init(

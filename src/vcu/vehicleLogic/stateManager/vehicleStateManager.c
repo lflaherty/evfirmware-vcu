@@ -25,6 +25,7 @@ static void StateManagerProcessing(VehicleStateManager_T* sm)
   }
 }
 
+// LCOV_EXCL_START
 static void StateManagerProcessing_Task(void* pvParameters)
 {
   VehicleStateManager_T* obj = (VehicleStateManager_T*)pvParameters;
@@ -33,6 +34,7 @@ static void StateManagerProcessing_Task(void* pvParameters)
     StateManagerProcessing(obj);
   }
 }
+// LCOV_EXCL_STOP
 
 // ------------------- Public methods -------------------
 VehicleStateManager_Status_T VehicleStateManager_Init(Logging_T* logger, VehicleStateManager_T* sm)

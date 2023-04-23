@@ -88,6 +88,7 @@ static void GPS_TaskMethod(GPS_T* gps)
   }
 }
 
+// LCOV_EXCL_START
 static void GPS_Task(void* pvParameters)
 {
   GPS_T* obj = (GPS_T*)pvParameters;
@@ -96,6 +97,7 @@ static void GPS_Task(void* pvParameters)
     GPS_TaskMethod(obj);
   }
 }
+// LCOV_EXCL_STOP
 
 // ------------------- Public methods -------------------
 GPS_Status_T GPS_Init(

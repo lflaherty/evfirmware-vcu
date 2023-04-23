@@ -84,6 +84,7 @@ static void PCInterface_TaskMethod(PCInterface_T* pcinterface)
   }
 }
 
+// LCOV_EXCL_START
 static void PCInterface_Task(void* pvParameters)
 {
   PCInterface_T* obj = (PCInterface_T*)pvParameters;
@@ -92,6 +93,7 @@ static void PCInterface_Task(void* pvParameters)
     PCInterface_TaskMethod(obj);
   }
 }
+// LCOV_EXCL_STOP
 
 // ------------------- Public methods -------------------
 PCInterface_Status_T PCInterface_Init(

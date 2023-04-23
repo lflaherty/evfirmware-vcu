@@ -142,6 +142,7 @@ static void Wheelspeed_TaskMethod(void)
   }
 }
 
+// LCOV_EXCL_START
 static void Wheelspeed_Task(void* pvParameters)
 {
   (void)pvParameters;
@@ -150,6 +151,7 @@ static void Wheelspeed_Task(void* pvParameters)
     Wheelspeed_TaskMethod();
   }
 }
+// LCOV_EXCL_STOP
 
 // ------------------- Public methods -------------------
 Wheelspeed_Status_T Wheelspeed_Init(Wheelspeed_Config_T* config)

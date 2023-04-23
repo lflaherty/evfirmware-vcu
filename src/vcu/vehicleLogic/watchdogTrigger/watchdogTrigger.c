@@ -30,6 +30,7 @@ static void WatchdogTrigger(WatchdogTrigger_T* wdtTrigger)
   }
 }
 
+// LCOV_EXCL_START
 static void WatchdogTrigger_Task(void* pvParameters)
 {
   WatchdogTrigger_T* obj = (WatchdogTrigger_T*)pvParameters;
@@ -38,6 +39,7 @@ static void WatchdogTrigger_Task(void* pvParameters)
     WatchdogTrigger(obj);
   }
 }
+// LCOV_EXCL_STOP
 
 // ------------------- Public methods -------------------
 WatchdogTrigger_Status_T WatchdogTrigger_Init(

@@ -174,6 +174,7 @@ static void BMSProcessing(BMS_T* bms)
 
 }
 
+// LCOV_EXCL_START
 static void BMSProcessing_Task(void* pvParameters)
 {
   BMS_T* bms = (BMS_T*)pvParameters;
@@ -182,6 +183,7 @@ static void BMSProcessing_Task(void* pvParameters)
     BMSProcessing(bms);
   }
 }
+// LCOV_EXCL_STOP
 
 // ------------------- Public methods -------------------
 BMS_Status_T BMS_Init(Logging_T* logger, BMS_T* bms)
