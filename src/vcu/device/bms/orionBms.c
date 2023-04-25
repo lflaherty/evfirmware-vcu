@@ -109,7 +109,7 @@ static void HandleMsg_PackState(const CAN_DataFrame_T* data, VehicleState_T* sta
 
   float dcCurrent = msgToCurrent(dcCurrentMsg);
   float dcVoltage = msgToVoltageHigh(dcVoltageMsg);
-  float soc = msgToPercent(socMsg);
+  float soc = msgToStateOfChargePct(socMsg);
 
   // send to vehicle state
   if (VehicleState_AccessAcquire(state)) {
