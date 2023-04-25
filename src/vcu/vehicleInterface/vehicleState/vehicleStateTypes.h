@@ -99,7 +99,9 @@ typedef struct
   float dcVoltage;                  // Total battery pack voltage
   float stateOfCarge;               // Battery pack SoC
   bool bmsFaultIndicator;           // BMS indicates fault
-  uint32_t bmsCounter;              // Increments every BMS counter message
+  uint8_t bmsPopulatedCells;        // Number of cells connected to BMS
+  uint8_t bmsCounter;               // Increments every BMS counter message
+  uint16_t bmsFailsafeStatus;       // Current failsafe mode status
 } VehicleState_Battery_T;
 
 typedef struct

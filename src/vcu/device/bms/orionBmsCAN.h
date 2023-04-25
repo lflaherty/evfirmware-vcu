@@ -16,7 +16,7 @@
 #define BMS_CAN_ID_MAXCELLSTATE       ((uint16_t) 0x301)
 #define BMS_CAN_ID_MINCELLSTATE       ((uint16_t) 0x302)
 #define BMS_CAN_ID_PACKSTATE          ((uint16_t) 0x303)
-#define BMS_CAN_ID_COUNTER            ((uint16_t) 0x304)
+#define BMS_CAN_ID_STATUS             ((uint16_t) 0x304)
 
 
 #endif /* DEVICE_BMS_ORIONBMSCAN_H_ */

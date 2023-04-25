@@ -120,22 +120,24 @@ static void HandleMsg_PackState(const CAN_DataFrame_T* data, VehicleState_T* sta
   VehicleState_AccessRelease(state);
 }
 
-static void HandleMsg_Counter(const CAN_DataFrame_T* data, VehicleState_T* state)
+static void HandleMsg_Status(const CAN_DataFrame_T* data, VehicleState_T* state)
 {
   if (data->dlc != 8) {
     return;
   }
   const uint8_t* msg = data->data;
 
-  uint32_t counter = 0U;
-  counter |= msg[0];
-  counter |= (uint32_t)msg[1] << 8;
-  counter |= (uint32_t)msg[2] << 16;
-  counter |= (uint32_t)msg[3] << 24;
+  uint8_t counter = msg[0];
+  uint8_t popualtedCells = msg[1];
+  uint16_t failsafeStatus = 0;
+  failsafeStatus |= msg[2];
+  failsafeStatus |= msg[3] << 8;
 
   // send to vehicle state
   if (VehicleState_AccessAcquire(state)) {
+    state->data.battery.bmsPopulatedCells = popualtedCells;
     state->data.battery.bmsCounter = counter;
+    state->data.battery.bmsFailsafeStatus = failsafeStatus;
   }
   VehicleState_AccessRelease(state);
 }
@@ -162,8 +164,8 @@ static void BMSProcessing(BMS_T* bms)
         case BMS_CAN_ID_PACKSTATE:
           HandleMsg_PackState(&queuedData, bms->vehicleState);
           break;
-        case BMS_CAN_ID_COUNTER:
-          HandleMsg_Counter(&queuedData, bms->vehicleState);
+        case BMS_CAN_ID_STATUS:
+          HandleMsg_Status(&queuedData, bms->vehicleState);
           break;
         default:
           // Don't know this message ID - throw away message

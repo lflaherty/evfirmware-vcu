@@ -170,11 +170,13 @@ TEST(DEVICE_ORIONBMS, RecvPackState)
     TEST_ASSERT_EQUAL_FLOAT(84.5f, testVehicleState.data.battery.stateOfCarge);
 }
 
-TEST(DEVICE_ORIONBMS, RecvCounter)
+TEST(DEVICE_ORIONBMS, RecvStatus)
 {
     uint32_t recvId = 0x304;
     uint8_t recvMsg[] = {
-        0xF0, 0x4F, 0x67, 0xB9, // arbitrary counter value
+        0xF0, // arbitrary counter value
+        0x44, // 68 populated cells
+        0x03, 0x00, // failsafe status
         0x00, 0x00, 0x00, 0x00
     };
     _Static_assert(sizeof(recvMsg) == 8, "Msg len");
@@ -188,7 +190,9 @@ TEST(DEVICE_ORIONBMS, RecvCounter)
     mockSetTaskNotifyValue(1); // to wake up
     BMSProcessing(&testBms);
 
-    TEST_ASSERT_EQUAL_FLOAT(3110555632UL, testVehicleState.data.battery.bmsCounter);
+    TEST_ASSERT_EQUAL_FLOAT(68, testVehicleState.data.battery.bmsPopulatedCells);
+    TEST_ASSERT_EQUAL_FLOAT(0xF0, testVehicleState.data.battery.bmsCounter);
+    TEST_ASSERT_EQUAL_FLOAT(0x0003, testVehicleState.data.battery.bmsFailsafeStatus);
 }
 
 TEST_GROUP_RUNNER(DEVICE_ORIONBMS)
@@ -197,7 +201,7 @@ TEST_GROUP_RUNNER(DEVICE_ORIONBMS)
     RUN_TEST_CASE(DEVICE_ORIONBMS, RecvMaxCellState);
     RUN_TEST_CASE(DEVICE_ORIONBMS, RecvMinCellState);
     RUN_TEST_CASE(DEVICE_ORIONBMS, RecvPackState);
-    RUN_TEST_CASE(DEVICE_ORIONBMS, RecvCounter);
+    RUN_TEST_CASE(DEVICE_ORIONBMS, RecvStatus);
 }
 
 #define INVOKE_TEST DEVICE_ORIONBMS
