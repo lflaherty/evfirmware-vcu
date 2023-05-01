@@ -38,6 +38,8 @@
 #include "device/pcinterface/pcinterface.c"
 #include "device/pcinterface/periodicupdates.c"
 #include "device/pcinterface/requests.c"
+#include "device/pcinterface/debugterm.c"
+#include "device/pcinterface/debugtermcommands.c"
 #include "lib/logging/logging.c"  // also need this to use mock impls
 
 static Logging_T testLog;

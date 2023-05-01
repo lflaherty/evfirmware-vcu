@@ -16,6 +16,18 @@
 #define PAYLOAD_OFFSET 5U
 #define HEADER_PADDING 11U /* Number of message bytes that aren't payload */
 
+/**
+ * @brief Method used to pass data to debug terminal.
+ * 
+ * @param pcinterface PCInterface struct
+ * @param payloadBytes Debug terimal payload data (terminal chars)
+ * @param nBytes Length of payloadBytes
+ */
+extern void PCInterface_DebugTermRecv(
+    PCInterface_T* pcinterface,
+    uint8_t* payloadBytes,
+    uint16_t nBytes);
+
 
 static void handleMsgTestSdc(
     PCInterface_T* pcinterface,
@@ -87,6 +99,10 @@ static void handleMessage(
   uint16_t payloadLen = nBytes - HEADER_PADDING;
 
   switch (function) {
+    case PCINTERFACE_MSG_DEBUG_TERMINAL:
+      PCInterface_DebugTermRecv(pcinterface, payload, payloadLen);
+      break;
+
     case PCINTERFACE_MSG_TESTCMD_SDC_FUNCTION:
       handleMsgTestSdc(pcinterface, payload, payloadLen);
       break;

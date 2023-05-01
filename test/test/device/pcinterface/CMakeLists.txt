@@ -30,3 +30,36 @@ target_sources(TestPCInterface PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/comm/
 target_sources(TestPCInterface PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/lib/crc/crc.c)
 target_sources(TestPCInterface PRIVATE ${PROJECT_SOURCE_DIR}/../src/vcu/device/sdc/sdc.c)
 target_sources(TestPCInterface PRIVATE ${PROJECT_SOURCE_DIR}/../src/vcu/vehicleInterface/vehicleState/vehicleState.c)
+
+## TestDebugTerm
+add_executable(TestDebugTerm TestDebugTerm.c)
+# Test harness
+target_sources(TestDebugTerm PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/Unity/src/unity.c)
+target_sources(TestDebugTerm PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/Unity/extras/fixture/src/unity_fixture.c)
+# Mocks for 3rd party
+target_sources(TestDebugTerm PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/mock/FreeRTOS/mockFreeRTOS.c)
+target_sources(TestDebugTerm PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/mock/FreeRTOS/mockQueue.c)
+target_sources(TestDebugTerm PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/mock/FreeRTOS/mockStreamBuffer.c)
+target_sources(TestDebugTerm PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/mock/FreeRTOS/mockTask.c)
+target_sources(TestDebugTerm PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/mock/FreeRTOS/mockSemphr.c)
+target_sources(TestDebugTerm PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/mock/std/MockStdio.c)
+target_sources(TestDebugTerm PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/mock/stm32_hal/MockStm32f7xx_hal.c)
+target_sources(TestDebugTerm PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/mock/stm32_hal/MockStm32f7xx_hal_cortex.c)
+target_sources(TestDebugTerm PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/mock/stm32_hal/MockStm32f7xx_hal_can.c)
+target_sources(TestDebugTerm PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/mock/stm32_hal/MockStm32f7xx_hal_crc.c)
+target_sources(TestDebugTerm PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/mock/stm32_hal/MockStm32f7xx_hal_gpio.c)
+target_sources(TestDebugTerm PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/mock/stm32_hal/MockStm32f7xx_hal_uart.c)
+# Mocks for 1st party
+target_sources(TestDebugTerm PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/mock/time/tasktimer/MockTasktimer.c)
+target_sources(TestDebugTerm PRIVATE ${PROJECT_SOURCE_DIR}/mock/Application/vehicleInterface/vehicleControl/MockVehicleControl.c)
+target_sources(TestDebugTerm PRIVATE ${PROJECT_SOURCE_DIR}/mock/Application/device/inverter/MockCInverter.c)
+target_sources(TestDebugTerm PRIVATE ${PROJECT_SOURCE_DIR}/mock/Application/device/pdm/MockPdm.c)
+# Production code
+target_sources(TestDebugTerm PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/lib/depends/depends.c)
+target_sources(TestDebugTerm PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/comm/can/can.c)
+target_sources(TestDebugTerm PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/io/gpio/gpio.c)
+target_sources(TestDebugTerm PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/comm/uart/msgframeencode.c)
+target_sources(TestDebugTerm PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/comm/uart/msgframedecode.c)
+target_sources(TestDebugTerm PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/lib/crc/crc.c)
+target_sources(TestDebugTerm PRIVATE ${PROJECT_SOURCE_DIR}/../src/vcu/device/sdc/sdc.c)
+target_sources(TestDebugTerm PRIVATE ${PROJECT_SOURCE_DIR}/../src/vcu/vehicleInterface/vehicleState/vehicleState.c)

@@ -44,6 +44,12 @@ typedef enum
 #define PCINTERFACE_RECV_STREAM_SIZE_BYTES 2048U
 #define PCINTERFACE_RECV_STREAM_TRIGGER_LEVEL_BYTES 1U
 
+#define PCINTERFACE_DEBUGTERM_BUFLEN 64U
+struct PCInterface_DebugTerm {
+  char buf[PCINTERFACE_DEBUGTERM_BUFLEN];
+  uint16_t next;
+};
+
 typedef struct
 {
   UART_Device_T uartA;
@@ -57,6 +63,8 @@ typedef struct
   uint32_t canErrorCounter;
 
   Logging_T* log; // TODO move towards this approach
+
+  struct PCInterface_DebugTerm debugterm;
 
   VehicleState_T* state; // Vehicle state object to fetch data from
   VehicleControl_T* control;
@@ -87,6 +95,8 @@ typedef struct
   uint8_t mfStateUpdateBuffer[PCINTERFACE_MSG_STATEUPDATE_MSGLEN];
   MsgFrameEncode_T mfLogData;
   uint8_t mfLogDataBuffer[PCINTERFACE_MSG_LOG_MSGLEN];
+  MsgFrameEncode_T mfDebugEncode;
+  uint8_t mfDebugEncodeBuffer[PCINTERFACE_MSG_DEBUGTERM_BUFFERLEN];
 
   // Message frame for decoding
   MsgFrameDecode_T mfDecode;

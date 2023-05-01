@@ -130,12 +130,22 @@ PCInterface_Status_T PCInterface_Init(
   pcinterface->mfLogData.msgLen = PCINTERFACE_MSG_LOG_MSGLEN;
   pcinterface->mfLogData.buffer = pcinterface->mfLogDataBuffer;
 
+  pcinterface->mfDebugEncode.crc = pcinterface->crc;
+  pcinterface->mfDebugEncode.address = PCINTERFACE_MSG_DESTADDR_PC;
+  pcinterface->mfDebugEncode.function = PCINTERFACE_MSG_DEBUGTERM_FUNCTION;
+  pcinterface->mfDebugEncode.dataLen = 0; // variable length, just init to 0
+  pcinterface->mfDebugEncode.msgLen = 0;
+  pcinterface->mfDebugEncode.buffer = pcinterface->mfDebugEncodeBuffer;
+
   // Setup message frame decoder
   pcinterface->mfDecode.crc = pcinterface->crc;
   pcinterface->mfDecode.msgLen = PCINTERFACE_MSG_COMMON_MSGLEN;
   if (!MsgFrameDecode_Init(&pcinterface->mfDecode)) {
     return PCINTERFACE_STATUS_ERROR_INIT;
   }
+
+  // init debug term
+  pcinterface->debugterm.next = 0U;
 
   // Create mutex lock & queue
   pcinterface->mutex = xSemaphoreCreateMutexStatic(&pcinterface->mutexBuffer);
