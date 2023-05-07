@@ -15,6 +15,28 @@
 #include "comm/uart/uart.h"
 
 /**
+ * @brief Copies the src string to the dest string, up to a maximum length.
+ * Stops when a terminating character \0 is found.
+ *
+ * @param dest Destination string.
+ * @param src Source string.
+ * @param maxLen Max buffer length
+ * @return Number of characters copied
+ */
+static uint16_t strncpyl(char* dest, char* src, uint16_t maxLen)
+{
+  uint16_t i = 0;
+  while (i < maxLen) {
+    if (src[i] == '\0') {
+      break;
+    }
+    dest[i] = src[i];
+    ++i;
+  }
+  return i;
+}
+
+/**
  * @brief Attempt to invoke the processed string.
  * Ensure that argv[][] is 
  * 
