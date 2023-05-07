@@ -336,15 +336,48 @@ TEST(DEVICE_PCINTERFACE_DEBUGTERM, CmdSetPdm)
     expectDebugLogMsg(expectedHelpText, dataBuf, responseLen);
 
     // Actual message to send
-    cmdLen = snprintf(cmd, 64, "setpdm 0 1 0 0 0 1\n");
+    cmdLen = snprintf(cmd, 64, "setpdm 0 0 0 0 0 0\n");
     sendCmdStrToSerial(cmd, cmdLen);
-
     mockSetTaskNotifyValue(1); // to wake up
     PCInterface_TaskMethod(&mPCInterface);
-
-    bool expectedPdmState[6] = {0, 1, 0, 0, 0, 1};
     for (uint8_t i = 0; i < 6; ++i) {
-        TEST_ASSERT_EQUAL(expectedPdmState[i], mockGet_VehicleControl_PDMChannel(i));
+        TEST_ASSERT_FALSE(mockGet_VehicleControl_PDMChannel(i));
+    }
+
+    // Test each channel on
+    bool expectedPdmState[6] = {0, 0, 0, 0, 0, 0};
+    for (uint8_t i = 0; i < 6; ++i) {
+        // only turn on one channel
+        memset(expectedPdmState, 0, sizeof(expectedPdmState));
+        expectedPdmState[i] = true;
+
+        cmdLen = snprintf(cmd, 64, "setpdm %u %u %u %u %u %u\n",
+            expectedPdmState[0],
+            expectedPdmState[1],
+            expectedPdmState[2],
+            expectedPdmState[3],
+            expectedPdmState[4],
+            expectedPdmState[5]);
+        sendCmdStrToSerial(cmd, cmdLen);
+        mockSetTaskNotifyValue(1); // to wake up
+        PCInterface_TaskMethod(&mPCInterface);
+
+        TEST_ASSERT_TRUE(mockGet_VehicleControl_PDMChannel(i));
+        for (uint8_t j = 0; j < 6; ++j) {
+            // check that every channel other than i is false
+            if (i == j)
+                continue;
+            TEST_ASSERT_FALSE(mockGet_VehicleControl_PDMChannel(j));
+        }
+    }
+
+    // And toggle it all back off...
+    cmdLen = snprintf(cmd, 64, "setpdm 0 0 0 0 0 0\n");
+    sendCmdStrToSerial(cmd, cmdLen);
+    mockSetTaskNotifyValue(1); // to wake up
+    PCInterface_TaskMethod(&mPCInterface);
+    for (uint8_t i = 0; i < 6; ++i) {
+        TEST_ASSERT_FALSE(mockGet_VehicleControl_PDMChannel(i));
     }
 }
 
