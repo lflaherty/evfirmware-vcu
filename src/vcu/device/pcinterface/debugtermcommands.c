@@ -101,6 +101,37 @@ static void cmd_setpdm(
   }
 }
 
+static void cmd_setsdc(
+    PCInterface_T* pcinterface,
+    uint16_t argc,
+    char argv[DEBUGTERM_NUM_ARGS][PCINTERFACE_DEBUGTERM_BUFLEN+1])
+{
+  if (argc != 2) {
+    DebugPrint(pcinterface, "Unexpected number of params\n");
+    return;
+  }
+
+  bool sdcAssert = false;
+  char sdcAssertChar = argv[1][0];
+  switch (sdcAssertChar) {
+    case '0':
+      sdcAssert = false;
+      break;
+    case '1':
+      sdcAssert = true;
+      break;
+    default:
+      DebugPrint(pcinterface, "Param must be 0 or 1\n");
+      return;
+  }
+
+  VehicleControl_SetECUError(pcinterface->control, sdcAssert);
+
+  char buf[32] = { 0 };
+  snprintf(buf, 32, "  SDC output set to: %u\n", sdcAssert);
+  DebugPrint(pcinterface, buf);
+}
+
 struct DebugTerm_CmdDef DebugTerm_Commands[] = {
   {
     .name = "help",
@@ -116,6 +147,13 @@ struct DebugTerm_CmdDef DebugTerm_Commands[] = {
             "For example, `setpdm 0 0 1 0 1 0` turns on channels 3 and 5, and switches\n"
             "off remaining channels.\n",
     .exec = cmd_setpdm,
+  },
+  {
+    .name = "setsdc",
+    .desc = "Control shutdown circuit output state",
+    .help = "Usage: setsdc x\n"
+            "where x is 0 or 1 to disable or enable the SDC output.\n",
+    .exec = cmd_setsdc,
   },
 };
 const size_t DebugTerm_NumCommands = sizeof(DebugTerm_Commands) / sizeof(DebugTerm_Commands[0]);

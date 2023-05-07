@@ -381,12 +381,53 @@ TEST(DEVICE_PCINTERFACE_DEBUGTERM, CmdSetPdm)
     }
 }
 
+TEST(DEVICE_PCINTERFACE_DEBUGTERM, CmdSetSdc)
+{
+    char cmd[64];
+    int cmdLen;
+    size_t responseLen;
+
+    // Help text
+    const char* expectedHelpText = "Control shutdown circuit output state\n"
+        "Usage: setsdc x\n"
+        "where x is 0 or 1 to disable or enable the SDC output.\n";
+    cmdLen = snprintf(cmd, 64, "help setsdc\n");
+    sendCmdStrToSerial(cmd, cmdLen);
+    mockSetTaskNotifyValue(1); // to wake up
+    PCInterface_TaskMethod(&mPCInterface);
+
+    responseLen = flushSerialData(dataBuf, TEST_BUF_LEN);
+    expectDebugLogMsg(expectedHelpText, dataBuf, responseLen);
+
+    // Actual message to send
+    cmdLen = snprintf(cmd, 64, "setsdc 0\n");
+    sendCmdStrToSerial(cmd, cmdLen);
+    mockSetTaskNotifyValue(1); // to wake up
+    PCInterface_TaskMethod(&mPCInterface);
+    TEST_ASSERT_FALSE(mockGet_VehicleControl_ECUError());
+
+    // Toggle error on and run again
+    cmdLen = snprintf(cmd, 64, "setsdc 1\n");
+    sendCmdStrToSerial(cmd, cmdLen);
+    mockSetTaskNotifyValue(1); // to wake up
+    PCInterface_TaskMethod(&mPCInterface);
+    TEST_ASSERT_TRUE(mockGet_VehicleControl_ECUError());
+
+    // And toggle it back off...
+    cmdLen = snprintf(cmd, 64, "setsdc 0\n");
+    sendCmdStrToSerial(cmd, cmdLen);
+    mockSetTaskNotifyValue(1); // to wake up
+    PCInterface_TaskMethod(&mPCInterface);
+    TEST_ASSERT_FALSE(mockGet_VehicleControl_ECUError());
+}
+
 TEST_GROUP_RUNNER(DEVICE_PCINTERFACE_DEBUGTERM)
 {
     RUN_TEST_CASE(DEVICE_PCINTERFACE_DEBUGTERM, InitOk);
     RUN_TEST_CASE(DEVICE_PCINTERFACE_DEBUGTERM, DebugPrintMethod);
     RUN_TEST_CASE(DEVICE_PCINTERFACE_DEBUGTERM, CmdHelp);
     RUN_TEST_CASE(DEVICE_PCINTERFACE_DEBUGTERM, CmdSetPdm);
+    RUN_TEST_CASE(DEVICE_PCINTERFACE_DEBUGTERM, CmdSetSdc);
 }
 
 #define INVOKE_TEST DEVICE_PCINTERFACE_DEBUGTERM
