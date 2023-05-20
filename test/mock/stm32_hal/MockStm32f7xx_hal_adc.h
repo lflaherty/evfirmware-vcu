@@ -18,6 +18,13 @@
 // ================== Define types ==================
 typedef struct
 {
+    uint32_t DataAlign;
+    uint32_t ContinuousConvMode;
+    uint32_t NbrOfConversion;
+} ADC_InitTypeDef;
+
+typedef struct
+{
     // Empty for mock
     uint8_t tmp;
 } ADC_TypeDef;
@@ -25,7 +32,16 @@ typedef struct
 typedef struct
 {
     ADC_TypeDef* Instance;
+    ADC_InitTypeDef Init;
 } ADC_HandleTypeDef;
+
+// These are supposed to be pointers to the peripherals, but for the purposes
+// of the mock, unique numbers cast to a pointer will work fine.
+// Don't dereference them...
+#define ADC1 ((ADC_TypeDef*)0x0)
+
+
+#define ADC_DATAALIGN_RIGHT      ((uint32_t)0x00000000U)
 
 
 // ================== Define methods ==================

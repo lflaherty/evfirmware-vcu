@@ -1,6 +1,8 @@
 /*
  * adc.h
  *
+ * ADC interface abstraction.
+ *
  *  Created on: 22 Nov 2020
  *      Author: Liam Flaherty
  */
@@ -17,46 +19,49 @@
 REGISTERED_MODULE_STATIC(ADC);
 
 #define ADC_MAX_NUM_CHANNELS 16
+_Static_assert( (ADC_MAX_NUM_CHANNELS / 2) * 2 == ADC_MAX_NUM_CHANNELS, "Value must be multiple of 2");
 
 typedef enum
 {
-  ADC_STATUS_OK                   = 0x00U,
-  ADC_STATUS_ERROR_DMA            = 0x01U,
-  ADC_STATUS_ERROR_CHANNEL_COUNT  = 0x02U,
-  ADC_STATUS_ERROR_DEPENDS        = 0x03U,
+  ADC_STATUS_OK                     = 0x00,
+  ADC_STATUS_ERROR_DMA              = 0x01,
+  ADC_STATUS_ERROR_CHANNEL_COUNT    = 0x02,
+  ADC_STATUS_ERROR_DEPENDS          = 0x03,
+  ADC_STATUS_ERROR_HW_CONFIG        = 0x04,
+  ADC_STATUS_ERROR_INVALID_CHANNEL  = 0x05,
+  ADC_STATUS_ERROR_INTERNAL         = 0x07
 } ADC_Status_T;
 
 typedef uint16_t ADC_Channel_T;
 
-#define ADC_INVALID ((uint16_t)0xFFFFU)
+typedef struct
+{
+  Logging_T* logger;
+  ADC_HandleTypeDef* handle;
+  IRQn_Type adcIrq; // The IRQ for this ADC
+
+  uint16_t numChannelsUsed; // Must be consistent with ADC hardware init settings.
+
+  // TODO add oversampling
+} ADC_Config_T;
 
 /**
  * @brief Initialize ADC driver interface
  *
- * @param logger Pointer to logging settings
- * @param numChannelsUsed Number of channels in use
- * @param numSampleAvg Number of samples to average over.
- * For efficient averaging, this MUST be divisible by 2.
+ * @param config ADC config settings.
  *
  * @return Return status. ADC_STATUS_OK for success. See ADC_Status_T for more.
  */
-ADC_Status_T ADC_Init(Logging_T* logger, const uint16_t numChannelsUsed, const uint16_t numSampleAvg);
-
-/**
- * @brief Configure ADC device
- * This should be called from main. Main will retain ownership of handle ptr.
- * @param handle Handle for ADC device
- *
- * @return Return status. ADC_STATUS_OK for success. See ADC_Status_T for more.
- */
-ADC_Status_T ADC_Config(ADC_HandleTypeDef* handle);
+ADC_Status_T ADC_Init(ADC_Config_T* config);
 
 /**
  * @brief Gets the latest reading from the given ADC channel
  *
- * @returns Raw ADC reading (12-bit). ADC_INVALID (0xFFFF) if the channel is out of range.
+ * @param channel ADC channel, 0 up to the value in ADC_Config_T::numChannelsUsed
+ * @param val Output raw ADC reading (12-bit). 0 if the channel is out of range.
+ * @returns Return status. ADC_STATUS_OK for success. See ADC_Status_T for more.
  */
-uint16_t ADC_Get(const ADC_Channel_T channel);
+ADC_Status_T ADC_Get(const ADC_Channel_T channel, uint16_t* val);
 
 
 #endif /* IO_ADC_ADC_H_ */
