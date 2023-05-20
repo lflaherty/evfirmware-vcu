@@ -175,6 +175,59 @@ TEST(IO_ADC, TestAdcDataSingle)
     }
 }
 
+TEST(IO_ADC, TestAdcDataMultipleSamples)
+{
+    // This test is to verify the swapping between the two internal copy buffers
+
+    uint16_t testNumChannels = 5;
+    // Perform init
+    setTestNumChannels(testNumChannels);
+    TEST_ASSERT_EQUAL(ADC_STATUS_OK, ADC_Init(&adcConfig));
+
+    // set data
+    uint32_t dataRaw1[5] = {1, 4095, 100, 0, 0x1FFF};
+    mockSetADCData(dataRaw1, sizeof(dataRaw1));
+
+    // Raise interrupts
+    // need to do the half cplt first as well to do the copying
+    HAL_ADC_ConvHalfCpltCallback(&hadc1);
+    HAL_ADC_ConvCpltCallback(&hadc1);
+
+    // now before the data is read with the public API, start a new DMA transfer
+    // (this should switch to copy buffer B)
+    uint32_t dataRaw2[5] = {2, 3, 4, 5, 6};
+    mockSetADCData(dataRaw2, sizeof(dataRaw2));
+    HAL_ADC_ConvHalfCpltCallback(&hadc1);
+
+    for (uint16_t i = 0; i < numChannels; ++i) {
+        uint16_t adcVal = 0xFFFF;
+        TEST_ASSERT_EQUAL(ADC_STATUS_OK, ADC_Get(i, &adcVal));
+        TEST_ASSERT_EQUAL(dataRaw1[i], adcVal);
+    }
+
+    // finish that DMA transfer
+    HAL_ADC_ConvCpltCallback(&hadc1);
+    // and start another one (to swich back to copy buffer A)
+    uint32_t dataRaw3[5] = {7, 8, 9, 10, 11};
+    mockSetADCData(dataRaw3, sizeof(dataRaw3));
+    HAL_ADC_ConvHalfCpltCallback(&hadc1);
+
+    for (uint16_t i = 0; i < numChannels; ++i) {
+        uint16_t adcVal = 0xFFFF;
+        TEST_ASSERT_EQUAL(ADC_STATUS_OK, ADC_Get(i, &adcVal));
+        TEST_ASSERT_EQUAL(dataRaw2[i], adcVal);
+    }
+
+    // finish that DMA transfer
+    HAL_ADC_ConvCpltCallback(&hadc1);
+
+    for (uint16_t i = 0; i < numChannels; ++i) {
+        uint16_t adcVal = 0xFFFF;
+        TEST_ASSERT_EQUAL(ADC_STATUS_OK, ADC_Get(i, &adcVal));
+        TEST_ASSERT_EQUAL(dataRaw3[i], adcVal);
+    }
+}
+
 TEST_GROUP_RUNNER(IO_ADC)
 {
     RUN_TEST_CASE(IO_ADC, TestAdcInitOk);
@@ -183,7 +236,7 @@ TEST_GROUP_RUNNER(IO_ADC)
     RUN_TEST_CASE(IO_ADC, TestAdcConfigDmaError);
     RUN_TEST_CASE(IO_ADC, TestAdcGetZero);
     RUN_TEST_CASE(IO_ADC, TestAdcInterruptHalf);
-    RUN_TEST_CASE(IO_ADC, TestAdcDataSingle);
+    RUN_TEST_CASE(IO_ADC, TestAdcDataMultipleSamples);
 }
 
 #define INVOKE_TEST IO_ADC

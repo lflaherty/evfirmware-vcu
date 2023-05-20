@@ -180,7 +180,7 @@ void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef* hadc)
       break;
 
     case COPY_BUFFER_B_ACTIVE:
-      bufferCopy(copyBufferA, adcDMABuf, halfCpltCopyLen);
+      bufferCopy(copyBufferB, adcDMABuf, halfCpltCopyLen);
       break;
 
     default:
