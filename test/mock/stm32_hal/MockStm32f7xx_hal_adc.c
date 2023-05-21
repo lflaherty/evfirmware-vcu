@@ -12,7 +12,7 @@
 // ------------------- Static data -------------------
 static HAL_StatusTypeDef mStatusStartDMA = HAL_OK;
 static uint32_t* mDataPtr = NULL;
-static uint32_t mDataLen = 0;
+static uint32_t mDataLen = 0; // Number of elements in mDataPtr (not number of bytes)
 
 // ------------------- Methods -------------------
 HAL_StatusTypeDef stubHAL_ADC_Start_DMA(ADC_HandleTypeDef* hadc, uint32_t* pData, uint32_t Length)
@@ -27,8 +27,19 @@ HAL_StatusTypeDef stubHAL_ADC_Start_DMA(ADC_HandleTypeDef* hadc, uint32_t* pData
 
 void mockSetADCData(uint32_t* data, uint32_t dataLength)
 {
-    memcpy(mDataPtr, data, dataLength);
+    assert(mDataPtr != NULL);
+    assert(mDataLen >= dataLength);
+
+    memcpy(mDataPtr, data, dataLength * sizeof(uint32_t));
     mDataLen = dataLength;
+}
+
+void mockSetADCDataChannel(const uint32_t channel, const uint32_t val)
+{
+    assert(mDataPtr != NULL);
+    assert(channel <= mDataLen);
+
+    mDataPtr[channel] = val;
 }
 
 void mockSet_HAL_ADC_Start_DMA_Status(HAL_StatusTypeDef status)

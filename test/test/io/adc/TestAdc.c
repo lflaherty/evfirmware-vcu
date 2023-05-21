@@ -161,7 +161,7 @@ TEST(IO_ADC, TestAdcDataSingle)
 
     // set data
     uint32_t dataRaw[5] = {1, 4095, 100, 0, 0x1FFF};
-    mockSetADCData(dataRaw, sizeof(dataRaw));
+    mockSetADCData(dataRaw, 5);
 
     // Raise interrupts
     // need to do the half cplt first as well to do the copying
@@ -186,7 +186,7 @@ TEST(IO_ADC, TestAdcDataMultipleSamples)
 
     // set data
     uint32_t dataRaw1[5] = {1, 4095, 100, 0, 0x1FFF};
-    mockSetADCData(dataRaw1, sizeof(dataRaw1));
+    mockSetADCData(dataRaw1, 5);
 
     // Raise interrupts
     // need to do the half cplt first as well to do the copying
@@ -196,7 +196,7 @@ TEST(IO_ADC, TestAdcDataMultipleSamples)
     // now before the data is read with the public API, start a new DMA transfer
     // (this should switch to copy buffer B)
     uint32_t dataRaw2[5] = {2, 3, 4, 5, 6};
-    mockSetADCData(dataRaw2, sizeof(dataRaw2));
+    mockSetADCData(dataRaw2, 5);
     HAL_ADC_ConvHalfCpltCallback(&hadc1);
 
     for (uint16_t i = 0; i < numChannels; ++i) {
@@ -209,7 +209,7 @@ TEST(IO_ADC, TestAdcDataMultipleSamples)
     HAL_ADC_ConvCpltCallback(&hadc1);
     // and start another one (to swich back to copy buffer A)
     uint32_t dataRaw3[5] = {7, 8, 9, 10, 11};
-    mockSetADCData(dataRaw3, sizeof(dataRaw3));
+    mockSetADCData(dataRaw3, 5);
     HAL_ADC_ConvHalfCpltCallback(&hadc1);
 
     for (uint16_t i = 0; i < numChannels; ++i) {
