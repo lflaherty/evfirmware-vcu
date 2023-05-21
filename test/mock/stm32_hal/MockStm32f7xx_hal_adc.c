@@ -42,6 +42,11 @@ void mockSetADCDataChannel(const uint32_t channel, const uint32_t val)
     mDataPtr[channel] = val;
 }
 
+void mockClearADCClear(void)
+{
+    memset(mDataPtr, 0, mDataLen * sizeof(uint32_t));
+}
+
 void mockSet_HAL_ADC_Start_DMA_Status(HAL_StatusTypeDef status)
 {
     mStatusStartDMA = status;
