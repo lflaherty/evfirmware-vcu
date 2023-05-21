@@ -10,7 +10,7 @@
 
 #include "stm32f7xx_hal.h"
 #include <stdint.h>
-#include "io/adc/adc.h" /* Needed for ADC_Channel_T */
+#include "io/adc/adc.h" /* Needed for ADC channels */
 #include "io/gpio/gpio.h" /* Needed for GPIO_T */
 #include "comm/uart/uart.h"
 #include "comm/can/can.h"
@@ -26,32 +26,19 @@
  * when the HAL library configures the ADC peripheral
  */
 #define MAPPING_ADC_NUM_CHANNELS  ((uint16_t) 12U)
-#define MAPPING_ADC1_CHANNEL0     ((ADC_Channel_T)  0U)
-#define MAPPING_ADC1_CHANNEL1     ((ADC_Channel_T)  1U)
-#define MAPPING_ADC1_CHANNEL2     ((ADC_Channel_T)  2U)
-#define MAPPING_ADC1_CHANNEL3     ((ADC_Channel_T)  3U)
-#define MAPPING_ADC1_CHANNEL4     ((ADC_Channel_T)  4U)
-#define MAPPING_ADC1_CHANNEL5     ((ADC_Channel_T)  5U)
-#define MAPPING_ADC1_CHANNEL6     ((ADC_Channel_T)  6U)
-#define MAPPING_ADC1_CHANNEL7     ((ADC_Channel_T)  7U)
-#define MAPPING_ADC1_CHANNEL8     ((ADC_Channel_T)  8U)
-#define MAPPING_ADC1_CHANNEL9     ((ADC_Channel_T)  9U)
-#define MAPPING_ADC1_CHANNEL8     ((ADC_Channel_T)  8U)
-#define MAPPING_ADC1_CHANNEL14    ((ADC_Channel_T) 14U)
-#define MAPPING_ADC1_CHANNEL15    ((ADC_Channel_T) 15U)
 
-#define MAPPING_ADC_THROTTLE_1    MAPPING_ADC1_CHANNEL8
-#define MAPPING_ADC_THROTTLE_2    MAPPING_ADC1_CHANNEL9
-#define MAPPING_ADC_BRAKE_FRONT   MAPPING_ADC1_CHANNEL14
-#define MAPPING_ADC_BRAKE_REAR    MAPPING_ADC1_CHANNEL15
-#define MAPPING_ADC_MPIO1         MAPPING_ADC1_CHANNEL6
-#define MAPPING_ADC_MPIO2         MAPPING_ADC1_CHANNEL7
-#define MAPPING_ADC_MPIO3         MAPPING_ADC1_CHANNEL4
-#define MAPPING_ADC_MPIO4         MAPPING_ADC1_CHANNEL5
-#define MAPPING_ADC_MPIO5         MAPPING_ADC1_CHANNEL2
-#define MAPPING_ADC_MPIO6         MAPPING_ADC1_CHANNEL3
-#define MAPPING_ADC_MPIO7         MAPPING_ADC1_CHANNEL0
-#define MAPPING_ADC_MPIO8         MAPPING_ADC1_CHANNEL1
+#define MAPPING_ADC_THROTTLE_1    ADC_CONVERSIONCHANNEL8
+#define MAPPING_ADC_THROTTLE_2    ADC_CONVERSIONCHANNEL9
+#define MAPPING_ADC_BRAKE_FRONT   ADC_CONVERSIONCHANNEL10
+#define MAPPING_ADC_BRAKE_REAR    ADC_CONVERSIONCHANNEL11
+#define MAPPING_ADC_MPIO1         ADC_CONVERSIONCHANNEL6
+#define MAPPING_ADC_MPIO2         ADC_CONVERSIONCHANNEL7
+#define MAPPING_ADC_MPIO3         ADC_CONVERSIONCHANNEL4
+#define MAPPING_ADC_MPIO4         ADC_CONVERSIONCHANNEL5
+#define MAPPING_ADC_MPIO5         ADC_CONVERSIONCHANNEL2
+#define MAPPING_ADC_MPIO6         ADC_CONVERSIONCHANNEL3
+#define MAPPING_ADC_MPIO7         ADC_CONVERSIONCHANNEL0
+#define MAPPING_ADC_MPIO8         ADC_CONVERSIONCHANNEL1
 
 /*
  * PDM Config
@@ -76,6 +63,7 @@ extern GPIO_T Mapping_GPO_LED;
 extern GPIO_T Mapping_GPO_DebugToggle;
 extern GPIO_T Mapping_GPI_Wheelspeed_Rear;
 extern GPIO_T Mapping_GPI_Wheelspeed_Front;
+extern GPIO_T Mapping_GPI_StartButton;
 extern GPIO_T Mapping_GPI_SDC_BMS;
 extern GPIO_T Mapping_GPI_SDC_BSPD;
 extern GPIO_T Mapping_GPI_SDC_IMD;

@@ -1,4 +1,5 @@
 add_subdirectory(bms)
+add_subdirectory(discretesense)
 add_subdirectory(gps)
 add_subdirectory(inverter)
 add_subdirectory(pcinterface)

@@ -16,19 +16,20 @@ typedef struct
 {
     uint16_t rawLower;
     uint16_t rawUpper;
-} Config_PedalCalibration_T;
+} Config_ADCCalibration_T;
 
 typedef struct
 {
-    Config_PedalCalibration_T calibrationA;
-    Config_PedalCalibration_T calibrationB;
+    Config_ADCCalibration_T calibrationA;
+    Config_ADCCalibration_T calibrationB;
     float consistencyLimit; // % that both sensors can disagree by
 } Config_Pedal_T;
 
 typedef struct
 {
     Config_Pedal_T accelPedal;
-    Config_Pedal_T brakePressure;
+    Config_ADCCalibration_T brakePressureFront;
+    Config_ADCCalibration_T brakePressureRear;
     uint8_t pedalAbuseCheckEnabled; // 0=disabled, 1=enabled
     float pedalAbuseAccelThreshold; // percent
     float pedalAbuseBrakeThreshold; // percent

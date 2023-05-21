@@ -28,12 +28,12 @@ typedef struct
   float accelB;
   uint16_t accelRawA; // accelerator sensor A press raw sensor value
   uint16_t accelRawB; // accelerator sensor B press raw sensor value
+  bool accelValid;
 
-  float brakePres; // brake pressure % [0,1]
-  float brakePresA;
-  float brakePresB;
-  uint16_t brakeRawA; // brake sensor A press raw sensor value
-  uint16_t brakeRawB; // brake sensor B press raw sensor value
+  float brakePresFront;
+  float brakePresRear;
+  uint16_t brakeRawFront; // front brake sensor pressure raw sensor value
+  uint16_t brakeRawRear; // rear front brake sensor pressure raw sensor value
 } VehicleState_InputSensors_T;
 
 typedef struct

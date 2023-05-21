@@ -67,6 +67,9 @@ GPIO_T Mapping_GPI_Wheelspeed_Rear = {
 GPIO_T Mapping_GPI_Wheelspeed_Front = {
   .GPIOx = DIN_WS_F_GPIO_Port, .GPIO_Pin = DIN_WS_F_Pin
 };
+GPIO_T Mapping_GPI_StartButton = {
+  .GPIOx = DIN_START_B_GPIO_Port, .GPIO_Pin = DIN_START_B_Pin
+};
 GPIO_T Mapping_GPI_SDC_BMS = {
   .GPIOx = GPIO_EXTI9_SDCBMS_GPIO_Port, .GPIO_Pin = GPIO_EXTI9_SDCBMS_Pin
 };

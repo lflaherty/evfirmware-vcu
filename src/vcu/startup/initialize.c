@@ -28,6 +28,7 @@
 #include "device/inverter/cInverter.h"
 #include "device/bms/bms.h"
 #include "device/wheelspeed/wheelspeed.h"
+#include "device/discretesense/discretesense.h"
 
 #include "vehicleLogic/watchdogTrigger/watchdogTrigger.h"
 
@@ -55,9 +56,10 @@ static WatchdogTrigger_T mWdtTrigger;
 static PCInterface_T mPCInterface;
 static PDM_T mPdm;
 
-// Vehicle devices
+// Vehicle devices & sensors
 static CInverter_T mInverter;
 static BMS_T mBms;
+static DiscreteSense_T mDiscreteSense;
 
 // Vehicle interface
 static Config_T mConfig;
@@ -366,8 +368,40 @@ static void ECU_Init_VehicleDevices(void)
   // BMS
   mBms.canInst = MAPPING_BMS_CANBUS;
   mBms.vehicleState = &mVehicleState;
-  if (BMS_Init(&mLog, &mBms)) {
+  if (BMS_Init(&mLog, &mBms) != BMS_STATUS_OK) {
     ECU_Init_Error("BMS initialization error\n");
+  }
+
+  // Discrete input sensors
+  mDiscreteSense.logger = &mLog;
+  mDiscreteSense.state = &mVehicleState;
+  mDiscreteSense.adcAccelPedalA = MAPPING_ADC_THROTTLE_1;
+  mDiscreteSense.adcAccelPedalB = MAPPING_ADC_THROTTLE_2;
+  mDiscreteSense.adcBrakeFront = MAPPING_ADC_BRAKE_FRONT;
+  mDiscreteSense.adcBrakeRear = MAPPING_ADC_BRAKE_REAR;
+  mDiscreteSense.gpioDashboardButton = &Mapping_GPI_StartButton;
+  mDiscreteSense.scalingAccelPedalA = (ADC_Scaling_T) {
+    .lowerScaling = mConfig.inputs.accelPedal.calibrationA.rawLower,
+    .upperScaling = mConfig.inputs.accelPedal.calibrationA.rawUpper,
+    .saturate = true,
+  };
+  mDiscreteSense.scalingAccelPedalB = (ADC_Scaling_T) {
+    .lowerScaling = mConfig.inputs.accelPedal.calibrationB.rawLower,
+    .upperScaling = mConfig.inputs.accelPedal.calibrationB.rawUpper,
+    .saturate = true,
+  };
+  mDiscreteSense.scalingBrakeFront = (ADC_Scaling_T) {
+    .lowerScaling = mConfig.inputs.brakePressureFront.rawLower,
+    .upperScaling = mConfig.inputs.brakePressureFront.rawUpper,
+    .saturate = true,
+  };
+  mDiscreteSense.scalingBrakeRear = (ADC_Scaling_T) {
+    .lowerScaling = mConfig.inputs.brakePressureRear.rawLower,
+    .upperScaling = mConfig.inputs.brakePressureRear.rawUpper,
+    .saturate = true,
+  };
+  if (DiscreteSense_Init(&mDiscreteSense) != DISCRETESENSE_STATUS_OK) {
+    ECU_Init_Error("DiscreteSense_Init initialization error\n");
   }
 }
 

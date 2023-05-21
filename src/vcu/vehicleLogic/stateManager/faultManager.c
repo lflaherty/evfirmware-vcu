@@ -80,38 +80,27 @@ static uint32_t isFaultBrakePedal(FaultManager_T* faultMgr, VehicleState_Data_T*
   uint32_t faults = faultMgr->internal.faults;
 
   // Brake pressure outside of calibrated range
-  uint16_t brakeRawA = data->inputs.brakeRawA;
-  uint16_t brakeRawALimitUpper = faultMgr->vehicleConfig->inputs.brakePressure.calibrationA.rawUpper;
-  uint16_t brakeRawALimitLower = faultMgr->vehicleConfig->inputs.brakePressure.calibrationA.rawLower;
-  uint16_t brakeRawB = data->inputs.brakeRawB;
-  uint16_t brakeRawBLimitUpper = faultMgr->vehicleConfig->inputs.brakePressure.calibrationB.rawUpper;
-  uint16_t brakeRawBLimitLower = faultMgr->vehicleConfig->inputs.brakePressure.calibrationB.rawLower;
+  uint16_t brakePresFront = data->inputs.brakeRawFront;
+  uint16_t brakePresFrontLimitUpper = faultMgr->vehicleConfig->inputs.brakePressureFront.rawUpper;
+  uint16_t brakePresFrontLimitLower = faultMgr->vehicleConfig->inputs.brakePressureFront.rawLower;
+  uint16_t brakeRawRear = data->inputs.brakeRawRear;
+  uint16_t brakeRawRearLimitUpper = faultMgr->vehicleConfig->inputs.brakePressureRear.rawUpper;
+  uint16_t brakeRawRearLimitLower = faultMgr->vehicleConfig->inputs.brakePressureRear.rawLower;
 
   bool brakeRangeCheck = handleTimedCondition(
-      brakeRawA > brakeRawALimitUpper || brakeRawA < brakeRawALimitLower ||
-      brakeRawB > brakeRawBLimitUpper || brakeRawB < brakeRawBLimitLower,
+      brakePresFront > brakePresFrontLimitUpper || brakePresFront < brakePresFrontLimitLower ||
+      brakeRawRear > brakeRawRearLimitUpper || brakeRawRear < brakeRawRearLimitLower,
       &faultMgr->internal.brakePressureRangeTimer,
       faultMgr->internal.brakePressureRangeTimerLimit);
   if (!brakeRangeCheck) {
     faults |= FAULTMGR_FAULT_BRAKEPDL_RANGE;
   }
 
-  // Redundant values disagree
-  float diff = fabsf(data->inputs.brakePresA - data->inputs.brakePresB);
-  bool diffCheck = handleTimedCondition(
-      diff > faultMgr->vehicleConfig->inputs.brakePressure.consistencyLimit,
-      &faultMgr->internal.brakePressureConsistencyTimer,
-      faultMgr->internal.brakePressureConsistencyTimerLimit
-  );
-  if (!diffCheck) {
-    faults |= FAULTMGR_FAULT_BRAKEPDL_SENSE;
-  }
-
   // Accel-brake pedal abuse
   if (1U == faultMgr->vehicleConfig->inputs.pedalAbuseCheckEnabled) {
     bool pedalAbuseCondition =
         data->inputs.accel > faultMgr->vehicleConfig->inputs.pedalAbuseAccelThreshold &&
-        data->inputs.brakePres > faultMgr->vehicleConfig->inputs.pedalAbuseBrakeThreshold;
+        data->inputs.brakePresFront > faultMgr->vehicleConfig->inputs.pedalAbuseBrakeThreshold;
     bool pedalAbuseCheck = handleTimedCondition(
         pedalAbuseCondition,
         &faultMgr->internal.pedalAbuseTimer,
