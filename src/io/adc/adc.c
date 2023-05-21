@@ -162,6 +162,27 @@ ADC_Status_T ADC_Get(const ADC_Channel_T channel, uint16_t* val)
   return ret;
 }
 
+//------------------------------------------------------------------------------
+float ADC_ApplyScaling(
+    const ADC_Scaling_T* scaling,
+    const uint16_t raw)
+{
+  // deliberate conversion up to int32_t to allow negative values
+  int32_t num = raw - scaling->lowerScaling;
+  int32_t den = scaling->upperScaling - scaling->lowerScaling;
+
+  float output = (float)num / (float)den;
+
+  if (scaling->saturate) {
+    if (output > 1.0f) {
+      output = 1.0f;
+    } else if (output < 0.0f) {
+      output = 0.0f;
+    }
+  }
+
+  return output;
+}
 
 // ------------------- Interrupts -------------------
 /**

@@ -228,6 +228,46 @@ TEST(IO_ADC, TestAdcDataMultipleSamples)
     }
 }
 
+TEST(IO_ADC, TestAdcScaling)
+{
+    ADC_Scaling_T scaling = {
+        .lowerScaling = 1000,
+        .upperScaling = 2000,
+        .saturate = true
+    };
+
+    // Min value
+    TEST_ASSERT_EQUAL_FLOAT(0.0f, ADC_ApplyScaling(&scaling, 1000));
+
+    // Max value
+    TEST_ASSERT_EQUAL_FLOAT(1.0f, ADC_ApplyScaling(&scaling, 2000));
+
+    // Midpoint
+    TEST_ASSERT_EQUAL_FLOAT(0.5f, ADC_ApplyScaling(&scaling, 1500));
+
+    // Other points
+    TEST_ASSERT_EQUAL_FLOAT(0.1f, ADC_ApplyScaling(&scaling, 1100));
+    TEST_ASSERT_EQUAL_FLOAT(0.75f, ADC_ApplyScaling(&scaling, 1750));
+    TEST_ASSERT_EQUAL_FLOAT(0.95f, ADC_ApplyScaling(&scaling, 1950));
+
+    // Saturating
+    TEST_ASSERT_EQUAL_FLOAT(0.0f, ADC_ApplyScaling(&scaling, 999));
+    TEST_ASSERT_EQUAL_FLOAT(0.0f, ADC_ApplyScaling(&scaling, 500));
+    TEST_ASSERT_EQUAL_FLOAT(0.0f, ADC_ApplyScaling(&scaling, 0));
+    TEST_ASSERT_EQUAL_FLOAT(1.0f, ADC_ApplyScaling(&scaling, 2001));
+    TEST_ASSERT_EQUAL_FLOAT(1.0f, ADC_ApplyScaling(&scaling, 4000));
+    TEST_ASSERT_EQUAL_FLOAT(1.0f, ADC_ApplyScaling(&scaling, 0xFFFF));
+
+    // No saturating
+    scaling.saturate = false;
+    TEST_ASSERT_EQUAL_FLOAT(-0.001f, ADC_ApplyScaling(&scaling, 999));
+    TEST_ASSERT_EQUAL_FLOAT(-0.5f, ADC_ApplyScaling(&scaling, 500));
+    TEST_ASSERT_EQUAL_FLOAT(-1.0f, ADC_ApplyScaling(&scaling, 0));
+    TEST_ASSERT_EQUAL_FLOAT(1.001f, ADC_ApplyScaling(&scaling, 2001));
+    TEST_ASSERT_EQUAL_FLOAT(3.0f, ADC_ApplyScaling(&scaling, 4000));
+    TEST_ASSERT_EQUAL_FLOAT(64.535f, ADC_ApplyScaling(&scaling, 0xFFFF));
+}
+
 TEST_GROUP_RUNNER(IO_ADC)
 {
     RUN_TEST_CASE(IO_ADC, TestAdcInitOk);
@@ -237,6 +277,7 @@ TEST_GROUP_RUNNER(IO_ADC)
     RUN_TEST_CASE(IO_ADC, TestAdcGetZero);
     RUN_TEST_CASE(IO_ADC, TestAdcInterruptHalf);
     RUN_TEST_CASE(IO_ADC, TestAdcDataMultipleSamples);
+    RUN_TEST_CASE(IO_ADC, TestAdcScaling);
 }
 
 #define INVOKE_TEST IO_ADC
