@@ -63,6 +63,9 @@ TEST_TEAR_DOWN(IO_ADC)
 {
     mockLogClear();
     mockSet_HAL_ADC_Start_DMA_Status(HAL_OK);
+
+    // clear any data set in the ADC mock
+    mockClearADCClear();
 }
 
 TEST(IO_ADC, TestAdcInitOk)
@@ -116,7 +119,7 @@ TEST(IO_ADC, TestAdcConfigDmaError)
     TEST_ASSERT_EQUAL_STRING(expectedLogging, mockLogGet());
 }
 
-TEST(IO_ADC, TestAdcGetZero)
+TEST(IO_ADC, TestAdcGetNotReady)
 {
     // Perform init
     setTestNumChannels(ADC_MAX_NUM_CHANNELS);
@@ -125,7 +128,7 @@ TEST(IO_ADC, TestAdcGetZero)
     // Attempt to get
     for (uint16_t i = 0; i < ADC_MAX_NUM_CHANNELS; ++i) {
         uint16_t adcVal = 0xFFFF;
-        TEST_ASSERT_EQUAL(ADC_STATUS_OK, ADC_Get(i, &adcVal));
+        TEST_ASSERT_EQUAL(ADC_STATUS_ERROR_DATANOTREADY, ADC_Get(i, &adcVal));
         TEST_ASSERT_EQUAL(0, adcVal);
     }
 
@@ -141,6 +144,11 @@ TEST(IO_ADC, TestAdcInterruptHalf)
     // Perform init
     setTestNumChannels(ADC_MAX_NUM_CHANNELS);
     TEST_ASSERT_EQUAL(ADC_STATUS_OK, ADC_Init(&adcConfig));
+    mockClearADCClear();
+
+    // pretend that a few conversions have happened already...
+    copyBufferAValid = true;
+    copyBufferBValid = true;
 
     // HAL_ADC_ConvHalfCpltCallback should do nothing to API
     HAL_ADC_ConvHalfCpltCallback(&hadc1);
@@ -274,7 +282,7 @@ TEST_GROUP_RUNNER(IO_ADC)
     RUN_TEST_CASE(IO_ADC, TestAdcInitTooManyChannels);
     RUN_TEST_CASE(IO_ADC, TestAdcConfigOk);
     RUN_TEST_CASE(IO_ADC, TestAdcConfigDmaError);
-    RUN_TEST_CASE(IO_ADC, TestAdcGetZero);
+    RUN_TEST_CASE(IO_ADC, TestAdcGetNotReady);
     RUN_TEST_CASE(IO_ADC, TestAdcInterruptHalf);
     RUN_TEST_CASE(IO_ADC, TestAdcDataMultipleSamples);
     RUN_TEST_CASE(IO_ADC, TestAdcScaling);

@@ -23,12 +23,16 @@ static Logging_T* logging;
 static uint32_t adcDMABuf[ADC_MAX_NUM_CHANNELS]; // DMA buffer
 static volatile uint32_t copyBufferA[ADC_MAX_NUM_CHANNELS];
 static volatile uint32_t copyBufferB[ADC_MAX_NUM_CHANNELS];
+// Copy buffers are "invalid" until the cplt callback has occured when that
+// buffer is active
+static volatile bool copyBufferAValid = false;
+static volatile bool copyBufferBValid = false;
 
 // The "active" buffer is the buffer that will be copied from DMA next
 static volatile enum {
   COPY_BUFFER_A_ACTIVE,
   COPY_BUFFER_B_ACTIVE
-} activeCopyBuffer; 
+} activeCopyBuffer;
 
 // details for copying to buffers
 size_t halfCpltCopyLen; // Number of elements to copy at ADC DMA half complete
@@ -100,6 +104,8 @@ ADC_Status_T ADC_Init(ADC_Config_T* config)
   bufferSet(adcDMABuf, 0, ADC_MAX_NUM_CHANNELS);
   bufferSet(copyBufferA, 0, ADC_MAX_NUM_CHANNELS);
   bufferSet(copyBufferB, 0, ADC_MAX_NUM_CHANNELS);
+  copyBufferAValid = false;
+  copyBufferBValid = false;
 
   numChannels = config->numChannelsUsed;
   adcHandle = config->handle;
@@ -145,11 +151,21 @@ ADC_Status_T ADC_Get(const ADC_Channel_T channel, uint16_t* val)
 
   switch (activeCopyBuffer) {
     case COPY_BUFFER_A_ACTIVE:
-      *val = (uint16_t)(copyBufferB[channel] & 0xFFFF);
+      if (copyBufferBValid) {
+        *val = (uint16_t)(copyBufferB[channel] & 0xFFFF);
+      } else {
+        *val = 0;
+        ret = ADC_STATUS_ERROR_DATANOTREADY;
+      }
       break;
 
     case COPY_BUFFER_B_ACTIVE:
-      *val = (uint16_t)(copyBufferA[channel] & 0xFFFF);
+      if (copyBufferAValid) {
+        *val = (uint16_t)(copyBufferA[channel] & 0xFFFF);
+      } else {
+        *val = 0;
+        ret = ADC_STATUS_ERROR_DATANOTREADY;
+      }
       break;
 
     default:
@@ -226,6 +242,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
       bufferCopy(copyBufferA + cpltCopyOffset,
                  adcDMABuf + cpltCopyOffset,
                  cpltCopyLen);
+      copyBufferAValid = true;
       activeCopyBuffer = COPY_BUFFER_B_ACTIVE;
       break;
 
@@ -233,6 +250,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
       bufferCopy(copyBufferB + cpltCopyOffset,
                  adcDMABuf + cpltCopyOffset,
                  cpltCopyLen);
+      copyBufferBValid = true;
       activeCopyBuffer = COPY_BUFFER_A_ACTIVE;
       break;
 
