@@ -59,6 +59,8 @@ CRC_HandleTypeDef hcrc;
 
 I2C_HandleTypeDef hi2c2;
 I2C_HandleTypeDef hi2c4;
+DMA_HandleTypeDef hdma_i2c2_tx;
+DMA_HandleTypeDef hdma_i2c2_rx;
 
 RTC_HandleTypeDef hrtc;
 
@@ -132,7 +134,6 @@ int main(void)
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
-  MX_DMA_Init();
   MX_GPIO_Init();
   MX_ADC1_Init();
   MX_CAN1_Init();
@@ -144,6 +145,7 @@ int main(void)
   MX_I2C2_Init();
   MX_USART6_UART_Init();
   MX_RTC_Init();
+  MX_DMA_Init();
   MX_TIM2_Init();
   MX_CRC_Init();
   MX_TIM3_Init();
@@ -857,9 +859,15 @@ static void MX_DMA_Init(void)
   /* DMA1_Stream1_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA1_Stream1_IRQn, 6, 0);
   HAL_NVIC_EnableIRQ(DMA1_Stream1_IRQn);
+  /* DMA1_Stream2_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Stream2_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Stream2_IRQn);
   /* DMA1_Stream3_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA1_Stream3_IRQn, 6, 0);
   HAL_NVIC_EnableIRQ(DMA1_Stream3_IRQn);
+  /* DMA1_Stream4_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Stream4_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Stream4_IRQn);
   /* DMA2_Stream0_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA2_Stream0_IRQn, 6, 0);
   HAL_NVIC_EnableIRQ(DMA2_Stream0_IRQn);

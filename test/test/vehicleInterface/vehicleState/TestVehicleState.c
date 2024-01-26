@@ -52,7 +52,7 @@ TEST_SETUP(VEHICLEINTERFACE_VEHICLESTATE)
 
 TEST_TEAR_DOWN(VEHICLEINTERFACE_VEHICLESTATE)
 {
-    TEST_ASSERT_FALSE(mockSempahoreGetLocked());
+    TEST_ASSERT_FALSE(mockSempahoreGetLocked(mState.mutex));
     mockLogClear();
 }
 
@@ -76,35 +76,35 @@ TEST(VEHICLEINTERFACE_VEHICLESTATE, CopyState)
 
 TEST(VEHICLEINTERFACE_VEHICLESTATE, CopyStateFail)
 {
-    mockSemaphoreSetLocked(true);
+    mockSemaphoreSetLocked(mState.mutex, true);
     VehicleState_Data_T destData;
     bool status = VehicleState_CopyState(&mState, &destData);
     TEST_ASSERT_FALSE(status);
 
-    mockSemaphoreSetLocked(false);
+    mockSemaphoreSetLocked(mState.mutex, false);
 }
 
 TEST(VEHICLEINTERFACE_VEHICLESTATE, AccessAcquire)
 {
-    mockSemaphoreSetLocked(false);
+    mockSemaphoreSetLocked(mState.mutex, false);
     TEST_ASSERT_TRUE(VehicleState_AccessAcquire(&mState));
-    TEST_ASSERT_TRUE(mockSempahoreGetLocked());
+    TEST_ASSERT_TRUE(mockSempahoreGetLocked(mState.mutex));
 
     TEST_ASSERT_FALSE(VehicleState_AccessAcquire(&mState));
-    TEST_ASSERT_TRUE(mockSempahoreGetLocked());
+    TEST_ASSERT_TRUE(mockSempahoreGetLocked(mState.mutex));
 
-    mockSemaphoreSetLocked(false);
+    mockSemaphoreSetLocked(mState.mutex, false);
 }
 
 TEST(VEHICLEINTERFACE_VEHICLESTATE, AccessRelease)
 {
-    mockSemaphoreSetLocked(false);
+    mockSemaphoreSetLocked(mState.mutex, false);
     TEST_ASSERT_FALSE(VehicleState_AccessRelease(&mState));
-    TEST_ASSERT_FALSE(mockSempahoreGetLocked());
+    TEST_ASSERT_FALSE(mockSempahoreGetLocked(mState.mutex));
 
-    mockSemaphoreSetLocked(true);
+    mockSemaphoreSetLocked(mState.mutex, true);
     TEST_ASSERT_TRUE(VehicleState_AccessRelease(&mState));
-    TEST_ASSERT_FALSE(mockSempahoreGetLocked());
+    TEST_ASSERT_FALSE(mockSempahoreGetLocked(mState.mutex));
 }
 
 TEST_GROUP_RUNNER(VEHICLEINTERFACE_VEHICLESTATE)

@@ -63,7 +63,7 @@ TEST_SETUP(VEHICLELOGIC_WATCHDOGTRIGGER)
 
 TEST_TEAR_DOWN(VEHICLELOGIC_WATCHDOGTRIGGER)
 {
-    TEST_ASSERT_FALSE(mockSempahoreGetLocked());
+    TEST_ASSERT_FALSE(mockSempahoreGetLocked(mWatchdogTrigger.mutex));
     mockLogClear();
 }
 

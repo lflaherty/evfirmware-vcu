@@ -84,8 +84,6 @@ TEST_SETUP(VEHICLEINTERFACE_VEHICLECONTROL)
     registerGPIOs();
     resetInputs();
 
-    mockSemaphoreSetLocked(false);
-
     // Init logging & task timer
     TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, Log_Init(&testLog));
     TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, Log_EnableSWO(&testLog));

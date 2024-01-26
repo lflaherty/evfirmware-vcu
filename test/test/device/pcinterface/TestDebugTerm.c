@@ -187,7 +187,6 @@ TEST_GROUP(DEVICE_PCINTERFACE_DEBUGTERM);
 TEST_SETUP(DEVICE_PCINTERFACE_DEBUGTERM)
 {
     mock_GPIO_RegisterPin(mPinToggle.GPIOx, mPinToggle.GPIO_Pin);
-    mockSemaphoreSetLocked(false);
 
     // Init logging
     TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, Log_Init(&testLog));
@@ -259,7 +258,8 @@ TEST_SETUP(DEVICE_PCINTERFACE_DEBUGTERM)
 
 TEST_TEAR_DOWN(DEVICE_PCINTERFACE_DEBUGTERM)
 {
-    TEST_ASSERT_FALSE(mockSempahoreGetLocked());
+    TEST_ASSERT_FALSE(mockSempahoreGetLocked(mPCInterface.mutex));
+    TEST_ASSERT_FALSE(mockSempahoreGetLocked(mVehicleState.mutex));
     // UART should always leave IRQ enabled after use
     TEST_ASSERT_TRUE(mockGet_HAL_Cortex_IRQEnabled(configUartA.txIrq));
     TEST_ASSERT_TRUE(mockGet_HAL_Cortex_IRQEnabled(configUartB.txIrq));

@@ -48,8 +48,6 @@ TEST_GROUP(DEVICE_GPS);
 
 TEST_SETUP(DEVICE_GPS)
 {
-    mockSemaphoreSetLocked(false);
-
     // Init logging
     TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, Log_Init(&testLog));
     TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, Log_EnableSWO(&testLog));
@@ -89,7 +87,7 @@ TEST_SETUP(DEVICE_GPS)
 
 TEST_TEAR_DOWN(DEVICE_GPS)
 {
-    TEST_ASSERT_FALSE(mockSempahoreGetLocked());
+    TEST_ASSERT_FALSE(mockSempahoreGetLocked(mVehicleState.mutex));
     TEST_ASSERT_TRUE(mockGet_HAL_Cortex_IRQEnabled(configUart.txIrq));
     mockClear_HAL_UART_Data();
     mockClearStreamBufferData(mGps.recvStreamHandle);

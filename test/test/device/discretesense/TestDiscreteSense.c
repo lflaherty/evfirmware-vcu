@@ -126,8 +126,6 @@ TEST_SETUP(DEVICE_DISCRETESENSE)
     registerGPIOs();
     resetInputs();
 
-    mockSemaphoreSetLocked(false);
-
     // Init logging & task timer
     TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, Log_Init(&testLog));
     TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, Log_EnableSWO(&testLog));
@@ -158,7 +156,7 @@ TEST_SETUP(DEVICE_DISCRETESENSE)
 
 TEST_TEAR_DOWN(DEVICE_DISCRETESENSE)
 {
-    TEST_ASSERT_FALSE(mockSempahoreGetLocked());
+    TEST_ASSERT_FALSE(mockSempahoreGetLocked(testVehicleState.mutex));
 }
 
 TEST(DEVICE_DISCRETESENSE, InitOk)

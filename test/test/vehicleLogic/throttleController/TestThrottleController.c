@@ -36,7 +36,6 @@ TEST_SETUP(VEHICLELOGIC_THROTTLECONTROLLER)
 {
     TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, Log_Init(&testLog));
     TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, Log_EnableSWO(&testLog));
-    mockLogClear();
     mockSet_TaskTimer_Init_Status(TASKTIMER_STATUS_OK);
     mockSet_TaskTimer_RegisterTask_Status(TASKTIMER_STATUS_OK);
     mockReset_VehicleControl_RequestMotorTorque();
@@ -47,6 +46,11 @@ TEST_SETUP(VEHICLELOGIC_THROTTLECONTROLLER)
     memset(&mInputState, 0U, sizeof(VehicleState_T));
     memset(&mControl, 0U, sizeof(VehicleControl_T));
     memset(&mConfig, 0U, sizeof(Config_T));
+
+    TEST_ASSERT_EQUAL(
+        VEHICLESTATE_STATUS_OK,
+        VehicleState_Init(&testLog, &mInputState));
+    mockLogClear();
 
     mThrottleController.inputState = &mInputState;
     mThrottleController.control = &mControl;
@@ -65,7 +69,8 @@ TEST_SETUP(VEHICLELOGIC_THROTTLECONTROLLER)
 
 TEST_TEAR_DOWN(VEHICLELOGIC_THROTTLECONTROLLER)
 {
-    TEST_ASSERT_FALSE(mockSempahoreGetLocked());
+    TEST_ASSERT_FALSE(mockSempahoreGetLocked(mThrottleController.mutex));
+    TEST_ASSERT_FALSE(mockSempahoreGetLocked(mInputState.mutex));
     mockLogClear();
 }
 
@@ -212,38 +217,38 @@ TEST(VEHICLELOGIC_THROTTLECONTROLLER, SetTorqueEnabled)
 {
     ThrottleController_Status_T status;
 
-    mockSemaphoreSetLocked(false);
+    mockSemaphoreSetLocked(mThrottleController.mutex, false);
     status = ThrottleController_SetTorqueEnabled(&mThrottleController, true);
     TEST_ASSERT_EQUAL(THROTTLECONTROLLER_STATUS_OK, status);
     TEST_ASSERT_TRUE(mThrottleController.enabled);
-    TEST_ASSERT_FALSE(mockSempahoreGetLocked());
+    TEST_ASSERT_FALSE(mockSempahoreGetLocked(mThrottleController.mutex));
 
-    mockSemaphoreSetLocked(true);
+    mockSemaphoreSetLocked(mThrottleController.mutex, true);
     status = ThrottleController_SetTorqueEnabled(&mThrottleController, false);
     TEST_ASSERT_EQUAL(THROTTLECONTROLLER_STATUS_ERROR_MUTEX, status);
     TEST_ASSERT_TRUE(mThrottleController.enabled); // still true despite trying to set it false
-    TEST_ASSERT_TRUE(mockSempahoreGetLocked());
+    TEST_ASSERT_TRUE(mockSempahoreGetLocked(mThrottleController.mutex));
 
-    mockSemaphoreSetLocked(false);
+    mockSemaphoreSetLocked(mThrottleController.mutex, false);
 }
 
 TEST(VEHICLELOGIC_THROTTLECONTROLLER, SetMotorDirection)
 {
     ThrottleController_Status_T status;
 
-    mockSemaphoreSetLocked(false);
+    mockSemaphoreSetLocked(mThrottleController.mutex, false);
     status = ThrottleController_SetMotorDirection(&mThrottleController, VEHICLESTATE_INVERTER_FORWARD);
     TEST_ASSERT_EQUAL(THROTTLECONTROLLER_STATUS_OK, status);
     TEST_ASSERT_EQUAL(VEHICLESTATE_INVERTER_FORWARD, mThrottleController.direction);
-    TEST_ASSERT_FALSE(mockSempahoreGetLocked());
+    TEST_ASSERT_FALSE(mockSempahoreGetLocked(mThrottleController.mutex));
 
-    mockSemaphoreSetLocked(true);
+    mockSemaphoreSetLocked(mThrottleController.mutex, true);
     status = ThrottleController_SetMotorDirection(&mThrottleController, VEHICLESTATE_INVERTER_FORWARD);
     TEST_ASSERT_EQUAL(THROTTLECONTROLLER_STATUS_ERROR_MUTEX, status);
     TEST_ASSERT_EQUAL(VEHICLESTATE_INVERTER_FORWARD, mThrottleController.direction); // still true despite trying to set it false
-    TEST_ASSERT_TRUE(mockSempahoreGetLocked());
+    TEST_ASSERT_TRUE(mockSempahoreGetLocked(mThrottleController.mutex));
 
-    mockSemaphoreSetLocked(false);
+    mockSemaphoreSetLocked(mThrottleController.mutex, false);
 }
 
 TEST_GROUP_RUNNER(VEHICLELOGIC_THROTTLECONTROLLER)

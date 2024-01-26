@@ -13,6 +13,7 @@
 
 // Mocks for code under test (replaces stubs)
 #include "lib/logging/MockLogging.h"
+#include "time/tasktimer/MockTasktimer.h"
 
 // source code under test
 #include "vehicleLogic/stateManager/faultManager.c"
@@ -49,6 +50,7 @@ static void stepAndAssert(FaultStatus_T status, uint16_t steps)
     for (uint16_t i = 0; i < steps; ++i) {
         FaultStatus_T faultStatus = FaultManager_Step(&mFaultMgr);
         TEST_ASSERT_EQUAL(status, faultStatus);
+        TEST_ASSERT_FALSE(mockSempahoreGetLocked(mVehicleState.mutex));
     }
 }
 
@@ -87,6 +89,8 @@ TEST_SETUP(VEHICLELOGIC_FAULTMANAGER)
     TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, Log_Init(&testLog));
     TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, Log_EnableSWO(&testLog));
     mockLogClear();
+    mockSet_TaskTimer_Init_Status(TASKTIMER_STATUS_OK);
+    mockSet_TaskTimer_RegisterTask_Status(TASKTIMER_STATUS_OK);
 
     // Set up config
     memset(&mConfig, 0U, sizeof(Config_T));
@@ -115,7 +119,8 @@ TEST_SETUP(VEHICLELOGIC_FAULTMANAGER)
     mFaultMgr.vehicleConfig = &mConfig;
     mFaultMgr.vehicleData = &mVehicleState;
 
-    VehicleState_Init(&testLog, &mVehicleState);
+    TEST_ASSERT_EQUAL(VehicleState_Init(&testLog, &mVehicleState),
+                      VEHICLESTATE_STATUS_OK);
     mockLogClear(); // clear again to get rid of VehicleState logs
 
     FaultManager_Init(&testLog, &mFaultMgr);

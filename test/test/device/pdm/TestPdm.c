@@ -82,8 +82,6 @@ TEST_SETUP(DEVICE_PDM)
     registerGPIOs();
     resetGPIOs();
 
-    mockSemaphoreSetLocked(false);
-
     // Init logging
     TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, Log_Init(&testLog));
     TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, Log_EnableSWO(&testLog));
@@ -119,7 +117,7 @@ TEST_SETUP(DEVICE_PDM)
 
 TEST_TEAR_DOWN(DEVICE_PDM)
 {
-    TEST_ASSERT_FALSE(mockSempahoreGetLocked());
+    TEST_ASSERT_FALSE(mockSempahoreGetLocked(mVehicleState.mutex));
 }
 
 TEST(DEVICE_PDM, InitOk)

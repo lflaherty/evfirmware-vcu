@@ -42,8 +42,6 @@ TEST_GROUP(DEVICE_ORIONBMS);
 
 TEST_SETUP(DEVICE_ORIONBMS)
 {
-    mockSemaphoreSetLocked(false);
-
     // Init logging & task timer
     TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, Log_Init(&testLog));
     TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, Log_EnableSWO(&testLog));
@@ -82,7 +80,7 @@ TEST_SETUP(DEVICE_ORIONBMS)
 
 TEST_TEAR_DOWN(DEVICE_ORIONBMS)
 {
-    TEST_ASSERT_FALSE(mockSempahoreGetLocked());
+    TEST_ASSERT_FALSE(mockSempahoreGetLocked(testVehicleState.mutex));
     mockSet_HAL_CAN_AllStatus(HAL_OK);
 }
 

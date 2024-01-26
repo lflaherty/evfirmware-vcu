@@ -68,8 +68,6 @@ TEST_SETUP(DEVICE_WHEELSPEED)
     resetInputs();
     htim2.Instance = TIM2;
 
-    mockSemaphoreSetLocked(false);
-
     // Init logging & task timer
     TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, Log_Init(&testLog));
     TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, Log_EnableSWO(&testLog));
@@ -106,7 +104,7 @@ TEST_SETUP(DEVICE_WHEELSPEED)
 
 TEST_TEAR_DOWN(DEVICE_WHEELSPEED)
 {
-    TEST_ASSERT_FALSE(mockSempahoreGetLocked());
+    TEST_ASSERT_FALSE(mockSempahoreGetLocked(testVehicleState.mutex));
     mockClearStreamBufferData(mSampleStream.sampleStreamHandle);
 }
 

@@ -85,8 +85,6 @@ TEST_SETUP(DEVICE_SDC)
     registerGPIOs();
     resetInputs();
 
-    mockSemaphoreSetLocked(false);
-
     // Init logging & task timer
     TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, Log_Init(&testLog));
     TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, Log_EnableSWO(&testLog));
@@ -123,7 +121,7 @@ TEST_SETUP(DEVICE_SDC)
 
 TEST_TEAR_DOWN(DEVICE_SDC)
 {
-    TEST_ASSERT_FALSE(mockSempahoreGetLocked());
+    TEST_ASSERT_FALSE(mockSempahoreGetLocked(testVehicleState.mutex));
     TEST_ASSERT_EQUAL(SDC_STATUS_OK, SDC_AssertECUFault(false));
 }
 

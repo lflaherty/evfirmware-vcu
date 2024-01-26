@@ -85,7 +85,8 @@ TEST_SETUP(VEHICLELOGIC_STATEMACHINE)
 {
     TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, Log_Init(&testLog));
     TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, Log_EnableSWO(&testLog));
-    mockLogClear();
+    mockSet_TaskTimer_Init_Status(TASKTIMER_STATUS_OK);
+    mockSet_TaskTimer_RegisterTask_Status(TASKTIMER_STATUS_OK);
 
     // set LV error since system should start this way
     mockSet_FaultManager_Step_Status(FAULT_LV_ERROR);
@@ -97,8 +98,12 @@ TEST_SETUP(VEHICLELOGIC_STATEMACHINE)
     mConfig.vcu.hvActiveStateWait = hvActiveWait;
     mConfig.vcu.hvChargeTimeout = hvChargeTimeoutMs;
 
+    TEST_ASSERT_EQUAL(
+        VEHICLESTATE_STATUS_OK,
+        VehicleState_Init(&testLog, &mVehicleState));
+    mockLogClear();
+
     memset(&mVsm, 0xFF, sizeof(VSM_T));
-    memset(&mVehicleState, 0x00, sizeof(VehicleState_T));
     mVsm.tickRateMs = ticksPerMs;
     mVsm.inputState = &mVehicleState;
     mVsm.vehicleConfig = &mConfig;
