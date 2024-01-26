@@ -41,7 +41,7 @@ TEST_SETUP(LIB_CRC)
 
 TEST_TEAR_DOWN(LIB_CRC)
 {
-    TEST_ASSERT_FALSE(mockSempahoreGetLocked());
+    TEST_ASSERT_FALSE(mockSempahoreGetLocked(mCrc.mutex));
 }
 
 TEST(LIB_CRC, TestInitOk)
@@ -75,7 +75,7 @@ TEST(LIB_CRC, TestMutexTimeout)
 {
     const uint32_t testCrc = 0x12345678U;
     mockSet_CRC(testCrc);
-    mockSemaphoreSetLocked(true);
+    mockSemaphoreSetLocked(mCrc.mutex, true);
 
     // This doesn't matter since the CRC hardware is mocked, but we need a value
     uint8_t tempBuffer[4] = {1, 2, 3, 4};
@@ -93,7 +93,7 @@ TEST(LIB_CRC, TestMutexTimeout)
     TEST_ASSERT_FALSE(ret);
     TEST_ASSERT_EQUAL(0U, crc);
 
-    mockSemaphoreSetLocked(false);
+    mockSemaphoreSetLocked(mCrc.mutex, false);
 }
 
 TEST_GROUP_RUNNER(LIB_CRC)

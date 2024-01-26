@@ -11,56 +11,82 @@
 
 #include <string.h>
 #include <stdbool.h>
+#include <assert.h>
 
 // ------------------- Static data -------------------
-static bool mLocked = false;
 
 // ------------------- Methods -------------------
 SemaphoreHandle_t xSemaphoreCreateBinaryStatic(StaticSemaphore_t* staticSemaphore)
 {
-    (void)staticSemaphore;
+    assert(staticSemaphore != NULL);
 
     SemaphoreHandle_t handle = (SemaphoreHandle_t)staticSemaphore;
+    handle->count = 0;
+    handle->countMax = 1;
     return handle;
 }
 
 SemaphoreHandle_t xSemaphoreCreateMutexStatic(StaticSemaphore_t* staticSemaphore)
 {
-    (void)staticSemaphore;
+    assert(staticSemaphore != NULL);
 
     SemaphoreHandle_t handle = (SemaphoreHandle_t)staticSemaphore;
+    handle->count = 1;
+    handle->countMax = 1;
     return handle;
 }
 
 BaseType_t xSemaphoreTake(SemaphoreHandle_t xQueue, TickType_t xTicksToWait)
 {
-    (void)xQueue;
     (void)xTicksToWait;
-    if (mLocked) {
+
+    assert(xQueue != NULL);
+
+    if (xQueue->count == 0) {
         return pdFALSE;
     } else {
-        mLocked = true;
+        xQueue->count--;
         return pdTRUE;
     }
 }
 
 BaseType_t xSemaphoreGive(SemaphoreHandle_t xQueue)
 {
-    (void)xQueue;
-    if (mLocked) {
-        mLocked = false;
-        return pdTRUE;
-    } else {
+    assert(xQueue != NULL);
+
+    if (xQueue->count == xQueue->countMax) {
         return pdFALSE;
+    } else {
+        xQueue->count++;
+        return pdTRUE;
     }
 }
 
-void mockSemaphoreSetLocked(bool locked)
+BaseType_t xSemaphoreGiveFromISR(SemaphoreHandle_t xQueue)
 {
-    mLocked = locked;
+    return xSemaphoreGive(xQueue);
 }
 
-bool mockSempahoreGetLocked(void)
+void mockSemaphoreSetLocked(SemaphoreHandle_t xQueue, bool locked)
 {
-    return mLocked;
+    assert(xQueue != NULL);
+    // This mock only works for mutexes and binary semaphores
+    assert(xQueue->countMax == 1);
+    xQueue->count = locked ? 0 : 1;
+}
+
+void mockSemaphoreSetCount(SemaphoreHandle_t xQueue, uint32_t semphrCount)
+{
+    assert(xQueue != NULL);
+    // This mock only works for mutexes and binary semaphores
+    assert(semphrCount <= xQueue->countMax);
+    xQueue->count = semphrCount;
+}
+
+bool mockSempahoreGetLocked(SemaphoreHandle_t xQueue)
+{
+    assert(xQueue != NULL);
+    // This mock only works for mutexes and binary semaphores
+    assert(xQueue->countMax == 1);
+    return xQueue->count > 0 ? false : true;
 }

@@ -35,7 +35,6 @@ TEST_SETUP(LIB_LOGGING)
 {
     mockClearPrintf();
     mockClearStreamBufferData(mSerialStream);
-    mockSemaphoreSetLocked(false);
 
     Logging_Status_T status = Log_Init(&mLog);
     TEST_ASSERT_EQUAL(LOGGING_STATUS_OK, status);
@@ -43,7 +42,7 @@ TEST_SETUP(LIB_LOGGING)
 
 TEST_TEAR_DOWN(LIB_LOGGING)
 {
-    TEST_ASSERT_FALSE(mockSempahoreGetLocked());
+    TEST_ASSERT_FALSE(mockSempahoreGetLocked(mLog.mutex));
 }
 
 TEST(LIB_LOGGING, TestInit)
@@ -95,19 +94,19 @@ TEST(LIB_LOGGING, TestLogSerial)
 
 TEST(LIB_LOGGING, TestEnableSWOBusy)
 {
-    mockSemaphoreSetLocked(true);
+    mockSemaphoreSetLocked(mLog.mutex, true);
     TEST_ASSERT_EQUAL(LOGGING_STATUS_ERROR_MUTEX, Log_EnableSWO(&mLog));
 
-    mockSemaphoreSetLocked(false);
+    mockSemaphoreSetLocked(mLog.mutex, false);
 }
 
 TEST(LIB_LOGGING, TestSetSerialStreamBusy)
 {
-    mockSemaphoreSetLocked(true);
+    mockSemaphoreSetLocked(mLog.mutex, true);
     TEST_ASSERT_EQUAL(LOGGING_STATUS_ERROR_MUTEX,
                       Log_SetSerialStream(&mLog, mSerialStream));
 
-    mockSemaphoreSetLocked(false);
+    mockSemaphoreSetLocked(mLog.mutex, false);
 }
 
 TEST(LIB_LOGGING, TestLogBusy)
@@ -116,14 +115,14 @@ TEST(LIB_LOGGING, TestLogBusy)
     TEST_ASSERT_EQUAL(LOGGING_STATUS_OK,
                       Log_SetSerialStream(&mLog, mSerialStream));
 
-    mockSemaphoreSetLocked(true);
+    mockSemaphoreSetLocked(mLog.mutex, true);
 
     // No data outputs, despite output enabled
     Log_Print(&mLog, "Log message\n");
     TEST_ASSERT_EQUAL(0U, printfOutSize);
     TEST_ASSERT_EQUAL(0U, mockGetStreamBufferLen(mSerialStream));
 
-    mockSemaphoreSetLocked(false);
+    mockSemaphoreSetLocked(mLog.mutex, false);
 }
 
 TEST(LIB_LOGGING, TestLogLongMessages)
