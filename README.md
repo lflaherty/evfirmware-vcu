@@ -4,6 +4,13 @@ An open source reference hardware and software for building a custom ECU, design
 
 The ECU design is particularly tailored to FSAE/Formula Student, custom go-karts, and custom hill-climb vehicles.
 
+![Top Level Block Diagram](hardware/images/ECU_block_design_ECU_system_diagram.png)
+
+<p float="left">
+  <img src="hardware/images/ECU_Loom.jpeg" width="49%" />
+  <img src="hardware/images/ECU_PCBA.jpg" width="49%" />
+</p>
+
 ## Cloning
 
 This project uses submodules. Be sure to fetch submodules when cloning and pulling.
