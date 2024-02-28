@@ -1,7 +1,7 @@
 # Top Level System
 ![Top Level Block Diagram](images/ECU_block_design_ECU_system_diagram.png)
 
-# ECU With Loom Connections
+# ECU Housing With Loom Connections
 ![ECU With Loom Connections](images/ECU_Loom.jpeg)
 
 # Detailed Block Diagram
@@ -24,4 +24,33 @@ Non-assembled PCBs.
 ![PCB Fab](images/ECU_PCB_Fab.jpg)
 
 # Schematic
-View `ECU_schematic.pdf` for the schematic PDF print, or `hardware/schematic` for KiCad project.
+View [ECU_Schematic_Print.pdf](ECU_Schematic_Print.pdf) for the schematic PDF print.
+
+# PCB Layout
+
+The PCB is laid out in 4 layers:
+
+1. Components and signal routing
+2. Ground
+3. 3V3
+4. Signal routing
+
+## Combined
+
+![PCB Combined](PCB_Layers/ECU_brd_combined.png)
+
+## Layer 1 (Components & Signal Routing)
+
+![PCB Layer 1](PCB_Layers/ECU_brd_layer1.png)
+
+## Layer 2 (Ground)
+
+![PCB Layer 2](PCB_Layers/ECU_brd_layer2.png)
+
+## Layer 3 (3V3)
+
+![PCB Layer 3](PCB_Layers/ECU_brd_layer3.png)
+
+## Layer 4 (Signal Routing)
+
+![PCB Layer 4](PCB_Layers/ECU_brd_layer4.png)
