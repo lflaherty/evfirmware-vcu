@@ -35,7 +35,11 @@ The PCB is laid out in 4 layers:
 3. 3V3
 4. Signal routing
 
-## Combined
+| Combined | Layer 1 | Layer 2 | Layer 3 | Layer 4 |
+| -------- | ------- | ------- | ------- | ------- |
+| ![PCB Combined](PCB_Layers/ECU_brd_combined.png) | ![PCB Layer 1](PCB_Layers/ECU_brd_layer1.png) | ![PCB Layer 2](PCB_Layers/ECU_brd_layer2.png) | ![PCB Layer 3](PCB_Layers/ECU_brd_layer3.png) | ![PCB Layer 4](PCB_Layers/ECU_brd_layer4.png) |
+
+<!-- ## Combined
 
 ![PCB Combined](PCB_Layers/ECU_brd_combined.png)
 
@@ -53,4 +57,4 @@ The PCB is laid out in 4 layers:
 
 ## Layer 4 (Signal Routing)
 
-![PCB Layer 4](PCB_Layers/ECU_brd_layer4.png)
+![PCB Layer 4](PCB_Layers/ECU_brd_layer4.png) -->
