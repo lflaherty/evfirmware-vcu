@@ -1,32 +1,43 @@
-# Top Level System
+# ECU Hardware Overview
+
+#### Contents
+1. [Top Level System](#top-level)
+1. [ECU Housing With Loom Connections](#housing-loom)
+1. [Detailed Block Diagram](#block-diagram)
+1. [PCBA](#pcba)
+1. [ECU Housing](#housing)
+1. [PCB Fab](#pcb-fab)
+1. [PCB Layout](#pcb-layout)
+
+## Top Level System <a name="top-level"/>
 ![Top Level Block Diagram](images/ECU_block_design_ECU_system_diagram.png)
 
-# ECU Housing With Loom Connections
+## ECU Housing With Loom Connections <a name="housing-loom"/>
 ![ECU With Loom Connections](images/ECU_Loom.jpeg)
 
-# Detailed Block Diagram
+## Detailed Block Diagram <a name="block-diagram"/>
 ![Detailed Block Diagram](images/ECU_block_design_ECU_Internal_v1.4.png)
 
-# PCBA
+## PCBA <a name="pcba"/>
 <p float="left">
   <img src="images/ECU_PCBA.jpg" width="49%" />
   <img src="images/ECU_PCBA_Render.png" width="49%" />
 </p>
 
-# ECU Housing
+## ECU Housing <a name="housing"/>
 <p float="left">
   <img src="images/ECU_Housing_1.jpeg" width="49%" />
   <img src="images/ECU_Housing_2.jpeg" width="49%" />
 </p>
 
-# PCB Fab
+## PCB Fab <a name="pcb-fab"/>
 Non-assembled PCBs.
 ![PCB Fab](images/ECU_PCB_Fab.jpg)
 
-# Schematic
+## Schematic <a name="schematic"/>
 View [ECU_Schematic_Print.pdf](ECU_Schematic_Print.pdf) for the schematic PDF print.
 
-# PCB Layout
+## PCB Layout <a name="pcb-layout"/>
 
 The PCB is laid out in 4 layers:
 
