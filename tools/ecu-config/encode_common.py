@@ -1,4 +1,4 @@
-from lib.decode_common import crc32mpeg2
+from decode_common import crc32mpeg2
 
 CHAR_COLON = 0x3A
 CHAR_CR = 0x0D

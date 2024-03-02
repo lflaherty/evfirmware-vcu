@@ -1,7 +1,7 @@
 from threading import Thread
 import serial
 
-from lib.colors import bcolors
+from colors import bcolors
 
 class SerialHandler:
     def __init__(

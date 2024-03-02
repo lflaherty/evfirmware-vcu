@@ -22,8 +22,8 @@ To run the sim, simply:
 | ---- | ----------- |
 | log_view.py | Decodes log and state update messages |
 | sim-launch.sh | Starts ECU config tool sim server |
-| lib/colors.py | enum of colors for terminal |
-| lib/decode_common.py | Logic for decoding messages sent from ECU |
-| lib/encode_common.py | Logic for encoding messages to send to ECU |
-| lib/serial_common.py | Abstraction for communicating to serial port |
+| colors.py | enum of colors for terminal |
+| decode_common.py | Logic for decoding messages sent from ECU |
+| encode_common.py | Logic for encoding messages to send to ECU |
+| serial_common.py | Abstraction for communicating to serial port |
 | sim/sim-server.py | Sim server program to communicate over virtual serial port |

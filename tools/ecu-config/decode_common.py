@@ -1,6 +1,6 @@
 from threading import Thread
 
-from lib.colors import bcolors
+from colors import bcolors
 
 # Constants
 CHAR_COLON = 0x3A

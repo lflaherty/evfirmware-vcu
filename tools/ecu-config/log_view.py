@@ -8,9 +8,9 @@ from time import sleep
 from argparse import ArgumentParser
 import serial
 
-from lib.decode_common import MsgDecoder, MsgType
-from lib.serial_common import SerialHandler
-from lib.colors import bcolors
+from decode_common import MsgDecoder, MsgType
+from serial_common import SerialHandler
+from colors import bcolors
 
 BAUD_RATE = 115200
 STOP_BITS = serial.STOPBITS_ONE
