@@ -1,0 +1,3 @@
+[submodule "firmware/third_party/Unity"]
+	path = firmware/third_party/Unity
+	url = https://github.com/ThrowTheSwitch/Unity.git
