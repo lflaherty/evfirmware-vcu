@@ -3,7 +3,7 @@
 import argparse
 import re
 
-HEADER_REGEX = r'^(#+)(.+)+$'
+HEADER_REGEX = r'^(#+)(.+) +<a.*\/>$'
 
 
 def header_text_to_link(line: str):
