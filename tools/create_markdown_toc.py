@@ -46,7 +46,6 @@ def add_toc(filename: str, tag: str):
 
             header_matches = re.findall(HEADER_REGEX, line)
             if len(header_matches) > 0:
-                print(header_matches)
                 header_level = len(header_matches[0][0])
                 header_label = header_matches[0][1].lstrip().rstrip()
                 header_link_name = header_text_to_link(header_label)
