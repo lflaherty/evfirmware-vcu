@@ -45,6 +45,7 @@ The ECU software implements:
         1. [Starting vehicle & moving into drive state](#Starting-vehicle---moving-into-drive-state)
         1. [Applying torque from throttle pedal](#Applying-torque-from-throttle-pedal)
     1. [RTOS Tasks and Priorities](#RTOS-Tasks-and-Priorities)
+1. [Software Components Detail](#Software-Components-Detail)
     1. [System Init Layer](#System-Init-Layer)
         1. [Init](#Init)
         1. [Global Interrupt Handler](#Global-Interrupt-Handler)
@@ -200,6 +201,7 @@ This state machine is not explicitly coded as a state machine in the source, it 
 All critical logic registers with the watchdog handler.
 The watchdog handler will trigger a system fault if any critical logic is not handled in a timely manner.
 
+<h1 id="Software-Components-Detail">Software Components Detail</h1>
 
 <h2 id="System-Init-Layer">System Init Layer</h2>
 
@@ -331,13 +333,6 @@ TODO
 TODO
 
 <h3 id="EEPROM">EEPROM</h3>
-
-TODO
-
-<h2 id="STM32-HAL">STM32 HAL</h2>
-
-The STM32 HAL is simply the ST Micro provided HAL for the STM32 F7 microcontroller.
-EPROM</h3>
 
 TODO
 
