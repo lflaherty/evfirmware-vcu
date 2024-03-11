@@ -3,7 +3,7 @@
 import argparse
 import re
 
-HEADER_REGEX = r'^(#+)(.+) +<a.*\/>$'
+HEADER_REGEX = r'^(#+)([\w\d \t\-\&]+)\ *(<a.*\/>)?$'
 
 
 def header_text_to_link(line: str):
@@ -46,15 +46,15 @@ def add_toc(filename: str, tag: str):
 
             header_matches = re.findall(HEADER_REGEX, line)
             if len(header_matches) > 0:
+                print(header_matches)
                 header_level = len(header_matches[0][0])
-                header_label = header_matches[0][1].lstrip()
+                header_label = header_matches[0][1].lstrip().rstrip()
                 header_link_name = header_text_to_link(header_label)
 
                 if header_link_name in s:
-                    print('warning: duplicated header link')
+                    print(f'warning: duplicated header link {header_link_name}')
                 s.add(header_link_name)
 
-                # skip the top level header
                 if header_level > 1:
                     # Create a line item in the TOC
                     toc_item_text = f'[{header_label}](#{header_link_name})'
