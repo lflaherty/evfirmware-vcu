@@ -1,6 +1,7 @@
-# ECU Firmware
+ECU Firmware
+============
 
-## Description
+# Description <a name="Description"/>
 The ECU is responsible for overseeing the vehicle state and controlling the vehicle's operation from driver input and operating all devices associated with this process.
 
 The ECU software implements:
@@ -22,13 +23,60 @@ The ECU software implements:
     * init-time dependency checking
     * EEPROM
 
-### Dependencies
+## Dependencies <a name="Dependencies"/>
 * Third-party:
     * FreeRTOS
     * STM32 HAL
     * Unity (C Unit Test framework)
 
-## Architecture
+# Table of Contents <a name="Table-of-Contents"/>
+<!-- TOC -->
+1. [Description](#Description)
+    1. [Dependencies](#Dependencies)
+1. [Table of Contents](#Table-of-Contents)
+1. [Architecture](#Architecture)
+1. [Directory structure](#Directory-structure)
+1. [Tests](#Tests)
+1. [Software Components](#Software-Components)
+    1. [User Journeys - Internal Operation Examples](#User-Journeys---Internal-Operation-Examples)
+        1. [Starting vehicle & moving into drive state](#Starting-vehicle---moving-into-drive-state)
+        1. [Applying torque from throttle pedal](#Applying-torque-from-throttle-pedal)
+    1. [RTOS Tasks and Priorities](#RTOS-Tasks-and-Priorities)
+    1. [System Init Layer](#System-Init-Layer)
+        1. [Init](#Init)
+        1. [Global Interrupt Handler](#Global-Interrupt-Handler)
+    1. [Vehicle Logic](#Vehicle-Logic)
+        1. [Vehicle State Manager](#Vehicle-State-Manager)
+        1. [Soft Watchdog](#Soft-Watchdog)
+        1. [Data Logging](#Data-Logging)
+    1. [Vehicle Interface](#Vehicle-Interface)
+        1. [System Configuration](#System-Configuration)
+        1. [Vehicle Control](#Vehicle-Control)
+        1. [Vehicle State](#Vehicle-State)
+    1. [Device Driver Layer](#Device-Driver-Layer)
+        1. [Inverter](#Inverter)
+        1. [BMS](#BMS)
+        1. [Discrete Sensors](#Discrete-Sensors)
+        1. [Wheel Speed](#Wheel-Speed)
+        1. [PC Interface](#PC-Interface)
+        1. [IMU](#IMU)
+        1. [Dashboard output](#Dashboard-output)
+        1. [CAN](#CAN)
+        1. [I2C](#I2C)
+        1. [SPI](#SPI)
+        1. [UART](#UART)
+        1. [ADC](#ADC)
+        1. [GPIO](#GPIO)
+        1. [RTC](#RTC)
+        1. [Task Timer](#Task-Timer)
+        1. [CRC](#CRC)
+        1. [Logging](#Logging)
+        1. [Depends](#Depends)
+        1. [EEPROM](#EEPROM)
+    1. [STM32 HAL](#STM32-HAL)
+<!-- END_TOC -->
+
+# Architecture <a name="Architecture"/>
 The firmware is comprised of the following layers:
 
 1. __Vehicle Logic__  
@@ -48,7 +96,7 @@ Visualized:
   <img src="images/Firmware_Architecture_Basic_View.png" width="50%" />
 </p>
 
-## Directory structure
+# Directory structure <a name="Directory-structure"/>
  * `doc` Supporting assets for docs
  * `src`
    * `cube-proj` Main entrypoint, STM32 HAL, firmware build, and STM32CubeIDE project
@@ -56,7 +104,7 @@ Visualized:
    * `system-lib` Symlink to common MCU firmware.
  * `test` VCU tests (overlayed on top of system-lib tests)
 
-## Tests
+# Tests <a name="Tests"/>
 The library is tested via a suite of unit tests contained under `test`. These unit tests leverge the unit testing framework, `Unity`. 
 
 The tests can be executed by invoking `run_tests.sh`
@@ -65,15 +113,15 @@ Executing the tests will generate a code coverage report using `lcov`.
 
 This will also invoke the unit tests from `evfirmware-lib` (`System/`)
 
-## Software Components
+# Software Components <a name="Software-Components"/>
 Expanding on the high level firmware stack from above, we can see all the software components:
 
 ![Firmware Components](images/Firmware_Architecture_Detailed_View.png)
 
-### User Journeys - Internal Operation Examples
+## User Journeys - Internal Operation Examples <a name="User-Journeys---Internal-Operation-Examples"/>
 To visualize the flow of data through this system, we can consider a few examples:
 
-#### Starting vehicle & moving into drive state
+### Starting vehicle & moving into drive state <a name="Starting-vehicle---moving-into-drive-state"/>
 The driver will:
 1. Turn power on
 2. Press brake, then simultaneously press dashboard button
@@ -93,7 +141,7 @@ The ECU firmware will, internally:
     3. Simultaneously, the _vehicle state manager_ is monitoring _vehicle state_ for these fields. If the brake pressure is appropriately high, and the dashboard button has been simultaneously pressed, the _vehicle state manager_ will move through it's drive train power on process (more details in the _vehicle state manager_ doc), and if successful, will transition to the drive state. While transitioning, it instructs the _vehicle control_ module on what it needs the drive train to be doing.
     4. Once in the drive state, the _vehicle state manager_ will instruct the _vehicle control_ module to indicate on the dashboard that the car is in drive. This invokes a method in _dashboard output_ to update the indicator LED.
 
-#### Applying torque from throttle pedal
+### Applying torque from throttle pedal <a name="Applying-torque-from-throttle-pedal"/>
 Once the driver puts the vehicle into it's drive state (as above), then pressing the accelerator should apply power to the wheels.
 
 The process internal to the ECU:
@@ -111,7 +159,7 @@ The process internal to the ECU:
 To visualize this flow of data needed by the _vehicle control_ module:
 ![Detailed View - Control Example](images/Firmware_Architecture_Detailed_View_Example.png)
 
-### RTOS Tasks and Priorities
+## RTOS Tasks and Priorities <a name="RTOS-Tasks-and-Priorities"/>
 The modules with RTOS tasks are arranged into the following priorities.
 
 The RTOS (FreeRTOS) uses preemption and task priorities, and round robin scheduling for equal priorities.
@@ -141,8 +189,8 @@ All critical logic registers with the watchdog handler.
 The watchdog handler will trigger a system fault if any critical logic is not handled in a timely manner.
 
 
-### System Init Layer
-#### Init
+## System Init Layer <a name="System-Init-Layer"/>
+### Init <a name="Init"/>
 
 As the name suggests, this module is responsible for calling the init method of all other required modules in the system, and doing so in the correct order.
 
@@ -150,99 +198,99 @@ The init module maintains local ownership of the data structures required for al
 
 The init module will create an init task, where all initialization methods are invoked from. Many init methods (for other modules) will create further RTOS tasks. Upon init completion, the init task will be deleted, however the data storage will remain.
 
-#### Global Interrupt Handler
+### Global Interrupt Handler <a name="Global-Interrupt-Handler"/>
 
 This is really a sub-component of the init module, but broken out explicitly for clairty. Certain higher level drivers require some code to run from an interrupt handler. In some instances, the timing and frequency of these events would prohibit this from being done via RTOS task notifications (for example, the wheel speed sensors may run at several kHz, but perform very simple code for each ISR routine). The global interrupt handler simply implements the ISR routine, and calls each module's ISR as needed.
 
-### Vehicle Logic
+## Vehicle Logic <a name="Vehicle-Logic"/>
 TODO
 
-#### Vehicle State Manager
+### Vehicle State Manager <a name="Vehicle-State-Manager"/>
 TODO
 
-#### Soft Watchdog
+### Soft Watchdog <a name="Soft-Watchdog"/>
 TODO
 
-#### Data Logging
+### Data Logging <a name="Data-Logging"/>
 TODO
 
-### Vehicle Interface
-#### System Configuration
+## Vehicle Interface <a name="Vehicle-Interface"/>
+### System Configuration <a name="System-Configuration"/>
 TODO
 
-#### Vehicle Control
+### Vehicle Control <a name="Vehicle-Control"/>
 TODO
 
-#### Vehicle State
+### Vehicle State <a name="Vehicle-State"/>
 TODO
 
-### Device Driver Layer
-#### Inverter
+## Device Driver Layer <a name="Device-Driver-Layer"/>
+### Inverter <a name="Inverter"/>
 TODO
 
-#### BMS
+### BMS <a name="BMS"/>
 TODO
 
-#### Discrete Sensors
+### Discrete Sensors <a name="Discrete-Sensors"/>
 TODO
 
-#### Wheel Speed
+### Wheel Speed <a name="Wheel-Speed"/>
 TODO
 
-#### Power Distribution Module (PDM)
+### Power Distribution Module (PDM) <a name="Power-Distribution-Module-(PDM)"/>
 TODO
 
-#### Shutdown Circuit (SDC)
+### Shutdown Circuit (SDC) <a name="Shutdown-Circuit-(SDC)"/>
 TODO
 
-#### PC Interface
+### PC Interface <a name="PC-Interface"/>
 TODO
 
-#### Multi-purpose IO (MPIO)
+### Multi-purpose IO (MPIO) <a name="Multi-purpose-IO-(MPIO)"/>
 TODO
 
-#### IMU
+### IMU <a name="IMU"/>
 TODO
 
-#### Dashboard output
+### Dashboard output <a name="Dashboard-output"/>
 TODO
 
-### Peripheral Driver/Lib Layer
-#### CAN
+## Peripheral Driver/Lib Layer <a name="Peripheral-Driver-Lib-Layer"/>
+### CAN <a name="CAN"/>
 TODO
 
-#### I2C
+### I2C <a name="I2C"/>
 TODO
 
-#### SPI
+### SPI <a name="SPI"/>
 TODO
 
-#### UART
+### UART <a name="UART"/>
 TODO
 
-#### ADC
+### ADC <a name="ADC"/>
 TODO
 
-#### GPIO
+### GPIO <a name="GPIO"/>
 TODO
 
-#### RTC
+### RTC <a name="RTC"/>
 TODO
 
-#### Task Timer
+### Task Timer <a name="Task-Timer"/>
 TODO
 
-#### CRC
+### CRC <a name="CRC"/>
 TODO
 
-#### Logging
+### Logging <a name="Logging"/>
 TODO
 
-#### Depends
+### Depends <a name="Depends"/>
 TODO
 
-#### EEPROM
+### EEPROM <a name="EEPROM"/>
 TODO
 
-### STM32 HAL
+## STM32 HAL <a name="STM32-HAL"/>
 The STM32 HAL is simply the ST Micro provided HAL for the STM32 F7 microcontroller.
