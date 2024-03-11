@@ -55,10 +55,10 @@ def add_toc(filename: str, tag: str):
                     print(f'warning: duplicated header link {header_link_name}')
                 s.add(header_link_name)
 
-                if header_level > 1:
+                if header_level > 0:
                     # Create a line item in the TOC
                     toc_item_text = f'[{header_label}](#{header_link_name})'
-                    toc_line = (header_level - 2) * '    ' + f'1. {toc_item_text}\n'
+                    toc_line = (header_level - 1) * '    ' + f'1. {toc_item_text}\n'
                     md_toc_lines.append(toc_line)
 
                     # Replace the header with an inline link
