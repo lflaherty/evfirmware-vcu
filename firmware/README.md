@@ -64,6 +64,7 @@ The ECU software implements:
         1. [PC Interface](#PC-Interface)
         1. [IMU](#IMU)
         1. [Dashboard output](#Dashboard-output)
+    1. [Peripheral Driver/Lib Layer](#Peripheral-Driver-Lib-Layer)
         1. [CAN](#CAN)
         1. [I2C](#I2C)
         1. [SPI](#SPI)
@@ -260,11 +261,11 @@ TODO
 
 TODO
 
-### Power Distribution Module (PDM) <a name="Power-Distribution-Module-(PDM)"/>
+<h3 id="Power-Distribution-Module-(PDM)">Power Distribution Module (PDM)</h3>
 
 TODO
 
-### Shutdown Circuit (SDC) <a name="Shutdown-Circuit-(SDC)"/>
+<h3 id="Shutdown-Circuit-(SDC)">Shutdown Circuit (SDC)</h3>
 
 TODO
 
@@ -272,7 +273,7 @@ TODO
 
 TODO
 
-### Multi-purpose IO (MPIO) <a name="Multi-purpose-IO-(MPIO)"/>
+<h3 id="Multi-purpose-IO-(MPIO)">Multi-purpose IO (MPIO)</h3>
 
 TODO
 
@@ -284,7 +285,7 @@ TODO
 
 TODO
 
-## Peripheral Driver/Lib Layer <a name="Peripheral-Driver-Lib-Layer"/>
+<h2 id="Peripheral-Driver-Lib-Layer">Peripheral Driver/Lib Layer</h2>
 <h3 id="CAN">CAN</h3>
 
 TODO
@@ -330,6 +331,13 @@ TODO
 TODO
 
 <h3 id="EEPROM">EEPROM</h3>
+
+TODO
+
+<h2 id="STM32-HAL">STM32 HAL</h2>
+
+The STM32 HAL is simply the ST Micro provided HAL for the STM32 F7 microcontroller.
+EPROM</h3>
 
 TODO
 

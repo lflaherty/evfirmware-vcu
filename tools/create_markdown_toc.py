@@ -8,14 +8,14 @@ import re
 # 2: the text of the header
 # 3: the current link of the header (which will be ignored)
 # e.g. "## stuff <a id="asdf"/>" gives ("##", " stuff ", <a id="asdf"/>)
-HEADER_MD_REGEX = r'^(#+)([\w\d \t\-\&]+)\ *(<a.*\/>)?$'
+HEADER_MD_REGEX = r'^(#+)([\w\d \t\-\&\(\)\/]+)\ *(<a.*\/>)?$'
 
 # Gives three groups:
 # 1: the header level
 # 2: the current link of the header
 # 3: the text of the header
 # e.g. "<h2 id="asdf">stuff</h2> gives ("2", "asdf", "stuff")
-HEADER_HTML_REGEX = r'^\s*<\s*h(\d)\s+(?:id="([\w\d\-]+)")?\s*>([\w\d \t\-\&]+)<\/h\d>$'
+HEADER_HTML_REGEX = r'^\s*<\s*h(\d)\s+(?:id="([\w\d\-]+)")?\s*>([\w\d \t\-\&\(\)\/]+)<\/h\d>$'
 
 
 def header_text_to_link(line: str):
