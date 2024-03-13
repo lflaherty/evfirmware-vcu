@@ -1,44 +1,55 @@
-# ECU Hardware Overview
+ECU Hardware Overview
+=====================
 
-1. [Top Level System](#top-level)
-1. [ECU Housing With Loom Connections](#housing-loom)
-1. [Detailed Block Diagram](#block-diagram)
-1. [PCBA](#pcba)
-1. [ECU Housing](#housing)
-1. [PCB Fab](#pcb-fab)
-1. [PCB Layout](#pcb-layout)
-1. [ECU External Pinout](#external-pinout)
-1. [Internal Microcontroller Pinout](#internal-mcu-pinout)
+<!-- TOC -->
+1. [Top Level System](#Top-Level-System)
+1. [ECU Housing With Loom Connections](#ECU-Housing-With-Loom-Connections)
+1. [Detailed Block Diagram](#Detailed-Block-Diagram)
+1. [PCBA](#PCBA)
+1. [ECU Housing](#ECU-Housing)
+1. [PCB Fab](#PCB-Fab)
+1. [Schematic](#Schematic)
+1. [PCB Layout](#PCB-Layout)
+1. [ECU External Pinout](#ECU-External-Pinout)
+1. [Internal Microcontroller Pinout](#Internal-Microcontroller-Pinout)
+<!-- END_TOC -->
 
-## Top Level System <a name="top-level"/>
+<h1 id="Top-Level-System">Top Level System</h1>
+
 ![Top Level Block Diagram](images/ECU_block_design_ECU_system_diagram.png)
 
-## ECU Housing With Loom Connections <a name="housing-loom"/>
+<h1 id="ECU-Housing-With-Loom-Connections">ECU Housing With Loom Connections</h1>
+
 ![ECU With Loom Connections](images/ECU_Loom.jpeg)
 
-## Detailed Block Diagram <a name="block-diagram"/>
+<h1 id="Detailed-Block-Diagram">Detailed Block Diagram</h1>
+
 ![Detailed Block Diagram](images/ECU_block_design_ECU_Internal_v1.4.png)
 
-## PCBA <a name="pcba"/>
+<h1 id="PCBA">PCBA</h1>
+
 <p float="left">
   <img src="images/ECU_PCBA.jpg" width="49%" />
   <img src="images/ECU_PCBA_Render.png" width="49%" />
 </p>
 
-## ECU Housing <a name="housing"/>
+<h1 id="ECU-Housing">ECU Housing</h1>
+
 <p float="left">
   <img src="images/ECU_Housing_1.jpeg" width="49%" />
   <img src="images/ECU_Housing_2.jpeg" width="49%" />
 </p>
 
-## PCB Fab <a name="pcb-fab"/>
+<h1 id="PCB-Fab">PCB Fab</h1>
+
 Non-assembled PCBs.
 ![PCB Fab](images/ECU_PCB_Fab.jpg)
 
-## Schematic <a name="schematic"/>
+<h1 id="Schematic">Schematic</h1>
+
 View [ECU_Schematic_Print.pdf](ECU_Schematic_Print.pdf) for the schematic PDF print.
 
-## PCB Layout <a name="pcb-layout"/>
+<h1 id="PCB-Layout">PCB Layout</h1>
 
 The PCB is laid out in 4 layers:
 
@@ -51,7 +62,7 @@ The PCB is laid out in 4 layers:
 | -------- | ------- | ------- | ------- | ------- |
 | ![PCB Combined](PCB_Layers/ECU_brd_combined.png) | ![PCB Layer 1](PCB_Layers/ECU_brd_layer1.png) | ![PCB Layer 2](PCB_Layers/ECU_brd_layer2.png) | ![PCB Layer 3](PCB_Layers/ECU_brd_layer3.png) | ![PCB Layer 4](PCB_Layers/ECU_brd_layer4.png) |
 
-## ECU External Pinout <a name="external-pinout"/>
+<h1 id="ECU-External-Pinout">ECU External Pinout</h1>
 
 | External Pin | Description | Signal Type| Firmware Usage |
 | ------------ | ----------- | ---------- | ------------------- |
@@ -104,7 +115,8 @@ The PCB is laid out in 4 layers:
 | D11 | Analog sensor | AIN (5V) | Brake pressure (rear) sensor |
 | D12 | Analog sensor | AIN (5V) | Brake pressure (front) sensor |
 
-## Internal Microcontroller Pinout <a name="internal-mcu-pinout"/>
+<h1 id="Internal-Microcontroller-Pinout">Internal Microcontroller Pinout</h1>
+
 Pin assignments for the internal STM32F7 microcontroller
 
 ![STM32 Pin Assignment](STM32_internal_pinout.png)
