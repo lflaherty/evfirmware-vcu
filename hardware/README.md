@@ -2,6 +2,7 @@ ECU Hardware Overview
 =====================
 
 <!-- TOC -->
+1. [Description](#Description)
 1. [Top Level System](#Top-Level-System)
 1. [ECU Housing With Loom Connections](#ECU-Housing-With-Loom-Connections)
 1. [Detailed Block Diagram](#Detailed-Block-Diagram)
@@ -13,6 +14,29 @@ ECU Hardware Overview
 1. [ECU External Pinout](#ECU-External-Pinout)
 1. [Internal Microcontroller Pinout](#Internal-Microcontroller-Pinout)
 <!-- END_TOC -->
+
+<h1 id="Description">Description</h1>
+
+The ECU hardware provides a unified solution for several circuits required for a custom EV build:
+* A multi-channel power distribution module (PDM)
+  * 6 channel
+  * 24V
+  * Two separate always-on 5V outputs
+* An integrated shutdown circuit (SDC)
+  * A set of serial normally open relays where any one input failing will cause the circuit to open
+* ECU logic and IO unit
+  * STM32 microcontroller for logical control
+  * Connection ready IO:
+    * 3 CAN bus
+    * 7 24V GPIO inputs
+      * 2x wheel speed, 4x SDC input, dashboard button
+    * 4 5V ADC inputs
+      * 2x accelerator pedal, 2x brake pressure
+    * LED driver
+    * 8 configurable 5V GPIO/ADCs
+    * RS232 debug connection
+    * RS232 spare unpinned connection
+
 
 <h1 id="Top-Level-System">Top Level System</h1>
 
