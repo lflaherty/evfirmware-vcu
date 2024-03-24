@@ -57,6 +57,7 @@ The ECU software implements:
                 1. [Drive Faults](#Drive-Faults)
                 1. [Special Faults](#Special-Faults)
         1. [Soft Watchdog](#Soft-Watchdog)
+        1. [Throttle Controller](#Throttle-Controller)
         1. [Data Logging](#Data-Logging)
     1. [Vehicle Interface](#Vehicle-Interface)
         1. [System Configuration](#System-Configuration)
@@ -68,6 +69,13 @@ The ECU software implements:
         1. [Discrete Sensors](#Discrete-Sensors)
         1. [Wheel Speed](#Wheel-Speed)
         1. [PC Interface](#PC-Interface)
+            1. [Frame Format](#Frame-Format)
+            1. [Byte Description](#Byte-Description)
+            1. [Address Names](#Address-Names)
+            1. [Messages Types](#Messages-Types)
+                1. [State Broadcast](#State-Broadcast)
+                1. [Log Message](#Log-Message)
+                1. [Debug Console Message (PC to ECU)](#Debug-Console-Message-(PC-to-ECU))
         1. [IMU](#IMU)
         1. [Dashboard output](#Dashboard-output)
     1. [Peripheral Driver/Lib Layer](#Peripheral-Driver-Lib-Layer)
@@ -319,6 +327,34 @@ The soft watchdog will monitor the vehicle state. If a fault state is not entere
 
 The soft watchdog task is also responsible for feeding the hardware watchdog. The soft watchdog should be able to account for all faults that don't prevent the task from running, which is where the hardware watchdog will take over (and run the special fault handler).
 
+<h3 id="Throttle-Controller">Throttle Controller</h3>
+
+This module will read the throttle pedal sensor value, translate this via a torque map to a request of Nm, and requests this from the inverter. This operation (or whether the module sits idle) is controlled via the API, and is called by the vehicle state manager.
+
+The module contains a torque map. The exact torque value is found by linearly interpolating between entries of the torque map.
+
+The torque map implemented is:
+| Accelerator pedal % | Torque (Nm) |
+| ------------------- | ------------------- |
+| 0% | 0 Nm |
+| 10% | 0 Nm |
+| 50% | 100 Nm |
+| 70% | 200 Nm |
+| 100% | 500 Nm |
+
+<p float="left">
+  <img src="images/Torque_Response.png" width="75%" />
+</p>
+
+* The configured torque is based on a motor with a maximum torque of 500 Nm.
+* A deadzone of 0 Nm is created between 0 and 10% pedal depression. To account for very light movement and ADC noise, a deadzone is applied.
+* To allow for more precise control at slower speeds, the output torque up to 50% pressed is fairly limited.
+* If the driver wants to accelerate rapidly, the torque increases rapidly after this point.
+
+Single pedal driving and regenerative braking are currently not supported. Only mechanical braking is supported.
+
+Any regenerative braking would be added to this module, however.
+
 <h3 id="Data-Logging">Data Logging</h3>
 
 The data logging module simply makes a copy of system state and logs it to a file on the SDMMC at on a regular periodic interval.
@@ -326,48 +362,309 @@ The data logging module simply makes a copy of system state and logs it to a fil
 <h2 id="Vehicle-Interface">Vehicle Interface</h2>
 <h3 id="System-Configuration">System Configuration</h3>
 
-TODO
+The system configuration is a table of values used by the rest of the system during init. The table is populated by fields stored on the extermal EEPROM.
+
+Configuration options include the pedal calibration, or fault timeout periods. The full list of configurations are available in `firmware/src/vcu/vehicleInterface/config/configData.h`.
+
+Configuration values are stored on the 256Kbit (32KiB) EEPROM. To simplify development and modification, the external EEPROM is loaded with an instance of littlefs. The configuration items are stored as files under `/config/`. Their paths represent the field values and the file contents are the configuration value. Each file has a corresponding `*.crc32` checksum file.
+
+E.g. for the calibration of accelerator pedal sensor A, the files are:
+* `/config/inputs/accelPedal/calibrationA/rawLower` Raw ADC value corresponding to the pedal being 0% pressed.
+* `/config/inputs/accelPedal/calibrationA/rawLower.crc32` 32-bit CRC of `rawLower`
+* `/config/inputs/accelPedal/calibrationA/rawUpper` Raw ADC value corresponding to the pedal being fully pressed.
+* `/config/inputs/accelPedal/calibrationA/rawUpper.crc32` 32-bit CRC of `rawUpper`
+
+The PC interface can also query and update the values on the EEPROM, but they are only loaded into the _system configuration_ module at startup.
 
 <h3 id="Vehicle-Control">Vehicle Control</h3>
 
-TODO
+The _Vehicle Control_ module is really just a shim. It contains APIs that allow control over any aspect of the car. Internally, it will just invoke one of the device drivers to achieve the requested funtionality.
+
+Current operations supported:
+* Enable inverter
+* Disable inverter
+* Request motor torque - set torque in Nm and motion direction
+* Set power channel - set power channel number and enable/disable
+* Set ECU error - set to enabled or disabled
+* Set dash LED output - set to on or off
 
 <h3 id="Vehicle-State">Vehicle State</h3>
 
-TODO
+The _vehicle state_ module holds the current physical state of the car and owns the sychronization primitives controlling thread-safe access to these variables.
+
+You can safely copy the state by invoking `VehicleState_CopyState`. Alternatively, individual elements can be accessed by using `VehicleState_AccessAcquire` and then reading or writing values. `VehicleState_AccessRelease` must always be used after a successful acquire.
+
+The vehicle state is conceuptialized as a tree, and currently contains:
+
+* Input sensors
+    * Averaged accelerator input [0.0 - 1.1]
+    * Accelerator A input [0.0 - 1.1]
+    * Accelerator B input [0.0 - 1.1]
+    * Accelerator A raw ADC reading
+    * Accelerator B raw ADC reading
+    * Accelerator valid [bool]
+* Dash inputs
+    * Dash button pressed [bool]
+* Vehicle sensors
+    * GPS
+        * UTC Time
+        * Latitude
+        * Longitude
+        * Position fix?
+        * Number of satellites
+    * SDC
+        * BMS fault state [bool, true = fault condition]
+        * BSPD fault state
+        * IMD fault state
+        * ECU fault output active
+    * Wheel speed
+        * Wheel speed front (RPM)
+        * Wheel speed rear (RPM)
+        * Wheel speed front count
+        * Wheel speed rear count
+* GLV state
+    * PDM channel state 1-8 [bool, true = power enabled]
+* Battery state
+    * Maximum cell voltage [Volts]
+    * Maximum cell voltage - Cell ID
+    * Maximum cell temperature [Celsius]
+    * Maximum cell temperature - Cell ID
+    * Minimum cell voltage [Volts]
+    * Minimum cell voltage - Cell ID
+    * Minimum cell temperature [Celsius]
+    * Minimum cell temperature - Cell ID
+    * DC Current [Amps]
+    * DC Voltage [Volts]
+    * BMS Fault indicator [bool]
+    * BMS number of populated cells
+    * BMS message counter
+    * BMS failsafe status
+* Motor
+    * Temperature [Celsius]
+    * Angle [Degrees]
+    * Speed [rpm]
+    * Phase A current [Amps]
+    * Phase B current [Amps]
+    * Phase C current [Amps]
+    * Calculated torque [Nm]
+* Inverter
+    * Module A temperature [Celsius]
+    * Module B temperature [Celsius]
+    * Module C temperature [Celsius]
+    * Gate driver temperature [Celsius]
+    * Control board temperature [Celsius]
+    * Output frequency [Hz]
+    * DC bus current [Amps]
+    * DC bus voltage [Amps]
+    * Output voltage [Line-neutral voltage]
+    * D-axis voltage [Volts]
+    * Q-axis voltage [Volts]
+    * Commanded flux [Wb]
+    * Feedback flux [Wb]
+    * D-axis current feedback [Amps]
+    * Q-axis current feedback [Amps]
+    * D-axis commanded current [Amps]
+    * Q-axis commanded current [Amps]
+    * Commanded torque [Nm]
+    * Modulation index
+    * Flux weakening output [Amps]
+    * Inverter VSM state
+    * Inverter state
+    * Discharge state
+    * Inverter enabled [bool]
+    * Motion direction
+    * Timer counts (incremented every 3ms)
+    * Run faults (inverter fault codes)
+    * Post fault (inverter fault codes)
 
 <h2 id="Device-Driver-Layer">Device Driver Layer</h2>
 <h3 id="Inverter">Inverter</h3>
 
-TODO
+This module will handle CAN bus messages from the inverter, updating the state machine, and will construct CAN bus messages to send to the inverter based on the driver API.
+
+The inverter driver is based a Cascadia Motion Sytems CM200 inverter.
 
 <h3 id="BMS">BMS</h3>
 
-TODO
+This module will handle CAN bus messages from the inverter, updating the state machine.
+
+The BMS driver is based on an OrionBMS 2 with the following CAN message configuration:
+
+| CAN ID | Message Name | Frequency | Data[0] | Data[1] | Data[2] | Data[3] | Data[4] | Data[5] | Data[6] | Data[7] |
+| ------ | ------------ | --------- | ------- | ------- | ------- | ------- | ------- | ------- | ------- | ------- |
+| 0x301 | Max cell state | 100 Hz | Max cell temperature LSB | Max cell temperature MSB | Max temperature cell ID | Max cell voltage LSB | Max cell voltage MSB | Max voltage cell ID | 0 | 0 |
+| 0x302 | Min cell state | 100 Hz | Min cell temperature LSB | Min cell temperature MSB | Min temperature cell ID | Min cell voltage LSB | Min cell voltage MSB | Min voltage cell ID | 0 | 0 |
+| 0x303 | Pack state | 100 Hz | DC current LSB | DC current MSB | Bus voltage LSB | Bus voltage MSB | State of charge LSB | State of charge MSB | 0 | 0 |
+| 0x304 | Status | 100 Hz | Counter | Populated Cells | Failsafe status LSB | Failsafe status MSB | 0 | 0 | 0 | 0 |
+
+All fields size >1 byte are sent LSB first.
+
+**Data Formats**:
+| Field | Data Type | Encoding | Range | Notes |
+| ----- | --------- | -------- | ----- | ----- |
+| Temperature | int16 | Temperature in degrees C x10 | -3276.8 °C to +3276.7 °C | |
+| Cell Voltage | int16 | Voltage in Volts x100 | -327.68 V to +327.67 V | |
+| Cell ID | uint8 | Raw cell number | 0 to 255 | |
+| Pack Current | int16 | Current in Amps x10 | -3276.8 A to +3276.7 A | |
+| Pack Voltage | int16 | Current in Volts x10 | -3276.8 V to +3276.7 V | |
+| State of charge | uint16 | Percentage x100 | 0% to 655.35% | |
+| Counter | uint8 | Raw value | 0 to 255 | Increments for every message |
+
 
 <h3 id="Discrete-Sensors">Discrete Sensors</h3>
 
-TODO
+This module perodically reads discrete sensors (GPIO inputs and ADC inputs) and pushes the results to the vehicle state.
+
+This module currently handles:
+* Accelerator pedal A
+* Accelerator pedal B
+* Average accelerator pedal
+* Brake pressure front
+* Brake pressure rear
+* Bashboard button
+
+The module updates these values on a regular 100Hz update tick.
 
 <h3 id="Wheel-Speed">Wheel Speed</h3>
 
-TODO
+The wheel speed sensor measures the speed of a hall effect wheel speed sensor. The sensor driver assumes that the spacing of the teeth is uniform, and that the high/low size of the sensor teeth are equal. The number of teeth is configurable at init. The sensor will produce a new reading every 1 second.
+
+The voltage input appears as a PWM signal. The frequency of the PWM signal encodes the wheel speed.
+
+The module implements an ISR (that is invoked by the [Global Interrupt Handler](#Global-Interrupt-Handler)). This does a GPIO read on the wheel speed sensor hall effect inputs, and then pushes these values to an RTOS queue. In the main task, the driver pulls these readings off, and calculates the number of 0V -> 24V transitions over the 1s period, informing a simple conversion to RPM.
 
 <h3 id="Power-Distribution-Module-(PDM)">Power Distribution Module (PDM)</h3>
 
-TODO
+This module is simply an abstraction to access the correct GPIO pins to control the 24V power output channels. When updating a power channel, the module will also reflect the change in the [Vehicle State](#Vehicle-State) module.
 
 <h3 id="Shutdown-Circuit-(SDC)">Shutdown Circuit (SDC)</h3>
 
-TODO
+The module serves two purposes:
+* A simple abstraction to access the ECU error output
+* Update the [Vehicle State](#Vehicle-State) when any of the SDC error inputs (BMS error, IMD error, SDC error) is asserted.
+
+The [Global Interrupt Handler](#Global-Interrupt-Handler) invokes the SDC ISR method when the GPIO interrupt is triggered. The SDC ISR method will read the state of all the SDC inputs via a simple GPIO read. If any errors are asserted, a FreeRTOS task notification is used to awake the SDC task, finally updating the field in the [Vehicle State](#Vehicle-State).
 
 <h3 id="PC-Interface">PC Interface</h3>
 
-TODO
+The PC interface implements the serial (RS232) interface to a debug/control computer.
+
+The following functions can currently be performed over the interface:
+* Sending ECU log messages
+* Sending ECU state updates
+* Debug terminal
+
+The serial interface communication is performed via a Modbus protocol. This allows the debug PC to multiplex the different types of data and handle independent operations. It also allows easier expansion of the PC interface.
+
+<h4 id="Frame-Format">Frame Format</h4>
+
+Words are transmitted MSB first.
+
+The console is configured to 115200 bps.
+
+| Byte | Content |
+| ---- | ------- |
+| 0 | Start |
+| 1 | Address[1] |
+| 2 | Address[0] |
+| 3 | Function[1] |
+| 4 | Function[0] |
+| 5 .. 5+(n-1) | Data[n..0] |
+| 6+(n-1) | CRC[3] |
+| 7+(n-1) | CRC[2] |
+| 8+(n-1) | CRC[1] |
+| 9+(n-1) | CRC[0] |
+| 10+(n-1) | End[1] |
+| 11+(n-1) | End[0] |
+
+<h4 id="Byte-Description">Byte Description</h4>
+
+| Section | Length (Bytes) | Description |
+| ------- | -------------- | ----------- |
+| Start | 1 | Payload begin. Equal to 0x80 |
+| Address | 2 | Address of receiver |
+| Function | 2 | Message type |
+| Data | n | Message data |
+| CRC | 4 | 32-bit cyclic redundancy check |
+| End | 2 | Frame end. Equal to <CR><LF> |
+
+<h4 id="Address-Names">Address Names</h4>
+
+| Address | Target |
+| ------- | ------ |
+| 0x01 | ECU |
+| 0x02 | Debug PC |
+
+<h4 id="Messages-Types">Messages Types</h4>
+
+<h5 id="State-Broadcast">State Broadcast</h5>
+
+| | |
+| - | - |
+| Message Name | State Broadbast |
+| Function | 0x01 |
+| Transmit Rate | 1Hz per data field |
+| Send Address | 0x01 |
+| Target Address | 0x02 |
+| Data Length | 7 |
+| Message Length | 18 |
+| Description | Transmit live vehicle data from the [Vehicle Interface](#Vehicle-Interface) layer. |
+
+| Data[0] | Data[1] | Data[2] | Data[3] | Data[4] | Data[5] | Data[6] |
+| ------- | ------- | ------- | ------- | ------- | ------- | ------- |
+| FieldID[1] | FieldID[0] | FieldSize | Data[3] | Data[2] | Data[1] | Data[0] |
+
+* `FieldID` ID of field. IDs are located at `firmware/src/vcu/device/pcinterface/fieldId.h`.
+* `FieldSize` size of `Data` (bytes).
+* `Data[3..0]` latest contents of field.
+
+<h5 id="Log-Message">Log Message</h5>
+
+| | |
+| - | - |
+| Message Name | Log Message |
+| Function | 0x02 |
+| Transmit Rate | Variable (upon ECU log event) |
+| Send Address | 0x01 |
+| Target Address | 0x02 |
+| Data Length | 32 |
+| Message Length | 43 |
+| Description | Continuously dumps print/log messages. Transmits up to 32 bytes at once - no more to avoid data corruption. Unused bytes are left as zeros and are ignored. Note that this message _could_ be read with an incorect CRC when displaying output as it just contains ASCII text. |
+
+| Data[0..31]|
+| ------- |
+| LogChar[0..31] |
+
+* `LogChar` ASCII byte
+
+<h5 id="Debug-Console-Message-(PC-to-ECU)">Debug Console Message (PC to ECU)</h5>
+
+| | |
+| - | - |
+| Message Name | Debug Message (ECU -> PC) |
+| Function | 0x09 |
+| Transmit Rate | Variable (upon response generated) |
+| Send Address | 0x02 |
+| Target Address | 0x01 |
+| Data Length | 8 |
+| Message Length | 17 |
+| Description | Transmits a text command to the ECU. For help with the debug terminal, issue the command `help`. View more details at `firmware/src/vcu/device/pcinterface/debugtermcommands.c`. |
+
+| Data[0..7]|
+| ------- |
+| CmdStr[0..7] |
+
+* `CmdStr` String to append to the internal command buffer.
+
+#### Debug Console Message (ECU -> PC)
+
+This message ID is currently TBD. The current implementation prints log messages when handling debug console requests.
 
 <h3 id="Multi-purpose-IO-(MPIO)">Multi-purpose IO (MPIO)</h3>
 
-TODO
+Implements a simple wrapper around the multi-purpose IO components on the ECU board. Allows an ADC read operation, or simple GPIO read/write.
+
+The module will set the output mode pin. As with the ADC/GPIO drivers, the STM32-specific pin configuration is done seperately.
 
 <h3 id="IMU">IMU</h3>
 
