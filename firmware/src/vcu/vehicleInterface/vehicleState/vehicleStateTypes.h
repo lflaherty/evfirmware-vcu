@@ -39,7 +39,8 @@ typedef struct
 typedef struct
 {
   bool buttonPressed;
-} VehicleState_DashInputs_T;
+  bool ledOn;
+} VehicleState_Dash_T;
 
 typedef struct
 {
@@ -195,7 +196,7 @@ typedef struct
 typedef struct
 {
   VehicleState_InputSensors_T inputs;
-  VehicleState_DashInputs_T dash;
+  VehicleState_Dash_T dash;
   VehicleState_VehicleSensors_T vehicle;
   VehicleState_GLV_T glv;
   VehicleState_Battery_T battery;

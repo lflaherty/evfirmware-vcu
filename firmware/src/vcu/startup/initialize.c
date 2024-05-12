@@ -29,6 +29,7 @@
 #include "device/bms/bms.h"
 #include "device/wheelspeed/wheelspeed.h"
 #include "device/discretesense/discretesense.h"
+#include "device/dashboard_output/dashboard_output.h"
 
 #include "vehicleLogic/watchdogTrigger/watchdogTrigger.h"
 
@@ -60,6 +61,7 @@ static PDM_T mPdm;
 static CInverter_T mInverter;
 static BMS_T mBms;
 static DiscreteSense_T mDiscreteSense;
+static DashboardOut_T mDashboardOut;
 
 // Vehicle interface
 static Config_T mConfig;
@@ -402,6 +404,16 @@ static void ECU_Init_VehicleDevices(void)
   };
   if (DiscreteSense_Init(&mDiscreteSense) != DISCRETESENSE_STATUS_OK) {
     ECU_Init_Error("DiscreteSense_Init initialization error\n");
+  }
+
+  // Dashboard output
+  mDashboardOut = (DashboardOut_T){
+    .output_pin = &Mapping_GPO_LED,
+    .vehicleState = &mVehicleState,
+    .log = &mLog,
+  };
+  if (DashboardOut_Init(&mDashboardOut) != DASHBOARDOUT_OK) {
+    ECU_Init_Error("DashboardOut_Init initialization error\n");
   }
 }
 
