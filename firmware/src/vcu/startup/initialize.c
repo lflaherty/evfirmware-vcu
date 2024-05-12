@@ -423,8 +423,11 @@ static void ECU_Init_VehicleInterface2(void)
   Log_Print(&mLog, "###### ECU_Init_VehicleInterface2 ######\n");
 
   // Vehicle control
-  mVehicleControl.pdm = &mPdm;
-  mVehicleControl.inverter = &mInverter;
+  mVehicleControl = (VehicleControl_T){
+    .pdm = &mPdm,
+    .inverter = &mInverter,
+    .dashOut = &mDashboardOut,
+  };
   if (VehicleControl_Init(&mLog, &mVehicleControl)) {
     ECU_Init_Error("VehicleControl initialization error\n");
   }

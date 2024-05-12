@@ -18,6 +18,7 @@
 #include "device/inverter/cInverter.h"
 #include "device/pdm/pdm.h"
 #include "device/sdc/sdc.h"
+#include "device/dashboard_output/dashboard_output.h"
 
 typedef enum
 {
@@ -31,6 +32,7 @@ typedef struct
   // Pointers to modules required to control vehicle:
   CInverter_T* inverter;
   PDM_T* pdm;
+  DashboardOut_T* dashOut;
   REGISTERED_MODULE();
 } VehicleControl_T;
 

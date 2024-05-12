@@ -22,9 +22,9 @@ VehicleControl_Status_T VehicleControl_Init(
   mLog = logger;
   Log_Print(mLog, "VehicleControl_Init begin\n");
   DEPEND_ON_STATIC(SDC, VEHICLECONTROL_STATUS_ERROR_DEPENDS);
-
   DEPEND_ON(control->inverter, VEHICLECONTROL_STATUS_ERROR_DEPENDS);
   DEPEND_ON(control->pdm, VEHICLECONTROL_STATUS_ERROR_DEPENDS);
+  DEPEND_ON(control->dashOut, VEHICLECONTROL_STATUS_ERROR_DEPENDS);
 
   REGISTER(control, VEHICLECONTROL_STATUS_ERROR_DEPENDS);
   Log_Print(mLog, "VehicleControl_Init complete\n");
@@ -68,8 +68,6 @@ VehicleControl_Status_T VehicleControl_SetECUError(VehicleControl_T* vc, bool er
 
 VehicleControl_Status_T VehicleControl_SetDash(VehicleControl_T* vc, bool ledOn)
 {
-  (void)vc;
-  (void)ledOn;
-  // TODO
+  DashboardOut_Set(vc->dashOut->output_pin, ledOn);
   return VEHICLECONTROL_STATUS_OK;
 }
