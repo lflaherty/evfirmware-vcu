@@ -344,7 +344,7 @@ This will also invoke the unit tests from `evfirmware-lib` (`System/`)
 Expanding on the high level firmware stack from above, we can see all the software components:
 
 <p float="left">
-  <img alt="Firmware Components" src="images/Firmware_Architecture_Detailed_View.png" width="75%" />
+  <img alt="Firmware Components" src="firmware/images/Firmware_Architecture_Detailed_View.png" width="75%" />
 </p>
 
 <h2 id="User-Journeys---Internal-Operation-Examples">User Journeys - Internal Operation Examples</h2>
@@ -390,7 +390,7 @@ The process internal to the ECU:
 
 To visualize this flow of data needed by the _vehicle control_ module:
 <p float="left">
-  <img alt="Detailed View - Control Example" src="images/Firmware_Architecture_Detailed_View_Example.png" width="75%" />
+  <img alt="Detailed View - Control Example" src="firmware/images/Firmware_Architecture_Detailed_View_Example.png" width="75%" />
 </p>
 
 <h2 id="RTOS-Tasks-and-Priorities">RTOS Tasks and Priorities</h2>
@@ -401,7 +401,7 @@ The RTOS (FreeRTOS) uses preemption and task priorities, and round robin schedul
 Only modules that have RTOS tasks are shown here. The remaining drivers are invoked within an existing task context.
 
 <p float="left">
-  <img alt="RTOS Task Priorities" src="images/Firmware_Architecture_RTOS_task_layout.png" width="75%" />
+  <img alt="RTOS Task Priorities" src="firmware/images/Firmware_Architecture_RTOS_task_layout.png" width="75%" />
 </p>
 
 The priorities are selected to achieve:
@@ -419,7 +419,7 @@ This requires the init task to have the highest priority.
 These priorities, in conjunction with the scheduler, enact the following de facto state machine:
 
 <p float="left">
-  <img alt="RTOS Scheduling State Machine" src="images/Firmware_Architecture_RTOS_task_state_machine.png" width="75%" />
+  <img alt="RTOS Scheduling State Machine" src="firmware/images/Firmware_Architecture_RTOS_task_state_machine.png" width="75%" />
 </p>
 
 This state machine is not explicitly coded as a state machine in the source, it is deliberate emergent behavior of the scheduler.
@@ -454,7 +454,7 @@ The _Vehicle State Manager_ is responsible for two tasks:
 <h4 id="Vehicle-State">Vehicle State</h4>
 
 <p float="left">
-  <img alt="Vehicle State Machine" src="images/Vehicle_State_Machine.png" width="75%" />
+  <img alt="Vehicle State Machine" src="firmware/images/Vehicle_State_Machine.png" width="75%" />
 </p>
 
 The state diagram essentially follows:
