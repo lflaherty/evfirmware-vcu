@@ -90,7 +90,6 @@ The ECU software implements:
         1. [CRC](#CRC)
         1. [Logging](#Logging)
         1. [Depends](#Depends)
-        1. [EEPROM](#EEPROM)
     1. [STM32 HAL](#STM32-HAL)
 <!-- END_TOC -->
 
