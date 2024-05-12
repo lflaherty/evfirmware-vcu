@@ -124,7 +124,7 @@ Non-assembled PCBs.
 
 <h1 id="Schematic">Schematic</h1>
 
-View [ECU_Schematic_Print.pdf](ECU_Schematic_Print.pdf) for the schematic PDF print.
+View [ECU_Schematic_Print.pdf](hardware/ECU_Schematic_Print.pdf) for the schematic PDF print.
 
 <h1 id="PCB-Layout">PCB Layout</h1>
 
