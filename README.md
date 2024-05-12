@@ -47,8 +47,12 @@ Below are detailed descriptions on the ECU hardware and firmware. They are also 
 * [Detailed Hardware Description](#doc-hardware)
 * [Detailed Firmware Description](#doc-firmware)
 
+<a id="doc-hardware"/>
 
-<title id="doc-hardware">ECU Hardware Overview</title>
+ECU Hardware Overview
+=====================
+
+[hardware/README.md](hardware/README.md)
 
 <!-- TOC -->
 1. [Description](#hw-Description)
@@ -194,7 +198,14 @@ Pin assignments for the internal STM32F7 microcontroller
 
 ![STM32 Pin Assignment](hardware/STM32_internal_pinout.png)
 
-<title id="doc-firmware">ECU Firmware</title>
+
+
+<a id="doc-firmware"/>
+
+ECU Firmware Overview
+=====================
+
+[firmware/README.md](firmware/README.md)
 
 <h1 id="fw-Description">Description</h1>
 
