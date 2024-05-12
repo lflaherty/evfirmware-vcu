@@ -668,60 +668,103 @@ The module will set the output mode pin. As with the ADC/GPIO drivers, the STM32
 
 <h3 id="IMU">IMU</h3>
 
-TODO
+The board contains a MPU-6050 IMU. The IMU interfaces over the I2C bus.
+
+The data from the IMU (accelerometer and gyroscope) would be pushed into the vehicle state.
+
+This data is currently not used for any vehicle control and exists for offboard analysis.
+
+This module is currently unimplemented.
 
 <h3 id="Dashboard-output">Dashboard output</h3>
 
-TODO
+The current dashboard consists of a single LED output and button input. The dashboard output controls a single GPIO pin.
 
 <h2 id="Peripheral-Driver-Lib-Layer">Peripheral Driver/Lib Layer</h2>
 <h3 id="CAN">CAN</h3>
 
-TODO
+The CAN bus module provides a thread safe wrapper around the CAN bus hardware on the STM32. The CAN interface is accessed via the STM32 HAL internally.
+
+FreeRTOS queues and semaphores are used to gate access to the peripheral, with access to three in parallel possible. The internal queues allow any FreeRTOS thread/task to enqueue a CAN tx message by making `CAN_SendMessage` thread safe. The module does this by using `CAN_SendMessage` to place pending messages on a queue and automatically sending queued messages when Tx complete interrupts trigger.
+
+<p float="left">
+  <img src="images/CAN_Data_Structure.png" width="75%" />
+</p>
+
+<p float="left">
+  <img src="images/CAN_SendMessage.png" width="49%" />
+  <img src="images/CAN_ISR_TxCompleteCallback.png" width="49%" />
+</p>
+
+This module also implements the CAN rx ISRs. Other code modules can register to "listen" for CAN messages. The other code modules register a queue where their CAN messages can be placed and a FreeRTOS notification structure to notify. When the rx ISR is triggered, the CAN message is read, the appropriate target queues are found via the registered CAN IDs, the message is copied to the appropriate queues, and the appropriate task notifications are made.
+
+<p float="left">
+  <img src="images/CAN_RegisterQueue.png" width="29%" />
+  <img src="images/CAN_ISR_RxMsgPending_Callback.png" width="49%" />
+</p>
 
 <h3 id="I2C">I2C</h3>
 
-TODO
+The I2C driver provides a thread safe wrapper of the STM32 HAL DMA I2C interface. The driver will wait for the hardware to become free (up to a timeout).
+
+One difference to the CAN bus driver is that it works synchronously with Read and Write operations, and does not allow for registering for responses (the I2C comms are completed inline).
 
 <h3 id="SPI">SPI</h3>
 
-TODO
+The SPI driver works similarly to the I2C driver in that it provides a thread safe wrapper around the SPI peripherals. However, a simple SPI transfer (and a blocking transfer) are provided.
+
+The blocking transfer uses the STM32 HAL blocking API and will busy loop while waiting for the transfer to complete.
+
+The non blocking transfer uses DMA to perform the transfer and immediately returns when the transfer has begun.
 
 <h3 id="UART">UART</h3>
 
-TODO
+The UART driver works almost entirely the same as the CAN driver:
+
+* The `UART_SendMessage` will either send the message directly to the UART hardware, or place it in a software queue if the hardware is already performing a transfer.
+* For receive, the API allows for setting a receive data stream. The receive interrupt (which can handle variable length data using the frame end detection) will place data on the stream as it receives data. Unlike CAN, only one consumer can be applied per UART interface.
+
+The STM32 hardware allows the U(S)ART to be managed via DMA, so this driver utilizes the DMA controller to run the UART interfaces.
 
 <h3 id="ADC">ADC</h3>
 
-TODO
+The ADC driver configures the ADC peripherals to read via DMA and provide a thread safe interface (a simple `ADC_Get` once the device is running).
+
+A helper function to apply linear scaling is also provided.
 
 <h3 id="GPIO">GPIO</h3>
 
-TODO
+This module of code simply adds an abstraction layer above the STM32 HAL GPIO code to improve code portability. This layer is intended to fully cover the peripheral capabilities, so a simple GPIO wrapper is needed.
 
 <h3 id="RTC">RTC</h3>
 
-TODO
+Similarly to the GPIO, this module wraps around the STM32 HAL RTC driver.
 
 <h3 id="Task-Timer">Task Timer</h3>
 
-TODO
+The task timer module implements the timer ISR and sends FreeRTOS task notifications. Tasks can notify for period notifications (e.g. tasks that run at 100Hz) that allow them to run exactly at a specific frequency.
+
+The depdendent tasks can pend on a notification until the task timer notifies them that they can run. This allows 100Hz tasks to run exactly at 10ms intervals without delay (regardless of run-time jitter).
+
+The hardware is configured with an external crystal, making the timing highly accurate. The timer has been tested to maintain timing accuracy up to 20kHz.
+
+When timing is above 1kHz, FreeRTOS scheduling must be recalculated. This currently isn't in place as the ECU only requires 100Hz.
 
 <h3 id="CRC">CRC</h3>
 
-TODO
+This module is a simple wrapper around the STM32 CRC calculation hardware.
 
 <h3 id="Logging">Logging</h3>
 
-TODO
+The logging module's use is to provide the `Log_Print` method which replaces `printf`.
+
+The logging module will opertionally output the log data to two sources:
+* SWD SWO - the SWD header is wired to support the SWO pin, so when using a debugger, SWO signals can be monitored, and the logging module can copy all log data to this interface.
+* An arbitrary stream - this can be configured to copy data to any software stream. In practice, the [PC Interface](#PC-Interface) module will invoke `Log_SetSerialStream` to consume the log data, and will subsequently encode the logs onto a special serial structure for a connected PC on the UART interface.
 
 <h3 id="Depends">Depends</h3>
 
-TODO
-
-<h3 id="EEPROM">EEPROM</h3>
-
-TODO
+Each module can use the `REGISTER*` macros to get a module ID which can be depended on by other module. Modules' init methods can invoke a `DEPEND_ON` or `DEPEND_ON_STATIC` method to ensure that other code that a particular module depends on has actually been initialized.
 
 <h2 id="STM32-HAL">STM32 HAL</h2>
 
