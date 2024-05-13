@@ -1,8 +1,8 @@
 ## TestCan
 add_executable(TestCan TestCan.c)
 # Test harness
-target_sources(TestCan PRIVATE ${PROJECT_SOURCE_DIR}/Unity/src/unity.c)
-target_sources(TestCan PRIVATE ${PROJECT_SOURCE_DIR}/Unity/extras/fixture/src/unity_fixture.c)
+target_sources(TestCan PRIVATE ${THIRD_PARTY_DIR}/Unity/src/unity.c)
+target_sources(TestCan PRIVATE ${THIRD_PARTY_DIR}/Unity/extras/fixture/src/unity_fixture.c)
 # Mocks for 3rd party
 target_sources(TestCan PRIVATE ${PROJECT_SOURCE_DIR}/mock/FreeRTOS/mockFreeRTOS.c)
 target_sources(TestCan PRIVATE ${PROJECT_SOURCE_DIR}/mock/FreeRTOS/mockQueue.c)

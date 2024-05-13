@@ -1,8 +1,8 @@
 ## TestPCInterface
 add_executable(TestPCInterface TestPCInterface.c)
 # Test harness
-target_sources(TestPCInterface PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/Unity/src/unity.c)
-target_sources(TestPCInterface PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/Unity/extras/fixture/src/unity_fixture.c)
+target_sources(TestPCInterface PRIVATE ${THIRD_PARTY_DIR}/Unity/src/unity.c)
+target_sources(TestPCInterface PRIVATE ${THIRD_PARTY_DIR}/Unity/extras/fixture/src/unity_fixture.c)
 # Mocks for 3rd party
 target_sources(TestPCInterface PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/mock/FreeRTOS/mockFreeRTOS.c)
 target_sources(TestPCInterface PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/mock/FreeRTOS/mockQueue.c)
@@ -34,8 +34,8 @@ target_sources(TestPCInterface PRIVATE ${PROJECT_SOURCE_DIR}/../src/vcu/vehicleI
 ## TestDebugTerm
 add_executable(TestDebugTerm TestDebugTerm.c)
 # Test harness
-target_sources(TestDebugTerm PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/Unity/src/unity.c)
-target_sources(TestDebugTerm PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/Unity/extras/fixture/src/unity_fixture.c)
+target_sources(TestDebugTerm PRIVATE ${THIRD_PARTY_DIR}/Unity/src/unity.c)
+target_sources(TestDebugTerm PRIVATE ${THIRD_PARTY_DIR}/Unity/extras/fixture/src/unity_fixture.c)
 # Mocks for 3rd party
 target_sources(TestDebugTerm PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/mock/FreeRTOS/mockFreeRTOS.c)
 target_sources(TestDebugTerm PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/mock/FreeRTOS/mockQueue.c)

@@ -1,8 +1,8 @@
 ## TestUart
 add_executable(TestUart TestUart.c)
 # Test harness
-target_sources(TestUart PRIVATE ${PROJECT_SOURCE_DIR}/Unity/src/unity.c)
-target_sources(TestUart PRIVATE ${PROJECT_SOURCE_DIR}/Unity/extras/fixture/src/unity_fixture.c)
+target_sources(TestUart PRIVATE ${THIRD_PARTY_DIR}/Unity/src/unity.c)
+target_sources(TestUart PRIVATE ${THIRD_PARTY_DIR}/Unity/extras/fixture/src/unity_fixture.c)
 # Mocks for 3rd party
 target_sources(TestUart PRIVATE ${PROJECT_SOURCE_DIR}/mock/FreeRTOS/mockFreeRTOS.c)
 target_sources(TestUart PRIVATE ${PROJECT_SOURCE_DIR}/mock/FreeRTOS/mockQueue.c)
@@ -22,8 +22,8 @@ target_sources(TestUart PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/lib/depends/
 ## TestMsgFrameDecode
 add_executable(TestMsgFrameDecode TestMsgFrameDecode.c)
 # Test harness
-target_sources(TestMsgFrameDecode PRIVATE ${PROJECT_SOURCE_DIR}/Unity/src/unity.c)
-target_sources(TestMsgFrameDecode PRIVATE ${PROJECT_SOURCE_DIR}/Unity/extras/fixture/src/unity_fixture.c)
+target_sources(TestMsgFrameDecode PRIVATE ${THIRD_PARTY_DIR}/Unity/src/unity.c)
+target_sources(TestMsgFrameDecode PRIVATE ${THIRD_PARTY_DIR}/Unity/extras/fixture/src/unity_fixture.c)
 # Mocks for 3rd party
 target_sources(TestMsgFrameDecode PRIVATE ${PROJECT_SOURCE_DIR}/mock/FreeRTOS/mockFreeRTOS.c)
 target_sources(TestMsgFrameDecode PRIVATE ${PROJECT_SOURCE_DIR}/mock/FreeRTOS/mockQueue.c)
@@ -43,8 +43,8 @@ target_sources(TestMsgFrameDecode PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/li
 ## TestMsgFrameEncode
 add_executable(TestMsgFrameEncode TestMsgFrameEncode.c)
 # Test harness
-target_sources(TestMsgFrameEncode PRIVATE ${PROJECT_SOURCE_DIR}/Unity/src/unity.c)
-target_sources(TestMsgFrameEncode PRIVATE ${PROJECT_SOURCE_DIR}/Unity/extras/fixture/src/unity_fixture.c)
+target_sources(TestMsgFrameEncode PRIVATE ${THIRD_PARTY_DIR}/Unity/src/unity.c)
+target_sources(TestMsgFrameEncode PRIVATE ${THIRD_PARTY_DIR}/Unity/extras/fixture/src/unity_fixture.c)
 # Mocks for 3rd party
 target_sources(TestMsgFrameEncode PRIVATE ${PROJECT_SOURCE_DIR}/mock/FreeRTOS/mockFreeRTOS.c)
 target_sources(TestMsgFrameEncode PRIVATE ${PROJECT_SOURCE_DIR}/mock/FreeRTOS/mockQueue.c)
@@ -64,8 +64,8 @@ target_sources(TestMsgFrameEncode PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/li
 ## TestNmeaDecode
 add_executable(TestNmeaDecode TestNmeaDecode.c)
 # Test harness
-target_sources(TestNmeaDecode PRIVATE ${PROJECT_SOURCE_DIR}/Unity/src/unity.c)
-target_sources(TestNmeaDecode PRIVATE ${PROJECT_SOURCE_DIR}/Unity/extras/fixture/src/unity_fixture.c)
+target_sources(TestNmeaDecode PRIVATE ${THIRD_PARTY_DIR}/Unity/src/unity.c)
+target_sources(TestNmeaDecode PRIVATE ${THIRD_PARTY_DIR}/Unity/extras/fixture/src/unity_fixture.c)
 # Mocks for 3rd party
 target_sources(TestNmeaDecode PRIVATE ${PROJECT_SOURCE_DIR}/mock/FreeRTOS/mockFreeRTOS.c)
 target_sources(TestNmeaDecode PRIVATE ${PROJECT_SOURCE_DIR}/mock/FreeRTOS/mockQueue.c)
@@ -84,8 +84,8 @@ target_sources(TestNmeaDecode PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/lib/de
 ## TestNmeaTypes
 add_executable(TestNmeaTypes TestNmeaTypes.c)
 # Test harness
-target_sources(TestNmeaTypes PRIVATE ${PROJECT_SOURCE_DIR}/Unity/src/unity.c)
-target_sources(TestNmeaTypes PRIVATE ${PROJECT_SOURCE_DIR}/Unity/extras/fixture/src/unity_fixture.c)
+target_sources(TestNmeaTypes PRIVATE ${THIRD_PARTY_DIR}/Unity/src/unity.c)
+target_sources(TestNmeaTypes PRIVATE ${THIRD_PARTY_DIR}/Unity/extras/fixture/src/unity_fixture.c)
 # Mocks for 3rd party
 target_sources(TestNmeaTypes PRIVATE ${PROJECT_SOURCE_DIR}/mock/FreeRTOS/mockFreeRTOS.c)
 target_sources(TestNmeaTypes PRIVATE ${PROJECT_SOURCE_DIR}/mock/FreeRTOS/mockQueue.c)

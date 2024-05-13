@@ -1,16 +1,19 @@
 cmake_minimum_required (VERSION 2.8.11)
 project(ev_test)
 
-set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
-include_directories(${PROJECT_SOURCE_DIR}/../src/vcu)
-include_directories(${PROJECT_SOURCE_DIR}/../src/system-lib)
+set(FIRMWARE_SRC_DIR ${PROJECT_SOURCE_DIR}/../src)
+set(THIRD_PARTY_DIR ${PROJECT_SOURCE_DIR}/../third_party)
+
+include_directories(${FIRMWARE_SRC_DIR}/vcu)
+include_directories(${FIRMWARE_SRC_DIR}/system-lib)
 include_directories(${PROJECT_SOURCE_DIR}/test)
 include_directories(${PROJECT_SOURCE_DIR}/mock)
 include_directories(${PROJECT_SOURCE_DIR}/mock/Application)
-include_directories(${PROJECT_SOURCE_DIR}/Unity/src)
-include_directories(${PROJECT_SOURCE_DIR}/Unity/extras/fixture/src)
-include_directories(${PROJECT_SOURCE_DIR}/Unity/extras/memory/src)
+include_directories(${THIRD_PARTY_DIR}/Unity/src)
+include_directories(${THIRD_PARTY_DIR}/Unity/extras/fixture/src)
+include_directories(${THIRD_PARTY_DIR}/Unity/extras/memory/src)
 
 set_property(GLOBAL PROPERTY C_STANDARD 11)
 

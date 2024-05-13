@@ -1,8 +1,8 @@
 ## TestVehicleState
 add_executable(TestVehicleState TestVehicleState.c)
 # Test harness
-target_sources(TestVehicleState PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/Unity/src/unity.c)
-target_sources(TestVehicleState PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/Unity/extras/fixture/src/unity_fixture.c)
+target_sources(TestVehicleState PRIVATE ${THIRD_PARTY_DIR}/Unity/src/unity.c)
+target_sources(TestVehicleState PRIVATE ${THIRD_PARTY_DIR}/Unity/extras/fixture/src/unity_fixture.c)
 # Mocks for 3rd party
 target_sources(TestVehicleState PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/mock/FreeRTOS/mockFreeRTOS.c)
 target_sources(TestVehicleState PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/mock/FreeRTOS/mockQueue.c)

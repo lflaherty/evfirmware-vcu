@@ -1,8 +1,8 @@
 ## TestCrc
 add_executable(TestCrc TestCrc.c)
 # Test harness
-target_sources(TestCrc PRIVATE ${PROJECT_SOURCE_DIR}/Unity/src/unity.c)
-target_sources(TestCrc PRIVATE ${PROJECT_SOURCE_DIR}/Unity/extras/fixture/src/unity_fixture.c)
+target_sources(TestCrc PRIVATE ${THIRD_PARTY_DIR}/Unity/src/unity.c)
+target_sources(TestCrc PRIVATE ${THIRD_PARTY_DIR}/Unity/extras/fixture/src/unity_fixture.c)
 # Mocks for 3rd party
 target_sources(TestCrc PRIVATE ${PROJECT_SOURCE_DIR}/mock/FreeRTOS/mockFreeRTOS.c)
 target_sources(TestCrc PRIVATE ${PROJECT_SOURCE_DIR}/mock/FreeRTOS/mockQueue.c)

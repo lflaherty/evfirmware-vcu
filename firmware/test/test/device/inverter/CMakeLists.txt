@@ -1,8 +1,8 @@
 ## TestCInverter
 add_executable(TestCInverter TestCInverter.c)
 # Test harness
-target_sources(TestCInverter PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/Unity/src/unity.c)
-target_sources(TestCInverter PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/Unity/extras/fixture/src/unity_fixture.c)
+target_sources(TestCInverter PRIVATE ${THIRD_PARTY_DIR}/Unity/src/unity.c)
+target_sources(TestCInverter PRIVATE ${THIRD_PARTY_DIR}/Unity/extras/fixture/src/unity_fixture.c)
 # Mocks for 3rd party
 target_sources(TestCInverter PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/mock/FreeRTOS/mockFreeRTOS.c)
 target_sources(TestCInverter PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/mock/FreeRTOS/mockQueue.c)

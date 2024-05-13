@@ -1,8 +1,8 @@
 ## TestWatchdogTrigger
 add_executable(TestWatchdogTrigger TestWatchdogTrigger.c)
 # Test harness
-target_sources(TestWatchdogTrigger PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/Unity/src/unity.c)
-target_sources(TestWatchdogTrigger PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/Unity/extras/fixture/src/unity_fixture.c)
+target_sources(TestWatchdogTrigger PRIVATE ${THIRD_PARTY_DIR}/Unity/src/unity.c)
+target_sources(TestWatchdogTrigger PRIVATE ${THIRD_PARTY_DIR}/Unity/extras/fixture/src/unity_fixture.c)
 # Mocks for 3rd party
 target_sources(TestWatchdogTrigger PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/mock/FreeRTOS/mockFreeRTOS.c)
 target_sources(TestWatchdogTrigger PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/mock/FreeRTOS/mockQueue.c)

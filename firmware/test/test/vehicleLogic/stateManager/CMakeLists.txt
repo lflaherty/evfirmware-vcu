@@ -1,8 +1,8 @@
 ## TestFaultManager
 add_executable(TestFaultManager TestFaultManager.c)
 # Test harness
-target_sources(TestFaultManager PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/Unity/src/unity.c)
-target_sources(TestFaultManager PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/Unity/extras/fixture/src/unity_fixture.c)
+target_sources(TestFaultManager PRIVATE ${THIRD_PARTY_DIR}/Unity/src/unity.c)
+target_sources(TestFaultManager PRIVATE ${THIRD_PARTY_DIR}/Unity/extras/fixture/src/unity_fixture.c)
 # Mocks for 3rd party
 target_sources(TestFaultManager PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/mock/FreeRTOS/mockFreeRTOS.c)
 target_sources(TestFaultManager PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/mock/FreeRTOS/mockQueue.c)
@@ -28,8 +28,8 @@ target_sources(TestFaultManager PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/lib/
 ## TestVehicleStateMachine
 add_executable(TestVehicleStateMachine TestVehicleStateMachine.c)
 # Test harness
-target_sources(TestVehicleStateMachine PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/Unity/src/unity.c)
-target_sources(TestVehicleStateMachine PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/Unity/extras/fixture/src/unity_fixture.c)
+target_sources(TestVehicleStateMachine PRIVATE ${THIRD_PARTY_DIR}/Unity/src/unity.c)
+target_sources(TestVehicleStateMachine PRIVATE ${THIRD_PARTY_DIR}/Unity/extras/fixture/src/unity_fixture.c)
 # Mocks for 3rd party
 target_sources(TestVehicleStateMachine PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/mock/FreeRTOS/mockFreeRTOS.c)
 target_sources(TestVehicleStateMachine PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/mock/FreeRTOS/mockQueue.c)
@@ -55,8 +55,8 @@ target_sources(TestVehicleStateMachine PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-s
 ## TestVehicleStateManager
 add_executable(TestVehicleStateManager TestVehicleStateManager.c)
 # Test harness
-target_sources(TestVehicleStateManager PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/Unity/src/unity.c)
-target_sources(TestVehicleStateManager PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/Unity/extras/fixture/src/unity_fixture.c)
+target_sources(TestVehicleStateManager PRIVATE ${THIRD_PARTY_DIR}/Unity/src/unity.c)
+target_sources(TestVehicleStateManager PRIVATE ${THIRD_PARTY_DIR}/Unity/extras/fixture/src/unity_fixture.c)
 # Mocks for 3rd party
 target_sources(TestVehicleStateManager PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/mock/FreeRTOS/mockFreeRTOS.c)
 target_sources(TestVehicleStateManager PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-test/mock/FreeRTOS/mockQueue.c)
