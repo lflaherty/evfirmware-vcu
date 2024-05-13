@@ -30,16 +30,19 @@ static uint16_t testPinBSPDGpioPin = 2;
 static uint16_t testPinIMDGpioPin = 3;
 static uint16_t testPinSDCOutGpioPin = 1;
 static uint16_t testPinECUErrorGpioPin = 2;
+static uint16_t testPinDashLEDGpioPin = 3;
 static GPIO_T testPinBMSGpio;
 static GPIO_T testPinBSPDGpio;
 static GPIO_T testPinIMDGpio;
 static GPIO_T testPinSDCOutGpio;
 static GPIO_T testPinECUErrorGpio;
+static GPIO_T testPinDashLEDGpio;
 
 // Depdendant modules
 static Logging_T testLog;
 static VehicleState_T testVehicleState;
 static SDC_Config_T sdcConfig;
+static DashboardOut_T mDashboardOut;
 static CInverter_T mInverter;
 static PDM_T mPdm;
 
@@ -52,6 +55,7 @@ static void resetInputs(void)
     mockSet_GPIO_Asserted(testPinIMDGpio.GPIOx, testPinIMDGpio.GPIO_Pin, false);
     mockSet_GPIO_Asserted(testPinSDCOutGpio.GPIOx, testPinSDCOutGpio.GPIO_Pin, false);
     mockSet_GPIO_Asserted(testPinECUErrorGpio.GPIOx, testPinECUErrorGpio.GPIO_Pin, false);
+    mockSet_GPIO_Asserted(testPinDashLEDGpio.GPIOx, testPinDashLEDGpio.GPIO_Pin, false);
 }
 
 static void registerGPIOs(void)
@@ -75,6 +79,9 @@ static void registerGPIOs(void)
     testPinECUErrorGpio.GPIOx = &testPinGpioBankB;
     testPinECUErrorGpio.GPIO_Pin = testPinECUErrorGpioPin;
     mock_GPIO_RegisterPin(testPinECUErrorGpio.GPIOx, testPinECUErrorGpio.GPIO_Pin);
+
+    testPinDashLEDGpio = (GPIO_T){&testPinGpioBankB, testPinDashLEDGpioPin};
+    mock_GPIO_RegisterPin(testPinDashLEDGpio.GPIOx, testPinDashLEDGpio.GPIO_Pin);
 }
 
 TEST_GROUP(VEHICLEINTERFACE_VEHICLECONTROL);
@@ -103,6 +110,14 @@ TEST_SETUP(VEHICLEINTERFACE_VEHICLECONTROL)
     sdcConfig.pinSDCOut = &testPinSDCOutGpio;
     sdcConfig.pinECUError = &testPinECUErrorGpio;
     TEST_ASSERT_EQUAL(SDC_STATUS_OK, SDC_Init(&testLog, &sdcConfig));
+
+    mDashboardOut = (DashboardOut_T){
+        .output_pin = &testPinDashLEDGpio,
+        .vehicleState = &testVehicleState,
+        .log = &testLog,
+    };
+    TEST_ASSERT_EQUAL(DASHBOARDOUT_OK, DashboardOut_Init(&mDashboardOut));
+
     mockLogClear();
 
     // Init mocks required for vehicle control
@@ -110,8 +125,11 @@ TEST_SETUP(VEHICLEINTERFACE_VEHICLECONTROL)
     TEST_ASSERT_EQUAL(PDM_STATUS_OK, PDM_Init(&testLog, &mPdm));
 
     memset(&mVehicleControl, 0, sizeof(VehicleControl_T));
-    mVehicleControl.inverter = &mInverter;
-    mVehicleControl.pdm = &mPdm;
+    mVehicleControl = (VehicleControl_T){
+        .inverter = &mInverter,
+        .pdm = &mPdm,
+        .dashOut = &mDashboardOut,
+    };
     VehicleControl_Status_T status = VehicleControl_Init(&testLog, &mVehicleControl);
     TEST_ASSERT_EQUAL(VEHICLECONTROL_STATUS_OK, status);
 

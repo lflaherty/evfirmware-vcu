@@ -68,6 +68,6 @@ VehicleControl_Status_T VehicleControl_SetECUError(VehicleControl_T* vc, bool er
 
 VehicleControl_Status_T VehicleControl_SetDash(VehicleControl_T* vc, bool ledOn)
 {
-  DashboardOut_Set(vc->dashOut->output_pin, ledOn);
+  DashboardOut_Set(vc->dashOut, ledOn);
   return VEHICLECONTROL_STATUS_OK;
 }

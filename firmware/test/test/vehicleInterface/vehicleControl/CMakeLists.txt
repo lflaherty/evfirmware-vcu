@@ -26,4 +26,5 @@ target_sources(TestVehicleControl PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/io
 target_sources(TestVehicleControl PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/lib/depends/depends.c)
 target_sources(TestVehicleControl PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/lib/crc/crc.c)
 target_sources(TestVehicleControl PRIVATE ${PROJECT_SOURCE_DIR}/../src/vcu/device/sdc/sdc.c)
+target_sources(TestVehicleControl PRIVATE ${PROJECT_SOURCE_DIR}/../src/vcu/device/dashboard_output/dashboard_output.c)
 target_sources(TestVehicleControl PRIVATE ${PROJECT_SOURCE_DIR}/../src/vcu/vehicleInterface/vehicleState/vehicleState.c)
