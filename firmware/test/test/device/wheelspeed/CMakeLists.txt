@@ -16,6 +16,6 @@ target_sources(TestWheelspeed PRIVATE ${PROJECT_SOURCE_DIR}/mock/stm32_hal/MockS
 target_sources(TestWheelspeed PRIVATE ${PROJECT_SOURCE_DIR}/mock/time/tasktimer/MockTasktimer.c)
 target_sources(TestWheelspeed PRIVATE ${PROJECT_SOURCE_DIR}/mock/lib/logging/MockLogging.c)
 # Production code
-target_sources(TestWheelspeed PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/io/gpio/gpio.c)
-target_sources(TestWheelspeed PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/lib/depends/depends.c)
+target_sources(TestWheelspeed PRIVATE ${FIRMWARE_SRC_DIR}/system-lib/io/gpio/gpio.c)
+target_sources(TestWheelspeed PRIVATE ${FIRMWARE_SRC_DIR}/system-lib/lib/depends/depends.c)
 target_sources(TestWheelspeed PRIVATE ${FIRMWARE_SRC_DIR}/vcu/vehicleInterface/vehicleState/vehicleState.c)

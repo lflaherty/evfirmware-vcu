@@ -19,7 +19,7 @@ target_sources(TestGps PRIVATE ${PROJECT_SOURCE_DIR}/mock/stm32_hal/MockStm32f7x
 target_sources(TestGps PRIVATE ${PROJECT_SOURCE_DIR}/mock/time/tasktimer/MockTasktimer.c)
 target_sources(TestGps PRIVATE ${PROJECT_SOURCE_DIR}/mock/lib/logging/MockLogging.c)
 # Production code
-target_sources(TestGps PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/comm/uart/nmeadecode.c)
-target_sources(TestGps PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/comm/uart/nmeatypes.c)
-target_sources(TestGps PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/lib/depends/depends.c)
+target_sources(TestGps PRIVATE ${FIRMWARE_SRC_DIR}/system-lib/comm/uart/nmeadecode.c)
+target_sources(TestGps PRIVATE ${FIRMWARE_SRC_DIR}/system-lib/comm/uart/nmeatypes.c)
+target_sources(TestGps PRIVATE ${FIRMWARE_SRC_DIR}/system-lib/lib/depends/depends.c)
 target_sources(TestGps PRIVATE ${FIRMWARE_SRC_DIR}/vcu/vehicleInterface/vehicleState/vehicleState.c)

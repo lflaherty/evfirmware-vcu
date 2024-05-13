@@ -16,7 +16,7 @@ target_sources(TestUart PRIVATE ${PROJECT_SOURCE_DIR}/mock/stm32_hal/MockStm32f7
 # Mocks for 1st party
 target_sources(TestUart PRIVATE ${PROJECT_SOURCE_DIR}/mock/lib/logging/MockLogging.c)
 # Production code
-target_sources(TestUart PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/lib/depends/depends.c)
+target_sources(TestUart PRIVATE ${FIRMWARE_SRC_DIR}/system-lib/lib/depends/depends.c)
 
 
 ## TestMsgFrameDecode
@@ -36,8 +36,8 @@ target_sources(TestMsgFrameDecode PRIVATE ${PROJECT_SOURCE_DIR}/mock/stm32_hal/M
 # Mocks for 1st party
 target_sources(TestMsgFrameDecode PRIVATE ${PROJECT_SOURCE_DIR}/mock/lib/logging/MockLogging.c)
 # Production code
-target_sources(TestMsgFrameDecode PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/lib/crc/crc.c)
-target_sources(TestMsgFrameDecode PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/lib/depends/depends.c)
+target_sources(TestMsgFrameDecode PRIVATE ${FIRMWARE_SRC_DIR}/system-lib/lib/crc/crc.c)
+target_sources(TestMsgFrameDecode PRIVATE ${FIRMWARE_SRC_DIR}/system-lib/lib/depends/depends.c)
 
 
 ## TestMsgFrameEncode
@@ -57,8 +57,8 @@ target_sources(TestMsgFrameEncode PRIVATE ${PROJECT_SOURCE_DIR}/mock/stm32_hal/M
 # Mocks for 1st party
 target_sources(TestMsgFrameEncode PRIVATE ${PROJECT_SOURCE_DIR}/mock/lib/logging/MockLogging.c)
 # Production code
-target_sources(TestMsgFrameEncode PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/lib/crc/crc.c)
-target_sources(TestMsgFrameEncode PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/lib/depends/depends.c)
+target_sources(TestMsgFrameEncode PRIVATE ${FIRMWARE_SRC_DIR}/system-lib/lib/crc/crc.c)
+target_sources(TestMsgFrameEncode PRIVATE ${FIRMWARE_SRC_DIR}/system-lib/lib/depends/depends.c)
 
 
 ## TestNmeaDecode
@@ -77,8 +77,8 @@ target_sources(TestNmeaDecode PRIVATE ${PROJECT_SOURCE_DIR}/mock/stm32_hal/MockS
 # Mocks for 1st party
 target_sources(TestNmeaDecode PRIVATE ${PROJECT_SOURCE_DIR}/mock/lib/logging/MockLogging.c)
 # Production code
-target_sources(TestNmeaDecode PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/comm/uart/nmeatypes.c)
-target_sources(TestNmeaDecode PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/lib/depends/depends.c)
+target_sources(TestNmeaDecode PRIVATE ${FIRMWARE_SRC_DIR}/system-lib/comm/uart/nmeatypes.c)
+target_sources(TestNmeaDecode PRIVATE ${FIRMWARE_SRC_DIR}/system-lib/lib/depends/depends.c)
 
 
 ## TestNmeaTypes
@@ -97,4 +97,4 @@ target_sources(TestNmeaTypes PRIVATE ${PROJECT_SOURCE_DIR}/mock/stm32_hal/MockSt
 # Mocks for 1st party
 target_sources(TestNmeaTypes PRIVATE ${PROJECT_SOURCE_DIR}/mock/lib/logging/MockLogging.c)
 # Production code
-target_sources(TestNmeaTypes PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/lib/depends/depends.c)
+target_sources(TestNmeaTypes PRIVATE ${FIRMWARE_SRC_DIR}/system-lib/lib/depends/depends.c)
