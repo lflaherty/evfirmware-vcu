@@ -22,4 +22,4 @@ target_sources(TestGps PRIVATE ${PROJECT_SOURCE_DIR}/mock/lib/logging/MockLoggin
 target_sources(TestGps PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/comm/uart/nmeadecode.c)
 target_sources(TestGps PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/comm/uart/nmeatypes.c)
 target_sources(TestGps PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/lib/depends/depends.c)
-target_sources(TestGps PRIVATE ${PROJECT_SOURCE_DIR}/../src/vcu/vehicleInterface/vehicleState/vehicleState.c)
+target_sources(TestGps PRIVATE ${FIRMWARE_SRC_DIR}/vcu/vehicleInterface/vehicleState/vehicleState.c)

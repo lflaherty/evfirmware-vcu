@@ -21,4 +21,4 @@ target_sources(TestDiscreteSense PRIVATE ${PROJECT_SOURCE_DIR}/mock/lib/logging/
 target_sources(TestDiscreteSense PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/io/gpio/gpio.c)
 target_sources(TestDiscreteSense PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/io/adc/adc.c)
 target_sources(TestDiscreteSense PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/lib/depends/depends.c)
-target_sources(TestDiscreteSense PRIVATE ${PROJECT_SOURCE_DIR}/../src/vcu/vehicleInterface/vehicleState/vehicleState.c)
+target_sources(TestDiscreteSense PRIVATE ${FIRMWARE_SRC_DIR}/vcu/vehicleInterface/vehicleState/vehicleState.c)

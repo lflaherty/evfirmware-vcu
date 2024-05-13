@@ -19,4 +19,4 @@ target_sources(TestCInverter PRIVATE ${PROJECT_SOURCE_DIR}/mock/lib/logging/Mock
 # Production code
 target_sources(TestCInverter PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/lib/depends/depends.c)
 target_sources(TestCInverter PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/comm/can/can.c)
-target_sources(TestCInverter PRIVATE ${PROJECT_SOURCE_DIR}/../src/vcu/vehicleInterface/vehicleState/vehicleState.c)
+target_sources(TestCInverter PRIVATE ${FIRMWARE_SRC_DIR}/vcu/vehicleInterface/vehicleState/vehicleState.c)

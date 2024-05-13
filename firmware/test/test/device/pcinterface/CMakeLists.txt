@@ -28,8 +28,8 @@ target_sources(TestPCInterface PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/io/gp
 target_sources(TestPCInterface PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/comm/uart/msgframeencode.c)
 target_sources(TestPCInterface PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/comm/uart/msgframedecode.c)
 target_sources(TestPCInterface PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/lib/crc/crc.c)
-target_sources(TestPCInterface PRIVATE ${PROJECT_SOURCE_DIR}/../src/vcu/device/sdc/sdc.c)
-target_sources(TestPCInterface PRIVATE ${PROJECT_SOURCE_DIR}/../src/vcu/vehicleInterface/vehicleState/vehicleState.c)
+target_sources(TestPCInterface PRIVATE ${FIRMWARE_SRC_DIR}/vcu/device/sdc/sdc.c)
+target_sources(TestPCInterface PRIVATE ${FIRMWARE_SRC_DIR}/vcu/vehicleInterface/vehicleState/vehicleState.c)
 
 ## TestDebugTerm
 add_executable(TestDebugTerm TestDebugTerm.c)
@@ -61,5 +61,5 @@ target_sources(TestDebugTerm PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/io/gpio
 target_sources(TestDebugTerm PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/comm/uart/msgframeencode.c)
 target_sources(TestDebugTerm PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/comm/uart/msgframedecode.c)
 target_sources(TestDebugTerm PRIVATE ${PROJECT_SOURCE_DIR}/systemlib-src/lib/crc/crc.c)
-target_sources(TestDebugTerm PRIVATE ${PROJECT_SOURCE_DIR}/../src/vcu/device/sdc/sdc.c)
-target_sources(TestDebugTerm PRIVATE ${PROJECT_SOURCE_DIR}/../src/vcu/vehicleInterface/vehicleState/vehicleState.c)
+target_sources(TestDebugTerm PRIVATE ${FIRMWARE_SRC_DIR}/vcu/device/sdc/sdc.c)
+target_sources(TestDebugTerm PRIVATE ${FIRMWARE_SRC_DIR}/vcu/vehicleInterface/vehicleState/vehicleState.c)
