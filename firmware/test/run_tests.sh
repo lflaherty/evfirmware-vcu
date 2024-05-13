@@ -1,11 +1,13 @@
 #!/bin/bash -e
 
 mkdir -p build
-cd build
+pushd build
 
 # Compile
 cmake ..
-make -j7
+make -j$(nproc)
 
 # Generate report
 ../generate_report.sh ../../src
+
+popd
