@@ -1,0 +1,254 @@
+<mxfile host="Electron" modified="2023-05-14T05:39:41.865Z" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.2.8 Chrome/112.0.5615.165 Electron/24.2.0 Safari/537.36" etag="xrUziNEndfjHQ2RRxN0u" version="21.2.8" type="device" pages="2">
+  <diagram name="Without averaging" id="QfwZawQZERo0w8zX4Ye_">
+    <mxGraphModel dx="1263" dy="876" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="CRWTUcW9SPAU1AX5Nn4g-1" value="First half" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="240" y="80" width="280" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="CRWTUcW9SPAU1AX5Nn4g-2" value="Second half" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="520" y="80" width="280" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="CRWTUcW9SPAU1AX5Nn4g-3" value="DMA buffer&lt;br&gt;&lt;div style=&quot;&quot;&gt;&lt;span style=&quot;background-color: initial; font-weight: normal;&quot;&gt;(DMA controller will fill this)&lt;/span&gt;&lt;/div&gt;" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="80" width="170" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="CRWTUcW9SPAU1AX5Nn4g-6" value="Data being copied from DMA/ready for copying from main" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="240" y="160" width="560" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="CRWTUcW9SPAU1AX5Nn4g-7" value="Data being copied from DMA/ready for copying from main" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="240" y="240" width="560" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="CRWTUcW9SPAU1AX5Nn4g-8" value="Copy buffer A" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="160" width="100" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="CRWTUcW9SPAU1AX5Nn4g-9" value="Copy buffer B" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="240" width="100" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="CRWTUcW9SPAU1AX5Nn4g-10" value="Active copy buffer indicator" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="320" width="180" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="CRWTUcW9SPAU1AX5Nn4g-11" value="Flag to specify which buffer will be updated by DMA interrupt next.&lt;br&gt;The opposite buffer should be used to copy data outside of the interrupt." style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="240" y="315" width="410" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="CRWTUcW9SPAU1AX5Nn4g-12" value="DMA half complete ISR" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="480" width="150" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="CRWTUcW9SPAU1AX5Nn4g-21" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="CRWTUcW9SPAU1AX5Nn4g-13" target="CRWTUcW9SPAU1AX5Nn4g-20">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="CRWTUcW9SPAU1AX5Nn4g-23" value="copy buffer A&lt;br&gt;active" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="CRWTUcW9SPAU1AX5Nn4g-21">
+          <mxGeometry x="-0.7143" y="2" relative="1" as="geometry">
+            <mxPoint x="50" y="2" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CRWTUcW9SPAU1AX5Nn4g-24" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="CRWTUcW9SPAU1AX5Nn4g-13" target="CRWTUcW9SPAU1AX5Nn4g-22">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="CRWTUcW9SPAU1AX5Nn4g-25" value="copy buffer B&lt;br style=&quot;border-color: var(--border-color);&quot;&gt;active" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="CRWTUcW9SPAU1AX5Nn4g-24">
+          <mxGeometry x="-0.0535" y="2" relative="1" as="geometry">
+            <mxPoint x="34" y="2" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CRWTUcW9SPAU1AX5Nn4g-13" value="Active copy buffer?" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="70" y="520" width="95" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="CRWTUcW9SPAU1AX5Nn4g-16" value="Data structures" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry width="840" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="CRWTUcW9SPAU1AX5Nn4g-17" value="Interrupt handling" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry y="400" width="840" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="CRWTUcW9SPAU1AX5Nn4g-20" value="Copy first half of array to copy buffer A" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="340" y="535" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="CRWTUcW9SPAU1AX5Nn4g-22" value="Copy first half of array to copy buffer B" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="340" y="610" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="CRWTUcW9SPAU1AX5Nn4g-26" value="DMA complete ISR" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="50" y="680" width="130" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="CRWTUcW9SPAU1AX5Nn4g-27" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="CRWTUcW9SPAU1AX5Nn4g-31" target="CRWTUcW9SPAU1AX5Nn4g-32">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="CRWTUcW9SPAU1AX5Nn4g-28" value="copy buffer A&lt;br&gt;active" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="CRWTUcW9SPAU1AX5Nn4g-27">
+          <mxGeometry x="-0.7143" y="2" relative="1" as="geometry">
+            <mxPoint x="50" y="2" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CRWTUcW9SPAU1AX5Nn4g-29" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="CRWTUcW9SPAU1AX5Nn4g-31" target="CRWTUcW9SPAU1AX5Nn4g-33">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="CRWTUcW9SPAU1AX5Nn4g-30" value="copy buffer B&lt;br style=&quot;border-color: var(--border-color);&quot;&gt;active" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="CRWTUcW9SPAU1AX5Nn4g-29">
+          <mxGeometry x="-0.0535" y="2" relative="1" as="geometry">
+            <mxPoint x="34" y="2" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CRWTUcW9SPAU1AX5Nn4g-31" value="Active copy buffer?" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="70" y="720" width="95" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="CRWTUcW9SPAU1AX5Nn4g-35" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="CRWTUcW9SPAU1AX5Nn4g-32" target="CRWTUcW9SPAU1AX5Nn4g-34">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="CRWTUcW9SPAU1AX5Nn4g-32" value="Copy second half of copy buffer A" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="340" y="735" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="CRWTUcW9SPAU1AX5Nn4g-37" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="CRWTUcW9SPAU1AX5Nn4g-33" target="CRWTUcW9SPAU1AX5Nn4g-36">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="CRWTUcW9SPAU1AX5Nn4g-33" value="Copy second half of copy buffer B" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="340" y="810" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="CRWTUcW9SPAU1AX5Nn4g-34" value="Set copy buffer B active" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="490" y="735" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="CRWTUcW9SPAU1AX5Nn4g-36" value="Set copy buffer B active" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="490" y="810" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="CRWTUcW9SPAU1AX5Nn4g-38" value="ADC Get (non-ISR method)" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="25" y="890" width="180" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="CRWTUcW9SPAU1AX5Nn4g-39" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="CRWTUcW9SPAU1AX5Nn4g-43" target="CRWTUcW9SPAU1AX5Nn4g-45">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="CRWTUcW9SPAU1AX5Nn4g-40" value="copy buffer A&lt;br&gt;active" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="CRWTUcW9SPAU1AX5Nn4g-39">
+          <mxGeometry x="-0.7143" y="2" relative="1" as="geometry">
+            <mxPoint x="50" y="2" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CRWTUcW9SPAU1AX5Nn4g-41" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="CRWTUcW9SPAU1AX5Nn4g-43" target="CRWTUcW9SPAU1AX5Nn4g-47">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="CRWTUcW9SPAU1AX5Nn4g-42" value="copy buffer B&lt;br style=&quot;border-color: var(--border-color);&quot;&gt;active" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="CRWTUcW9SPAU1AX5Nn4g-41">
+          <mxGeometry x="-0.0535" y="2" relative="1" as="geometry">
+            <mxPoint x="34" y="2" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CRWTUcW9SPAU1AX5Nn4g-43" value="Active copy buffer?" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="210" y="915" width="95" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="CRWTUcW9SPAU1AX5Nn4g-44" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="CRWTUcW9SPAU1AX5Nn4g-45" target="CRWTUcW9SPAU1AX5Nn4g-48">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="CRWTUcW9SPAU1AX5Nn4g-45" value="Copy requested data from copy buffer B" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="440" y="930" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="CRWTUcW9SPAU1AX5Nn4g-46" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="CRWTUcW9SPAU1AX5Nn4g-47" target="CRWTUcW9SPAU1AX5Nn4g-48">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="630" y="1035" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CRWTUcW9SPAU1AX5Nn4g-47" value="Copy requested data from copy buffer A" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="440" y="1005" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="CRWTUcW9SPAU1AX5Nn4g-48" value="Re-activate ADC interrupts" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="670" y="930" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="CRWTUcW9SPAU1AX5Nn4g-51" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="CRWTUcW9SPAU1AX5Nn4g-50" target="CRWTUcW9SPAU1AX5Nn4g-43">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="CRWTUcW9SPAU1AX5Nn4g-50" value="Deactivate ADC interrupts" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="57.5" y="930" width="120" height="60" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="iFCwPrWvR-6sEqDC4rbC" name="With averaging">
+    <mxGraphModel dx="1263" dy="876" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="sYCIoLhY0ROKKoj-WIka-1" value="First half" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="240" y="80" width="280" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="sYCIoLhY0ROKKoj-WIka-2" value="Second half" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="520" y="80" width="280" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="sYCIoLhY0ROKKoj-WIka-3" value="DMA buffer&lt;br&gt;&lt;div style=&quot;&quot;&gt;&lt;span style=&quot;background-color: initial; font-weight: normal;&quot;&gt;(DMA controller will fill this)&lt;/span&gt;&lt;/div&gt;" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="80" width="170" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="sYCIoLhY0ROKKoj-WIka-4" value="Counting buffer" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="240" y="160" width="560" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="sYCIoLhY0ROKKoj-WIka-6" value="Copy buffer" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="160" width="90" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="sYCIoLhY0ROKKoj-WIka-7" value="Result buffer" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="240" width="100" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="sYCIoLhY0ROKKoj-WIka-10" value="DMA half complete ISR" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="480" width="150" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="sYCIoLhY0ROKKoj-WIka-16" value="Data structures" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry width="840" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="sYCIoLhY0ROKKoj-WIka-17" value="Interrupt handling" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry y="400" width="840" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="sYCIoLhY0ROKKoj-WIka-18" value="Add first half of DMA buffer to first half of counting buffer" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="80" y="530" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="sYCIoLhY0ROKKoj-WIka-20" value="DMA complete ISR" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="50" y="680" width="130" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="sYCIoLhY0ROKKoj-WIka-32" value="ADC Get (non-ISR method)" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="25" y="890" width="180" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="sYCIoLhY0ROKKoj-WIka-38" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="sYCIoLhY0ROKKoj-WIka-39" target="sYCIoLhY0ROKKoj-WIka-42">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="sYCIoLhY0ROKKoj-WIka-39" value="Copy data from result buffer" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="240" y="930" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="sYCIoLhY0ROKKoj-WIka-42" value="Re-activate ADC interrupts" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="400" y="930" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="sYCIoLhY0ROKKoj-WIka-43" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="sYCIoLhY0ROKKoj-WIka-44" target="sYCIoLhY0ROKKoj-WIka-39">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="210" y="960" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="sYCIoLhY0ROKKoj-WIka-44" value="Deactivate ADC interrupts" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="80" y="930" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="sYCIoLhY0ROKKoj-WIka-45" value="Result buffer" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="240" y="240" width="560" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="sYCIoLhY0ROKKoj-WIka-46" value="The DMA controller copies directly into DMA buffer.&lt;br&gt;On DMA interrupt (both), the values in the given buffer are added to the counting buffer.&lt;br&gt;On the complete interrupt, all values in counting buffer are divided by the sampling count (which is a multiple of 2, so divide can just be a right shift), with results being stored in averaged buffer.&lt;br&gt;The ADC_Get() method will retrieve data from Averaged buffer." style="text;html=1;align=left;verticalAlign=top;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="40" y="320" width="1040" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="sYCIoLhY0ROKKoj-WIka-55" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="sYCIoLhY0ROKKoj-WIka-51" target="sYCIoLhY0ROKKoj-WIka-54">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="sYCIoLhY0ROKKoj-WIka-51" value="Add second half of DMA buffer to second half of counting buffer" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="80" y="720" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="sYCIoLhY0ROKKoj-WIka-52" value="Divide each value (with right shift) to average, storing result in averaged buffer" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="425" y="720" width="150" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="sYCIoLhY0ROKKoj-WIka-56" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="sYCIoLhY0ROKKoj-WIka-54" target="sYCIoLhY0ROKKoj-WIka-52">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="sYCIoLhY0ROKKoj-WIka-57" value="Yes" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="sYCIoLhY0ROKKoj-WIka-56">
+          <mxGeometry x="-0.275" y="2" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="sYCIoLhY0ROKKoj-WIka-59" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="sYCIoLhY0ROKKoj-WIka-54" target="sYCIoLhY0ROKKoj-WIka-58">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="sYCIoLhY0ROKKoj-WIka-60" value="No" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="sYCIoLhY0ROKKoj-WIka-59">
+          <mxGeometry x="-0.0701" y="1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="sYCIoLhY0ROKKoj-WIka-54" value="Have we collected enough samples?" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="250" y="705" width="95" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="sYCIoLhY0ROKKoj-WIka-58" value="End" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="455" y="810" width="90" height="40" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

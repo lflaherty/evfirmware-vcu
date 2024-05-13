@@ -1,3 +1,7 @@
 add_subdirectory(device)
 add_subdirectory(vehicleInterface)
 add_subdirectory(vehicleLogic)
+add_subdirectory(comm)
+add_subdirectory(io)
+add_subdirectory(lib)
+add_subdirectory(time)
