@@ -75,7 +75,7 @@ static void I2C_XferCplt_ISR(I2C_HandleTypeDef* hi2c)
 
   // Just signal to thread that the xfer has finished
   struct I2C_Instance* i2cDev = &i2cInstances[deviceId];
-  xSemaphoreGiveFromISR(i2cDev->xferInProgressSem);
+  xSemaphoreGiveFromISR(i2cDev->xferInProgressSem, NULL);
 }
 
 /**
