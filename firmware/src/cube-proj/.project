@@ -36,9 +36,9 @@
 			<locationURI>PARENT-1-PROJECT_LOC/vcu</locationURI>
 		</link>
 		<link>
-			<name>System_src</name>
+			<name>SystemLib</name>
 			<type>2</type>
-			<locationURI>PARENT-3-PROJECT_LOC/system-lib/src</locationURI>
+			<locationURI>PARENT-1-PROJECT_LOC/system-lib</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>
