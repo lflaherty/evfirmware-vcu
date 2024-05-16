@@ -11,7 +11,7 @@
 #include <string.h>
 
 // source code under test
-#include "lib/depends/depends.c"
+#include "depends/depends.c"
 
 // Define some test components:
 

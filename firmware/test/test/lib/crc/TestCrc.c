@@ -13,10 +13,10 @@
 #include "FreeRTOS.h"
 #include "semphr.h"
 
-#include "lib/logging/MockLogging.h"
+#include "logging/MockLogging.h"
 
 // source code under test
-#include "lib/crc/crc.c"
+#include "crc/crc.c"
 
 static Logging_T testLog;
 static CRC_HandleTypeDef hcrc;

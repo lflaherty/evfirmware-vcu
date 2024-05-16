@@ -29,7 +29,7 @@
 
 #include "startup/initialize.h"
 
-#include "lib/logging/logging.h"
+#include "logging/logging.h"
 
 /* USER CODE END Includes */
 

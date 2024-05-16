@@ -21,13 +21,13 @@
 #include "stream_buffer.h"
 #include "semaphore.h"
 
-#include "time/tasktimer/MockTasktimer.h"
-#include "lib/logging/MockLogging.h"
+#include "tasktimer/MockTasktimer.h"
+#include "logging/MockLogging.h"
 
 #include "vehicleInterface/vehicleState/vehicleState.h"
 
 // source code under test
-#include "comm/uart/uart.c"
+#include "uart/uart.c"
 #include "device/gps/gps.c"
 
 static GPIO_T pin3dFix;

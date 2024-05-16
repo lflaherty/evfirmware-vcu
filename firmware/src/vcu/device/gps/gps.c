@@ -8,7 +8,7 @@
 
 #include <stdio.h> // for snprintf
 #include <string.h>
-#include "comm/uart/uart.h"
+#include "uart/uart.h"
 
 // ------------------- Private data -------------------
 static Logging_T* mLog;

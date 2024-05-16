@@ -12,8 +12,8 @@
 #include <stdio.h>
 
 // Mocks for code under test (replaces stubs)
-#include "lib/logging/MockLogging.h"
-#include "time/tasktimer/MockTasktimer.h"
+#include "logging/MockLogging.h"
+#include "tasktimer/MockTasktimer.h"
 
 // source code under test
 #include "vehicleLogic/stateManager/faultManager.c"

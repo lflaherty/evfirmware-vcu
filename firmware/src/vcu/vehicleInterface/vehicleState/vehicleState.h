@@ -14,8 +14,8 @@
 #include "queue.h"
 #include "semphr.h"
 
-#include "lib/depends/depends.h"
-#include "lib/logging/logging.h"
+#include "depends/depends.h"
+#include "logging/logging.h"
 
 #include "vehicleStateTypes.h"
 

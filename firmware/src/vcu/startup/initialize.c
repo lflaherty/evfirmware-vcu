@@ -11,11 +11,11 @@
 #include <stdbool.h>
 #include <string.h>  // for memset
 
-#include "lib/logging/logging.h"
-#include "time/tasktimer/tasktimer.h"
-#include "io/adc/adc.h"
-#include "comm/uart/uart.h"
-#include "comm/can/can.h"
+#include "logging/logging.h"
+#include "tasktimer/tasktimer.h"
+#include "adc/adc.h"
+#include "uart/uart.h"
+#include "can/can.h"
 
 #include "vehicleInterface/config/deviceMapping.h"
 #include "vehicleInterface/config/configData.h"

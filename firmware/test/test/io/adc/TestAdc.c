@@ -14,10 +14,10 @@
 #include "task.h"
 #include "queue.h"
 
-#include "lib/logging/MockLogging.h"
+#include "logging/MockLogging.h"
 
 // source code under test
-#include "io/adc/adc.c"
+#include "adc/adc.c"
 
 static Logging_T testLog;
 

@@ -8,10 +8,10 @@
 #ifndef VEHICLELOGIC_WATCHDOGTRIGGER_WATCHDOGTRIGGER_H_
 #define VEHICLELOGIC_WATCHDOGTRIGGER_WATCHDOGTRIGGER_H_
 
-#include "lib/depends/depends.h"
-#include "lib/logging/logging.h"
+#include "depends/depends.h"
+#include "logging/logging.h"
 
-#include "io/gpio/gpio.h"
+#include "gpio/gpio.h"
 
 #include <stdint.h>
 #include "FreeRTOS.h"

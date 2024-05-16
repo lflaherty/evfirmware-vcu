@@ -12,7 +12,7 @@
 
 #include <stdint.h>
 #include <string.h>
-#include "comm/uart/uart.h"
+#include "uart/uart.h"
 
 /**
  * @brief Copies the src string to the dest string, up to a maximum length.

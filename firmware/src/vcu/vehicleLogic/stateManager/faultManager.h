@@ -10,7 +10,7 @@
 
 #include <stdint.h>
 
-#include "lib/logging/logging.h"
+#include "logging/logging.h"
 #include "vehicleInterface/vehicleState/vehicleState.h"
 #include "vehicleInterface/config/configData.h"
 

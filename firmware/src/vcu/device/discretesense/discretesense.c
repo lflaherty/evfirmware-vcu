@@ -7,7 +7,7 @@
 #include "discretesense.h"
 
 #include <stdint.h>
-#include "time/tasktimer/tasktimer.h"
+#include "tasktimer/tasktimer.h"
 
 // ------------------- Private data -------------------
 static Logging_T* mLog;

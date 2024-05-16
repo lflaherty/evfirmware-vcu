@@ -15,10 +15,10 @@ target_sources(TestDiscreteSense PRIVATE ${PROJECT_SOURCE_DIR}/mock/stm32_hal/Mo
 target_sources(TestDiscreteSense PRIVATE ${PROJECT_SOURCE_DIR}/mock/stm32_hal/MockStm32f7xx_hal_adc.c)
 target_sources(TestDiscreteSense PRIVATE ${PROJECT_SOURCE_DIR}/mock/stm32_hal/MockStm32f7xx_hal_cortex.c)
 # Mocks for 1st party
-target_sources(TestDiscreteSense PRIVATE ${PROJECT_SOURCE_DIR}/mock/time/tasktimer/MockTasktimer.c)
-target_sources(TestDiscreteSense PRIVATE ${PROJECT_SOURCE_DIR}/mock/lib/logging/MockLogging.c)
+target_sources(TestDiscreteSense PRIVATE ${PROJECT_SOURCE_DIR}/mock/tasktimer/MockTasktimer.c)
+target_sources(TestDiscreteSense PRIVATE ${PROJECT_SOURCE_DIR}/mock/logging/MockLogging.c)
 # Production code
-target_sources(TestDiscreteSense PRIVATE ${FIRMWARE_SRC_DIR}/system-lib/io/gpio/gpio.c)
-target_sources(TestDiscreteSense PRIVATE ${FIRMWARE_SRC_DIR}/system-lib/io/adc/adc.c)
-target_sources(TestDiscreteSense PRIVATE ${FIRMWARE_SRC_DIR}/system-lib/lib/depends/depends.c)
+target_sources(TestDiscreteSense PRIVATE ${FIRMWARE_SRC_DIR}/system-lib/gpio/gpio.c)
+target_sources(TestDiscreteSense PRIVATE ${FIRMWARE_SRC_DIR}/system-lib/adc/adc.c)
+target_sources(TestDiscreteSense PRIVATE ${FIRMWARE_SRC_DIR}/system-lib/depends/depends.c)
 target_sources(TestDiscreteSense PRIVATE ${FIRMWARE_SRC_DIR}/vcu/vehicleInterface/vehicleState/vehicleState.c)

@@ -13,6 +13,6 @@ target_sources(TestCrc PRIVATE ${PROJECT_SOURCE_DIR}/mock/std/MockStdio.c)
 target_sources(TestCrc PRIVATE ${PROJECT_SOURCE_DIR}/mock/stm32_hal/MockStm32f7xx_hal.c)
 target_sources(TestCrc PRIVATE ${PROJECT_SOURCE_DIR}/mock/stm32_hal/MockStm32f7xx_hal_crc.c)
 # Mocks for 1st party
-target_sources(TestCrc PRIVATE ${PROJECT_SOURCE_DIR}/mock/lib/logging/MockLogging.c)
+target_sources(TestCrc PRIVATE ${PROJECT_SOURCE_DIR}/mock/logging/MockLogging.c)
 # Production code
-target_sources(TestCrc PRIVATE ${FIRMWARE_SRC_DIR}/system-lib/lib/depends/depends.c)
+target_sources(TestCrc PRIVATE ${FIRMWARE_SRC_DIR}/system-lib/depends/depends.c)

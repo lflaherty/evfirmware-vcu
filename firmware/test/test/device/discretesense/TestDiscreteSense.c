@@ -19,9 +19,9 @@
 #include "task.h"
 #include "semaphore.h"
 
-#include "time/tasktimer/MockTasktimer.h"
-#include "lib/logging/MockLogging.h"
-#include "io/adc/adc.h"
+#include "tasktimer/MockTasktimer.h"
+#include "logging/MockLogging.h"
+#include "adc/adc.h"
 #include "vehicleInterface/vehicleState/vehicleState.h"
 
 // source code under test

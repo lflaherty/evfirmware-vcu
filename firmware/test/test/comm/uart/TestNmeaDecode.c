@@ -12,10 +12,10 @@
 
 // Mocks for code under test
 #include "stm32_hal/MockStm32f7xx_hal.h"
-#include "lib/logging/MockLogging.h"
+#include "logging/MockLogging.h"
 
 // source code under test
-#include "comm/uart/nmeadecode.c"
+#include "uart/nmeadecode.c"
 
 static Logging_T testLog;
 

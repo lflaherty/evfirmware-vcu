@@ -8,13 +8,13 @@
 #ifndef DEVICE_BMS_BMS_H_
 #define DEVICE_BMS_BMS_H_
 
-#include "lib/depends/depends.h"
-#include "lib/logging/logging.h"
+#include "depends/depends.h"
+#include "logging/logging.h"
 
 #include "stm32f7xx_hal.h"
 #include "FreeRTOS.h"
 
-#include "comm/can/can.h"
+#include "can/can.h"
 #include "vehicleInterface/vehicleState/vehicleState.h"
 
 

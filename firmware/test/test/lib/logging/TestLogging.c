@@ -21,7 +21,7 @@
 #include "stream_buffer.h"
 
 // source code under test
-#include "lib/logging/logging.c"
+#include "logging/logging.c"
 
 static Logging_T mLog;
 static StaticStreamBuffer_t mStreamBufStatic;

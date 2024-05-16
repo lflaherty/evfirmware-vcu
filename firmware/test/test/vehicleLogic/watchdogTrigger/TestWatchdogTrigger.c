@@ -18,8 +18,8 @@
 #include "task.h"
 #include "queue.h"
 
-#include "lib/logging/MockLogging.h"
-#include "time/tasktimer/MockTasktimer.h"
+#include "logging/MockLogging.h"
+#include "tasktimer/MockTasktimer.h"
 
 // source code under test
 #include "vehicleLogic/watchdogTrigger/watchdogTrigger.c"

@@ -14,9 +14,9 @@ target_sources(TestOrionBMS PRIVATE ${PROJECT_SOURCE_DIR}/mock/stm32_hal/MockStm
 target_sources(TestOrionBMS PRIVATE ${PROJECT_SOURCE_DIR}/mock/stm32_hal/MockStm32f7xx_hal_gpio.c)
 target_sources(TestOrionBMS PRIVATE ${PROJECT_SOURCE_DIR}/mock/stm32_hal/MockStm32f7xx_hal_can.c)
 # Mocks for 1st party
-target_sources(TestOrionBMS PRIVATE ${PROJECT_SOURCE_DIR}/mock/time/tasktimer/MockTasktimer.c)
-target_sources(TestOrionBMS PRIVATE ${PROJECT_SOURCE_DIR}/mock/lib/logging/MockLogging.c)
+target_sources(TestOrionBMS PRIVATE ${PROJECT_SOURCE_DIR}/mock/tasktimer/MockTasktimer.c)
+target_sources(TestOrionBMS PRIVATE ${PROJECT_SOURCE_DIR}/mock/logging/MockLogging.c)
 # Production code
-target_sources(TestOrionBMS PRIVATE ${FIRMWARE_SRC_DIR}/system-lib/lib/depends/depends.c)
-target_sources(TestOrionBMS PRIVATE ${FIRMWARE_SRC_DIR}/system-lib/comm/can/can.c)
+target_sources(TestOrionBMS PRIVATE ${FIRMWARE_SRC_DIR}/system-lib/depends/depends.c)
+target_sources(TestOrionBMS PRIVATE ${FIRMWARE_SRC_DIR}/system-lib/can/can.c)
 target_sources(TestOrionBMS PRIVATE ${FIRMWARE_SRC_DIR}/vcu/vehicleInterface/vehicleState/vehicleState.c)

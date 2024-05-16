@@ -17,10 +17,10 @@
 #ifndef DEVICE_DISCRETESENSE_DISCRETESENSE_H_
 #define DEVICE_DISCRETESENSE_DISCRETESENSE_H_
 
-#include "lib/depends/depends.h"
-#include "lib/logging/logging.h"
-#include "io/adc/adc.h"
-#include "io/gpio/gpio.h"
+#include "depends/depends.h"
+#include "logging/logging.h"
+#include "adc/adc.h"
+#include "gpio/gpio.h"
 
 #include "vehicleInterface/vehicleState/vehicleState.h"
 

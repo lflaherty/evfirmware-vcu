@@ -16,10 +16,10 @@
 #include "task.h"
 #include "queue.h"
 
-#include "lib/logging/MockLogging.h"
+#include "logging/MockLogging.h"
 
 // source code under test
-#include "comm/i2c/i2c.c"
+#include "i2c/i2c.c"
  
 static Logging_T testLog;
 

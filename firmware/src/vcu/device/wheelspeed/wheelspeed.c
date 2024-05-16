@@ -12,8 +12,8 @@
 #include "task.h"
 #include "stream_buffer.h"
 
-#include "time/tasktimer/tasktimer.h"
-#include "io/gpio/gpio.h"
+#include "tasktimer/tasktimer.h"
+#include "gpio/gpio.h"
 
 REGISTERED_MODULE_STATIC_DEF(WHEELSPEED);
 

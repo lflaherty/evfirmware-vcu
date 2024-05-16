@@ -10,10 +10,10 @@
 
 #include "stm32f7xx_hal.h"
 #include <stdint.h>
-#include "io/adc/adc.h" /* Needed for ADC channels */
-#include "io/gpio/gpio.h" /* Needed for GPIO_T */
-#include "comm/uart/uart.h"
-#include "comm/can/can.h"
+#include "adc/adc.h" /* Needed for ADC channels */
+#include "gpio/gpio.h" /* Needed for GPIO_T */
+#include "uart/uart.h"
+#include "can/can.h"
 #include "device/pdm/pdm.h"
 
 /*

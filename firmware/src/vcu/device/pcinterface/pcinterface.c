@@ -8,10 +8,10 @@
 
 #include <stdio.h> // for snprintf
 #include <string.h>
-#include "time/tasktimer/tasktimer.h"
-#include "comm/uart/uart.h"
-#include "comm/can/can.h"
-#include "io/gpio/gpio.h"
+#include "tasktimer/tasktimer.h"
+#include "uart/uart.h"
+#include "can/can.h"
+#include "gpio/gpio.h"
 
 // ------------------- Private data -------------------
 static Logging_T* mLog;

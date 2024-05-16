@@ -11,8 +11,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "lib/logging/logging.h"
-#include "lib/depends/depends.h"
+#include "logging/logging.h"
+#include "depends/depends.h"
 #include "vehicleInterface/vehicleState/vehicleStateTypes.h"
 
 #include "device/inverter/cInverter.h"

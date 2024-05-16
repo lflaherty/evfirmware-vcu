@@ -15,10 +15,10 @@
 #include "queue.h"
 #include "stream_buffer.h"
 
-#include "lib/logging/MockLogging.h"
+#include "logging/MockLogging.h"
 
 // source code under test
-#include "comm/uart/uart.c"
+#include "uart/uart.c"
 
 static Logging_T testLog;
 static UART_HandleTypeDef husart1 = {

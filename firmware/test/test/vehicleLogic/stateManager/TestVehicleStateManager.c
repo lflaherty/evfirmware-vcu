@@ -17,8 +17,8 @@
 #include "task.h"
 #include "queue.h"
 
-#include "lib/logging/MockLogging.h"
-#include "time/tasktimer/MockTasktimer.h"
+#include "logging/MockLogging.h"
+#include "tasktimer/MockTasktimer.h"
 #include "vehicleInterface/vehicleControl/MockVehicleControl.h"
 #include "vehicleLogic/stateManager/MockStateMachine.h"
 #include "vehicleLogic/throttleController/MockThrottleController.h"

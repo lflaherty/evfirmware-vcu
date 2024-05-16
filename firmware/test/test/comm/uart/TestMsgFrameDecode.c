@@ -10,10 +10,10 @@
 
 // Mocks for code under test
 #include "stm32_hal/MockStm32f7xx_hal.h"
-#include "lib/logging/MockLogging.h"
+#include "logging/MockLogging.h"
 
 // source code under test
-#include "comm/uart/msgframedecode.c"
+#include "uart/msgframedecode.c"
 
 static const uint16_t MSG_LEN = 11U;
 

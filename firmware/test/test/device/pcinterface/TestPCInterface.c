@@ -22,25 +22,25 @@
 #include "stream_buffer.h"
 #include "semaphore.h"
 
-#include "time/tasktimer/MockTasktimer.h"
+#include "tasktimer/MockTasktimer.h"
 #include "vehicleInterface/vehicleControl/MockVehicleControl.h"
 // MockLogging.h is deliberately not used here - need the stream internals of
 // logging to work correctly. Use MockStdio to capture SWO printfs instead
 
 // hack to deal with the UART scheduling
 // don't want to deal with that in this test, that's covered by TestUart
-#include "comm/uart/uart.h"
+#include "uart/uart.h"
 #undef UART_MAX_DMA_LEN
 #define UART_MAX_DMA_LEN 65535
 
 // source code under test
-#include "comm/uart/uart.c"
+#include "uart/uart.c"
 #include "device/pcinterface/pcinterface.c"
 #include "device/pcinterface/periodicupdates.c"
 #include "device/pcinterface/requests.c"
 #include "device/pcinterface/debugterm.c"
 #include "device/pcinterface/debugtermcommands.c"
-#include "lib/logging/logging.c"  // also need this to use mock impls
+#include "logging/logging.c"  // also need this to use mock impls
 
 static Logging_T testLog;
 

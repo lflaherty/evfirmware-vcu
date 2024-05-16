@@ -14,8 +14,8 @@
 #include "task.h"
 #include "semphr.h"
 
-#include "lib/depends/depends.h"
-#include "lib/logging/logging.h"
+#include "depends/depends.h"
+#include "logging/logging.h"
 
 #include "vehicleInterface/vehicleState/vehicleState.h"
 #include "vehicleInterface/vehicleControl/vehicleControl.h"

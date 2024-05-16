@@ -31,7 +31,7 @@ SemaphoreHandle_t xSemaphoreCreateBinaryStatic(StaticSemaphore_t* staticSemaphor
 SemaphoreHandle_t xSemaphoreCreateMutexStatic(StaticSemaphore_t* staticSemaphore);
 BaseType_t xSemaphoreTake(SemaphoreHandle_t xQueue, TickType_t xTicksToWait);
 BaseType_t xSemaphoreGive(SemaphoreHandle_t xQueue);
-BaseType_t xSemaphoreGiveFromISR(SemaphoreHandle_t xQueue);
+BaseType_t xSemaphoreGiveFromISR(SemaphoreHandle_t xQueue, BaseType_t* pxHigherPriorityTaskWoken);
 
 void mockSemaphoreSetLocked(SemaphoreHandle_t xQueue, bool locked);
 void mockSemaphoreSetCount(SemaphoreHandle_t xQueue, uint32_t semphrCount);

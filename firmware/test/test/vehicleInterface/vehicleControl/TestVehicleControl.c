@@ -14,8 +14,8 @@
 // Mocks for code under test (replaces stubs)
 #include "stm32_hal/MockStm32f7xx_hal.h"
 
-#include "time/tasktimer/MockTasktimer.h" // Needed for vehicle state
-#include "lib/logging/MockLogging.h"
+#include "tasktimer/MockTasktimer.h" // Needed for vehicle state
+#include "logging/MockLogging.h"
 #include "device/inverter/MockCInverter.h"
 #include "device/pdm/MockPdm.h"
 

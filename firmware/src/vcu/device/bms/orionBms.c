@@ -14,9 +14,9 @@
 #include "task.h"
 #include "stm32f7xx_hal.h"
 
-#include "lib/logging/logging.h"
-#include "comm/can/can.h"
-#include "time/tasktimer/tasktimer.h"
+#include "logging/logging.h"
+#include "can/can.h"
+#include "tasktimer/tasktimer.h"
 
 #include "orionBmsCAN.h"
 #include "orionBmsDataConversions.h"

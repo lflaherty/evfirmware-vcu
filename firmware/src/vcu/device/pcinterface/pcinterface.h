@@ -11,19 +11,19 @@
 #ifndef DEVICE_PCINTERFACE_PCINTERFACE_H_
 #define DEVICE_PCINTERFACE_PCINTERFACE_H_
 
-#include "lib/logging/logging.h"
+#include "logging/logging.h"
 
 #include <stdint.h>
 #include "FreeRTOS.h"
 #include "task.h"
 #include "semphr.h"
 
-#include "lib/depends/depends.h"
-#include "lib/crc/crc.h"
-#include "io/gpio/gpio.h"
-#include "comm/uart/uart.h"
-#include "comm/uart/msgframeencode.h"
-#include "comm/uart/msgframedecode.h"
+#include "depends/depends.h"
+#include "crc/crc.h"
+#include "gpio/gpio.h"
+#include "uart/uart.h"
+#include "uart/msgframeencode.h"
+#include "uart/msgframedecode.h"
 #include "vehicleInterface/vehicleState/vehicleState.h"
 #include "vehicleInterface/vehicleControl/vehicleControl.h"
 

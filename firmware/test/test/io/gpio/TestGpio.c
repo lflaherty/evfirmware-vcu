@@ -12,7 +12,7 @@
 #include "stm32_hal/MockStm32f7xx_hal.h"
 
 // source code under test
-#include "io/gpio/gpio.c"
+#include "gpio/gpio.c"
 
 static GPIO_TypeDef mGpioBank;
 static uint16_t mGpioPin = 1;

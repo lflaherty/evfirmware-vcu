@@ -62,8 +62,11 @@ BaseType_t xSemaphoreGive(SemaphoreHandle_t xQueue)
     }
 }
 
-BaseType_t xSemaphoreGiveFromISR(SemaphoreHandle_t xQueue)
+BaseType_t xSemaphoreGiveFromISR(SemaphoreHandle_t xQueue, BaseType_t* pxHigherPriorityTaskWoken)
 {
+    if (pxHigherPriorityTaskWoken != NULL) {
+        *pxHigherPriorityTaskWoken = pdFALSE;
+    }
     return xSemaphoreGive(xQueue);
 }
 

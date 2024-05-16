@@ -14,11 +14,11 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-#include "lib/depends/depends.h"
-#include "lib/logging/logging.h"
-#include "io/gpio/gpio.h"
-#include "comm/uart/uart.h"
-#include "comm/uart/nmeadecode.h"
+#include "depends/depends.h"
+#include "logging/logging.h"
+#include "gpio/gpio.h"
+#include "uart/uart.h"
+#include "uart/nmeadecode.h"
 
 #include "vehicleInterface/vehicleState/vehicleState.h"
 

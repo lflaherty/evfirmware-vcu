@@ -9,7 +9,7 @@
 
 #include <math.h>
 
-#include "time/tasktimer/tasktimer.h"
+#include "tasktimer/tasktimer.h"
 #include "torqueMap.h"
 
 // ------------------- Private data -------------------

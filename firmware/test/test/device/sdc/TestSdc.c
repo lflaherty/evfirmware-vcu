@@ -19,8 +19,8 @@
 #include "task.h"
 #include "semaphore.h"
 
-#include "time/tasktimer/MockTasktimer.h" // Needed for vehicle state
-#include "lib/logging/MockLogging.h"
+#include "tasktimer/MockTasktimer.h" // Needed for vehicle state
+#include "logging/MockLogging.h"
 
 #include "vehicleInterface/vehicleState/vehicleState.h"
 

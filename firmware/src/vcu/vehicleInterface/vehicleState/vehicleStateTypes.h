@@ -11,7 +11,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "comm/uart/nmeatypes.h"
+#include "uart/nmeatypes.h"
 
 typedef int16_t Temperature_T;    // x10   -3276.8 to +3276.7 °C
 typedef int16_t LowVoltage_T;     // x100  -327.68 to +327.67 volts
