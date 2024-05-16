@@ -42,8 +42,8 @@ typedef struct
   Config_T* vehicleConfig; // must be set prior to initialization
 
   // ******* Internal use *******
-  TorqueMap_T* torqueMapForward;
-  TorqueMap_T* torqueMapReverse;
+  const TorqueMap_T* torqueMapForward;
+  const TorqueMap_T* torqueMapReverse;
   VehicleState_InverterDirection_T direction;
   bool enabled;
 

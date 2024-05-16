@@ -18,16 +18,8 @@ typedef struct
   float torque[TORQUEMAP_LENGTH]; // motor torque
 } TorqueMap_T;
 
-static TorqueMap_T TorqueMap_Default =
-{
-  .accel =  {0.0f, 0.1f,   0.5f,   0.7f,   1.0f},
-  .torque = {0.0f, 0.0f, 100.0f, 200.0f, 500.0f}
-};
-static TorqueMap_T TorqueMap_DefaultReverse =
-{
-  .accel =  {0.0f, 0.1f,   0.5f,   0.7f,   1.0f},
-  .torque = {0.0f, 0.0f,  20.0f,  75.0f,  75.0f}
-};
+extern const TorqueMap_T TorqueMap_Default;
+extern const TorqueMap_T TorqueMap_DefaultReverse;
 
 /**
  * @brief Linearly interpolate the given accelerator input on the torque map.
@@ -36,6 +28,6 @@ static TorqueMap_T TorqueMap_DefaultReverse =
  * @param accel Sensor input
  * @return Interpolated result.
  */
-float TorqueMap_Interpolate(TorqueMap_T* map, float accel);
+float TorqueMap_Interpolate(const TorqueMap_T* map, float accel);
 
 #endif // VEHICLELOGIC_THROTTLECONTROLLER_TORQUEMAP_H_

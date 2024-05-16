@@ -54,7 +54,6 @@ enum PDM_Channels
   PDM_NUM_CHANNELS
 };
 extern PDM_Channel_T pdmChannels[];
-extern uint8_t numPdmChannels;
 
 /*
  * GPIO Config
@@ -100,17 +99,35 @@ extern GPIO_T Mapping_GPS_3dFixPin;
 extern UART_DeviceConfig_T Mapping_GPS_UART;
 
 /*
- * Getters for device handles
+ * Timers config
  */
-TIM_HandleTypeDef* Mapping_GetTaskTimer100Hz(void);
-TIM_HandleTypeDef* Mapping_GetTaskTimer2kHz(void);
-UART_HandleTypeDef* Mapping_GetPCDebugUartA(void);
-UART_HandleTypeDef* Mapping_GetPCDebugUartB(void); // Second port for ease of debugging
-RTC_HandleTypeDef* Mapping_GetRTC(void);
-ADC_HandleTypeDef* Mapping_GetADC(void);
-CAN_HandleTypeDef* Mapping_GetCAN1(void);
-CAN_HandleTypeDef* Mapping_GetCAN2(void);
-CAN_HandleTypeDef* Mapping_GetCAN3(void);
-CRC_HandleTypeDef* Mapping_GetCRC(void);
+#define MAPPING_TIMER_2KHZ TIM3
+
+/*
+ * STM32 peripheral handles
+ */
+// Handles declared in main.c
+extern ADC_HandleTypeDef hadc1;
+extern DMA_HandleTypeDef hdma_adc1;
+extern CAN_HandleTypeDef hcan1;
+extern CAN_HandleTypeDef hcan2;
+extern CAN_HandleTypeDef hcan3;
+extern CRC_HandleTypeDef hcrc;
+extern I2C_HandleTypeDef hi2c2;
+extern I2C_HandleTypeDef hi2c4;
+extern RTC_HandleTypeDef hrtc;
+extern TIM_HandleTypeDef htim2;
+extern TIM_HandleTypeDef htim3;
+extern UART_HandleTypeDef huart1;
+extern UART_HandleTypeDef huart3;
+extern UART_HandleTypeDef huart6;
+
+#define Mapping_CRC hcrc
+#define Mapping_CAN1 hcan1
+#define Mapping_CAN2 hcan2
+#define Mapping_CAN3 hcan3
+#define Mapping_Timer100Hz htim2
+#define Mapping_ADC hadc1
+#define Mapping_ADC_DMAStream DMA2_Stream0_IRQn
 
 #endif /* VEHICLEINTERFACE_CONFIG_DEVICEMAPPING_H_ */

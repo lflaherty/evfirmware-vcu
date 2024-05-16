@@ -8,30 +8,6 @@
 #include "deviceMapping.h"
 #include "stm32f7xx_hal.h"
 
-/*
- * Device handles auto-generated in main.c
- */
-extern ADC_HandleTypeDef hadc1;
-extern DMA_HandleTypeDef hdma_adc1;
-
-extern CAN_HandleTypeDef hcan1;
-extern CAN_HandleTypeDef hcan2;
-extern CAN_HandleTypeDef hcan3;
-
-extern CRC_HandleTypeDef hcrc;
-
-extern I2C_HandleTypeDef hi2c2;
-extern I2C_HandleTypeDef hi2c4;
-
-extern RTC_HandleTypeDef hrtc;
-
-extern TIM_HandleTypeDef htim2;
-extern TIM_HandleTypeDef htim3;
-
-extern UART_HandleTypeDef huart1;
-extern UART_HandleTypeDef huart3;
-extern UART_HandleTypeDef huart6;
-
 
 /*
  * PDM Config
@@ -50,7 +26,8 @@ PDM_Channel_T pdmChannels[] = {
   [PDM_Ch5] = {.pin = &pinPdmChannel5 },
   [PDM_Ch6] = {.pin = &pinPdmChannel6 },
 };
-uint8_t numPdmChannels = sizeof(pdmChannels) / sizeof(PDM_Channel_T);
+_Static_assert(PDM_NUM_CHANNELS == sizeof(pdmChannels)/sizeof(pdmChannels[0]),
+    "array must be same size as header specifies");
 
 /*
  * GPIO Config
@@ -112,55 +89,3 @@ UART_DeviceConfig_T Mapping_GPS_UART = {
   .txIrq = DMA2_Stream6_IRQn,
 };
 
-/*
- * Getters for device handles
- */
-TIM_HandleTypeDef* Mapping_GetTaskTimer100Hz(void)
-{
-  return &htim2;
-}
-
-TIM_HandleTypeDef* Mapping_GetTaskTimer2kHz(void)
-{
-  return &htim3;
-}
-
-UART_HandleTypeDef* Mapping_GetPCDebugUartA(void)
-{
-  return &huart1;
-}
-
-UART_HandleTypeDef* Mapping_GetPCDebugUartB(void)
-{
-  return &huart3;
-}
-
-RTC_HandleTypeDef* Mapping_GetRTC(void)
-{
-  return &hrtc;
-}
-
-ADC_HandleTypeDef* Mapping_GetADC(void)
-{
-  return &hadc1;
-}
-
-CAN_HandleTypeDef* Mapping_GetCAN1(void)
-{
-  return &hcan1;
-}
-
-CAN_HandleTypeDef* Mapping_GetCAN2(void)
-{
-  return &hcan2;
-}
-
-CAN_HandleTypeDef* Mapping_GetCAN3(void)
-{
-  return &hcan3;
-}
-
-CRC_HandleTypeDef* Mapping_GetCRC(void)
-{
-  return &hcrc;
-}

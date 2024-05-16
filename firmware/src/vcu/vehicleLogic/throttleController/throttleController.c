@@ -25,7 +25,7 @@ static float getTorqueMagnitude(
     return 0.0f;
   }
 
-  TorqueMap_T* torqueMap = NULL;
+  const TorqueMap_T* torqueMap = NULL;
 
   if (VEHICLESTATE_INVERTER_FORWARD == throttleControl->direction) {
     torqueMap = throttleControl->torqueMapForward;

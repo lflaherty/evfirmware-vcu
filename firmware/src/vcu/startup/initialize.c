@@ -13,11 +13,13 @@
 
 #include "lib/logging/logging.h"
 #include "time/tasktimer/tasktimer.h"
+#include "io/adc/adc.h"
 #include "comm/uart/uart.h"
 #include "comm/can/can.h"
 
 #include "vehicleInterface/config/deviceMapping.h"
 #include "vehicleInterface/config/configData.h"
+#include "vehicleInterface/config/configDataDefault.h"
 #include "vehicleInterface/vehicleState/vehicleState.h"
 #include "vehicleInterface/vehicleControl/vehicleControl.h"
 
@@ -32,6 +34,9 @@
 #include "device/dashboard_output/dashboard_output.h"
 
 #include "vehicleLogic/watchdogTrigger/watchdogTrigger.h"
+#include "vehicleLogic/throttleController/throttleController.h"
+#include "vehicleLogic/throttleController/torqueMap.h"
+#include "vehicleLogic/stateManager/vehicleStateManager.h"
 
 
 // ------------------- Private data -------------------
@@ -48,28 +53,102 @@ extern const char* welcomeMsg;
 
 // ------------------- Module structures -------------------
 // MCU peripherals
-static Logging_T mLog;
-static CRC_T mCrc;
+static Logging_T mLog = (Logging_T){};
+static CRC_T mCrc = (CRC_T){
+  .hcrc = &Mapping_CRC,
+};
+static ADC_Config_T mAdcConfig = (ADC_Config_T){
+  .logger = &mLog,
+  .handle = &Mapping_ADC,
+  .adcIrq = Mapping_ADC_DMAStream,
+  .numChannelsUsed = MAPPING_ADC_NUM_CHANNELS,
+};
+
+// Vehicle interface (1)
+static VehicleState_T mVehicleState;
 
 // ECU peripherals
-static GPS_T mGps;
-static WatchdogTrigger_T mWdtTrigger;
-static PCInterface_T mPCInterface;
-static PDM_T mPdm;
+static GPS_T mGps = (GPS_T){
+  .pin3dFix = &Mapping_GPS_3dFixPin,
+  .uart = MAPPING_GPS_UARTDEV,
+  .state = &mVehicleState,
+};
+static PCInterface_T mPCInterface = (PCInterface_T){
+  .uartA = MAPPING_PCINTERFACE_UARTADEV,
+  .uartB = MAPPING_PCINTERFACE_UARTBDEV,
+  .crc = &mCrc,
+  .pinToggle = &Mapping_GPO_DebugToggle,
+};
+static PDM_T mPdm = (PDM_T){
+  .channels = pdmChannels,
+  .numChannels = PDM_NUM_CHANNELS,
+  .vehicleState = &mVehicleState,
+};
+static SDC_Config_T mSdcConfig = (SDC_Config_T){
+  .state = &mVehicleState,
+  .pinBMS = &Mapping_GPI_SDC_BMS,
+  .pinBSPD = &Mapping_GPI_SDC_BSPD,
+  .pinIMD = &Mapping_GPI_SDC_IMD,
+  .pinSDCOut = &Mapping_GPI_SDC_SDCOut,
+  .pinECUError = &Mapping_GPO_SDC_ECUError,
+};
+static Wheelspeed_Config_T mWheelspeedConfig = {
+  .logging = &mLog,
+  .state = &mVehicleState,
+  .frontWsPin = &Mapping_GPI_Wheelspeed_Front,
+  .rearWsPin = &Mapping_GPI_Wheelspeed_Rear,
+  .timerInstance = MAPPING_TIMER_2KHZ,
+  // sensor teeth is applied after config is loaded in init
+};
 
 // Vehicle devices & sensors
-static CInverter_T mInverter;
-static BMS_T mBms;
-static DiscreteSense_T mDiscreteSense;
-static DashboardOut_T mDashboardOut;
+static CInverter_T mInverter = (CInverter_T){
+  .canInst = MAPPING_INVERTER_CANBUS,
+  .vehicleState = &mVehicleState,
+};
+static BMS_T mBms = (BMS_T){
+  .canInst = MAPPING_BMS_CANBUS,
+  .vehicleState = &mVehicleState,
+};
+static DiscreteSense_T mDiscreteSense = (DiscreteSense_T){
+  .logger = &mLog,
+  .state = &mVehicleState,
+  .adcAccelPedalA = MAPPING_ADC_THROTTLE_1,
+  .adcAccelPedalB = MAPPING_ADC_THROTTLE_2,
+  .adcBrakeFront = MAPPING_ADC_BRAKE_FRONT,
+  .adcBrakeRear = MAPPING_ADC_BRAKE_REAR,
+  .gpioDashboardButton = &Mapping_GPI_StartButton,
+  // scaling is applied after config is loaded in init
+};
+static DashboardOut_T mDashboardOut = (DashboardOut_T){
+  .output_pin = &Mapping_GPO_LED,
+  .vehicleState = &mVehicleState,
+  .log = &mLog,
+};
 
-// Vehicle interface
+// Vehicle interface (2)
 static Config_T mConfig;
-static VehicleState_T mVehicleState;
-static VehicleControl_T mVehicleControl;
+static VehicleControl_T mVehicleControl = (VehicleControl_T){
+  .pdm = &mPdm,
+  .inverter = &mInverter,
+  .dashOut = &mDashboardOut,
+};
 
 // Vehicle processes
-// TODO
+static WatchdogTrigger_T mWdtTrigger = (WatchdogTrigger_T){
+  .blinkLED = &Mapping_GPO_LED,
+};
+static ThrottleController_T mThrottleController = (ThrottleController_T){
+  .inputState = &mVehicleState,
+  .control = &mVehicleControl,
+  .vehicleConfig = &mConfig,
+};
+static VehicleStateManager_T mVehicleStateManager = (VehicleStateManager_T){
+  .inputState = &mVehicleState,
+  .control = &mVehicleControl,
+  .throttleController = &mThrottleController,
+  .vehicleConfig = &mConfig,
+};
 
 // ------------------- Private methods -------------------
 /**
@@ -129,6 +208,11 @@ static void ECU_Init_VehicleProccesses(void);
  */
 static void ECU_Init_Error(const char* msg);
 
+#define TRY_INIT(module_name, init_method, expected_result)     \
+  if ((init_method) != (expected_result)) {                     \
+    ECU_Init_Error("Watchdog Trigger initialization error\n");  \
+  }
+
 //------------------------------------------------------------------------------
 void ECU_Init_Error(const char* msg)
 {
@@ -187,66 +271,23 @@ void ECU_Init_Task(void* pvParameters)
 static void ECU_Init_System(void)
 {
   // Set up logging
-  Logging_Status_T statusLog;
-  statusLog = Log_Init(&mLog);
-  if (LOGGING_STATUS_OK != statusLog) {
-    ECU_Init_Error("Log_Init error\n");
-  }
+  TRY_INIT("Log", Log_Init(&mLog), LOGGING_STATUS_OK);
 
   Log_Print(&mLog, "###### ECU_Init_System ######\n");
 
-  // Timers
-  if (TaskTimer_Init(&mLog, Mapping_GetTaskTimer100Hz()) != TASKTIMER_STATUS_OK) {
-    Log_Print(&mLog, "Task Timer 100Hz initialization error\n");
-  }
-
-  // statusLog = Log_EnableSWO(&mLog);
-  // if (LOGGING_STATUS_OK != statusLog) {
+  TRY_INIT("Task Timer", TaskTimer_Init(&mLog, &Mapping_Timer100Hz), TASKTIMER_STATUS_OK);
+  // if (LOGGING_STATUS_OK != Log_EnableSWO(&mLog)) {
   //   ECU_Init_Error("Log_EnableSWO error\n");
   // }
 
-  // UART
-  UART_Status_T statusUart;
-  statusUart = UART_Init(&mLog);
-  if (UART_STATUS_OK != statusUart) {
-    ECU_Init_Error("UART initialization error\n");
-  }
+  TRY_INIT("UART", UART_Init(&mLog), UART_STATUS_OK);
+  TRY_INIT("USART1 (PCDebug A)", UART_Config(&Mapping_PCInterface_UARTA), UART_STATUS_OK);
+  TRY_INIT("USART3 (PCDebug B)", UART_Config(&Mapping_PCInterface_UARTB), UART_STATUS_OK);
+  TRY_INIT("CRC", CRC_Init(&mLog, &mCrc), CRC_STATUS_OK);
 
-  statusUart = UART_Config(&Mapping_PCInterface_UARTA);
-  if (UART_STATUS_OK != statusUart) {
-    ECU_Init_Error("USART1 (PCDebug A) config error\n");
-  }
-
-  statusUart = UART_Config(&Mapping_PCInterface_UARTB);
-  if (UART_STATUS_OK != statusUart) {
-    ECU_Init_Error("USART3 (PCDebug B) config error\n");
-  }
-
-  // TODO move this to GPS section
-  statusUart = UART_Config(&Mapping_GPS_UART);
-  if (UART_STATUS_OK != statusUart) {
-    ECU_Init_Error("USART6 (GPS) config error\n");
-  }
-
-  // CRC
-  mCrc.hcrc = Mapping_GetCRC();
-  CRC_Status_T statusCrc;
-  statusCrc = CRC_Init(&mLog, &mCrc);
-  if (CRC_STATUS_OK != statusCrc) {
-    ECU_Init_Error("CRC initialization error\n");
-  }
-
-  // Create PC Debug driver
-  // Create it this early so we get serial output, we'll enable the other
+  // Create PC Debug driver this early so we get serial output, we'll enable the other
   // functionality later on
-  mPCInterface.uartA = MAPPING_PCINTERFACE_UARTADEV;
-  mPCInterface.uartB = MAPPING_PCINTERFACE_UARTBDEV;
-  mPCInterface.crc = &mCrc;
-  mPCInterface.pinToggle = &Mapping_GPO_DebugToggle;
-  PCInterface_Status_T statusPcInterface = PCInterface_Init(&mLog, &mPCInterface);
-  if (PCINTERFACE_STATUS_OK != statusPcInterface) {
-    ECU_Init_Error("PCDebug initialization error\n");
-  }
+  TRY_INIT("PC Debug", PCInterface_Init(&mLog, &mPCInterface), PCINTERFACE_STATUS_OK);
 }
 
 //------------------------------------------------------------------------------
@@ -254,39 +295,21 @@ static void ECU_Init_BoardPeriph(void)
 {
   Log_Print(&mLog, "###### ECU_Init_BoardPeriph ######\n");
 
-  // CAN bus
-  CAN_Status_T statusCan;
-  statusCan = CAN_Init(&mLog);
-  if (CAN_STATUS_OK != statusCan) {
-    ECU_Init_Error("CAN initialization error\n");
-  }
+  TRY_INIT("CAN", CAN_Init(&mLog), CAN_STATUS_OK);
+  TRY_INIT("CAN1 bus", CAN_Config(CAN_DEV1, &Mapping_CAN1), CAN_STATUS_OK);
+  TRY_INIT("CAN1 bus", CAN_Config(CAN_DEV2, &Mapping_CAN2), CAN_STATUS_OK);
+  TRY_INIT("CAN1 bus", CAN_Config(CAN_DEV3, &Mapping_CAN3), CAN_STATUS_OK);
+  mPCInterface.canDebugEnable = true;
 
-  statusCan = CAN_Config(CAN_DEV1, Mapping_GetCAN1());
-  if (CAN_STATUS_OK != statusCan) {
-    ECU_Init_Error("CAN1 config error\n");
-  }
-  statusCan = CAN_Config(CAN_DEV2, Mapping_GetCAN2());
-  if (CAN_STATUS_OK != statusCan) {
-    ECU_Init_Error("CAN2 config error\n");
-  }
-  statusCan = CAN_Config(CAN_DEV3, Mapping_GetCAN3());
-  if (CAN_STATUS_OK != statusCan) {
-    ECU_Init_Error("CAN3 config error\n");
-  }
-
-  mPCInterface.canDebugEnable = true; // TODO remove
-
-  // ADC
-  // Not configured in this release
-
-  // RTC
-  // Not configured in this release
+  TRY_INIT("ADC", ADC_Init(&mAdcConfig), ADC_STATUS_OK);
 }
 
 //------------------------------------------------------------------------------
 static void ECU_Init_BoardDevs(void)
 {
   Log_Print(&mLog, "###### ECU_Init_BoardDevs ######\n");
+
+  // TODO initialize EEPROM
 }
 
 //------------------------------------------------------------------------------
@@ -295,7 +318,7 @@ static void ECU_Init_LoadConfig(void)
   memset(&mConfig, 0, sizeof(mConfig));
 
   // TODO placeholder, update to load from EEPROM
-  mConfig.inputs.numWheelspeedTeeth = 12;
+  mConfig = DefaultConfigData;
 }
 
 //------------------------------------------------------------------------------
@@ -303,11 +326,7 @@ static void ECU_Init_VehicleInterface1(void)
 {
   Log_Print(&mLog, "###### ECU_Init_VehicleInterface1 ######\n");
 
-  // Vehicle state
-  if (VehicleState_Init(&mLog, &mVehicleState) != VEHICLESTATE_STATUS_OK) {
-    ECU_Init_Error("VehicleState initialization error\n");
-  }
-
+  TRY_INIT("Vehicle State", VehicleState_Init(&mLog, &mVehicleState), VEHICLESTATE_STATUS_OK);
   if (PCInterface_SetVehicleState(&mPCInterface, &mVehicleState) != PCINTERFACE_STATUS_OK) {
     ECU_Init_Error("PCInterface_SetVehicleState failed\n");
   }
@@ -318,70 +337,19 @@ static void ECU_Init_VehicleDevices(void)
 {
   Log_Print(&mLog, "###### ECU_Init_VehicleDevices ######\n");
 
-  // GPS
-  mGps.pin3dFix = &Mapping_GPS_3dFixPin;
-  mGps.uart = MAPPING_GPS_UARTDEV;
-  mGps.state = &mVehicleState;
-  if (GPS_Init(&mLog, &mGps) != GPS_STATUS_OK) {
-    ECU_Init_Error("GPS initialization error\n");
-  }
+  TRY_INIT("USART6 (GPS)", UART_Config(&Mapping_GPS_UART), UART_STATUS_OK);
+  TRY_INIT("GPS", GPS_Init(&mLog, &mGps), GPS_STATUS_OK);
 
-  // Wheel speed
-  Wheelspeed_Config_T wsConfig = {
-    .logging = &mLog,
-    .state = &mVehicleState,
-    .frontWsPin = &Mapping_GPI_Wheelspeed_Front,
-    .rearWsPin = &Mapping_GPI_Wheelspeed_Rear,
-    .timerInstance = Mapping_GetTaskTimer2kHz()->Instance,
-    .sensorTeeth = mConfig.inputs.numWheelspeedTeeth,
-  };
-  if (Wheelspeed_Init(&wsConfig) != WHEELSPEED_STATUS_OK) {
-    ECU_Init_Error("Wheelspeed initialization error\n");
-  }
+  mWheelspeedConfig.sensorTeeth = mConfig.inputs.numWheelspeedTeeth;
+  TRY_INIT("Wheelspeed Sensor", Wheelspeed_Init(&mWheelspeedConfig), WHEELSPEED_STATUS_OK);
+  TRY_INIT("Shutdown Circuit (SDC)", SDC_Init(&mLog, &mSdcConfig), SDC_STATUS_OK);
+  TRY_INIT("Power Distribution Module (PDM)", PDM_Init(&mLog, &mPdm), PDM_STATUS_OK);
 
-  // Shutdown circuit
-  SDC_Config_T sdcConfig = {
-    .state = &mVehicleState,
-    .pinBMS = &Mapping_GPI_SDC_BMS,
-    .pinBSPD = &Mapping_GPI_SDC_BSPD,
-    .pinIMD = &Mapping_GPI_SDC_IMD,
-    .pinSDCOut = &Mapping_GPI_SDC_SDCOut,
-    .pinECUError = &Mapping_GPO_SDC_ECUError,
-  };
-  if (SDC_Init(&mLog, &sdcConfig) != SDC_STATUS_OK) {
-    ECU_Init_Error("SDC initialization error\n");
-  }
+  // External devices
+  TRY_INIT("Inverter", CInverter_Init(&mLog, &mInverter), CINVERTER_STATUS_OK);
+  TRY_INIT("BMS", BMS_Init(&mLog, &mBms), BMS_STATUS_OK);
 
-  // Power distribution module (PDM)
-  mPdm.channels = pdmChannels;
-  mPdm.numChannels = numPdmChannels;
-  mPdm.vehicleState = &mVehicleState;
-  if (PDM_Init(&mLog, &mPdm) != PDM_STATUS_OK) {
-    ECU_Init_Error("PDM initialization error\n");
-  }
-
-  // Inverter
-  mInverter.canInst = MAPPING_INVERTER_CANBUS;
-  mInverter.vehicleState = &mVehicleState;
-  if (CInverter_Init(&mLog, &mInverter) != CINVERTER_STATUS_OK) {
-    ECU_Init_Error("Inverter initialization error\n");
-  }
-
-  // BMS
-  mBms.canInst = MAPPING_BMS_CANBUS;
-  mBms.vehicleState = &mVehicleState;
-  if (BMS_Init(&mLog, &mBms) != BMS_STATUS_OK) {
-    ECU_Init_Error("BMS initialization error\n");
-  }
-
-  // Discrete input sensors
-  mDiscreteSense.logger = &mLog;
-  mDiscreteSense.state = &mVehicleState;
-  mDiscreteSense.adcAccelPedalA = MAPPING_ADC_THROTTLE_1;
-  mDiscreteSense.adcAccelPedalB = MAPPING_ADC_THROTTLE_2;
-  mDiscreteSense.adcBrakeFront = MAPPING_ADC_BRAKE_FRONT;
-  mDiscreteSense.adcBrakeRear = MAPPING_ADC_BRAKE_REAR;
-  mDiscreteSense.gpioDashboardButton = &Mapping_GPI_StartButton;
+  // load discrete sensor settings from config
   mDiscreteSense.scalingAccelPedalA = (ADC_Scaling_T) {
     .lowerScaling = mConfig.inputs.accelPedal.calibrationA.rawLower,
     .upperScaling = mConfig.inputs.accelPedal.calibrationA.rawUpper,
@@ -402,19 +370,8 @@ static void ECU_Init_VehicleDevices(void)
     .upperScaling = mConfig.inputs.brakePressureRear.rawUpper,
     .saturate = true,
   };
-  if (DiscreteSense_Init(&mDiscreteSense) != DISCRETESENSE_STATUS_OK) {
-    ECU_Init_Error("DiscreteSense_Init initialization error\n");
-  }
-
-  // Dashboard output
-  mDashboardOut = (DashboardOut_T){
-    .output_pin = &Mapping_GPO_LED,
-    .vehicleState = &mVehicleState,
-    .log = &mLog,
-  };
-  if (DashboardOut_Init(&mDashboardOut) != DASHBOARDOUT_OK) {
-    ECU_Init_Error("DashboardOut_Init initialization error\n");
-  }
+  TRY_INIT("Discrete Sensor", DiscreteSense_Init(&mDiscreteSense), DISCRETESENSE_STATUS_OK);
+  TRY_INIT("Dashboard Out", DashboardOut_Init(&mDashboardOut), DASHBOARDOUT_OK);
 }
 
 //------------------------------------------------------------------------------
@@ -422,15 +379,7 @@ static void ECU_Init_VehicleInterface2(void)
 {
   Log_Print(&mLog, "###### ECU_Init_VehicleInterface2 ######\n");
 
-  // Vehicle control
-  mVehicleControl = (VehicleControl_T){
-    .pdm = &mPdm,
-    .inverter = &mInverter,
-    .dashOut = &mDashboardOut,
-  };
-  if (VehicleControl_Init(&mLog, &mVehicleControl)) {
-    ECU_Init_Error("VehicleControl initialization error\n");
-  }
+  TRY_INIT("Vehicle Control", VehicleControl_Init(&mLog, &mVehicleControl), VEHICLECONTROL_STATUS_OK);
   if (PCInterface_SetVehicleControl(&mPCInterface, &mVehicleControl) != PCINTERFACE_STATUS_OK) {
     ECU_Init_Error("PCInterface_SetVehicleControl error\n");
   }
@@ -441,24 +390,7 @@ static void ECU_Init_VehicleProccesses(void)
 {
   Log_Print(&mLog, "###### ECU_Init_VehicleProccesses ######\n");
 
-  // Watchdog Trigger
-  mWdtTrigger.blinkLED = &Mapping_GPO_LED;
-  if (WatchdogTrigger_Init(&mLog, &mWdtTrigger) != WATCHDOGTRIGGER_STATUS_OK) {
-    ECU_Init_Error("Watchdog Trigger initialization error\n");
-  }
-}
-
-// TODO move this somewhere more appropriate
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
-{
-  SDC_IRQHandler(GPIO_Pin);
-}
-
-void TIM_IRQHandler(TIM_HandleTypeDef *htim)
-{
-  // Advance the TaskTimer
-  TaskTimer_TIM_PeriodElapsedCallback(htim);
-
-  // Invoke wheel speed handler
-  Wheelspeed_TIM_IRQHandler(htim);
+  TRY_INIT("Watchdog Trigger", WatchdogTrigger_Init(&mLog, &mWdtTrigger), WATCHDOGTRIGGER_STATUS_OK);
+  TRY_INIT("Throttle Controller", ThrottleController_Init(&mLog, &mThrottleController), THROTTLECONTROLLER_STATUS_OK);
+  TRY_INIT("Vehicle State Manager", VehicleStateManager_Init(&mLog, &mVehicleStateManager), STATEMANAGER_STATUS_OK);
 }
