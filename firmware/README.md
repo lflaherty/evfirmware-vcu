@@ -314,7 +314,7 @@ If these occur, the firmware will immeidately run a special fault handler where 
 * Powering off inverter power channel
 * Enabling the ECU fault output (this will open the SDC relays)
 * Apply a solid LED output to indicate that the ECU is stuck
-* Hold in an infite loop - we no longer proceeed past this point.
+* Hold in an infinite loop - we no longer proceeed past this point.
 
 These operations are done with as little firmware layers as possible - they will write directly to hardware (i.e. they bypass the `Vehicle Control` component, and the drivers below this, as it is likely unclear what has caused this fault).
 
@@ -360,6 +360,8 @@ The data logging module simply makes a copy of system state and logs it to a fil
 
 <h2 id="Vehicle-Interface">Vehicle Interface</h2>
 <h3 id="System-Configuration">System Configuration</h3>
+
+_Note: The system configuration as described here is is not currently implemented. The code currently implements a default config data structure._
 
 The system configuration is a table of values used by the rest of the system during init. The table is populated by fields stored on the extermal EEPROM.
 
