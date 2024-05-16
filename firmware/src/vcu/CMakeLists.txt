@@ -1,0 +1,4 @@
+add_subdirectory(startup)
+add_subdirectory(vehicleLogic)
+add_subdirectory(vehicleInterface)
+add_subdirectory(device)

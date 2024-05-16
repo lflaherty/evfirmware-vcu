@@ -1,0 +1,7 @@
+target_sources(${PROJECT_NAME} PRIVATE croutine.c)
+target_sources(${PROJECT_NAME} PRIVATE event_groups.c)
+target_sources(${PROJECT_NAME} PRIVATE list.c)
+target_sources(${PROJECT_NAME} PRIVATE queue.c)
+target_sources(${PROJECT_NAME} PRIVATE stream_buffer.c)
+target_sources(${PROJECT_NAME} PRIVATE tasks.c)
+target_sources(${PROJECT_NAME} PRIVATE timers.c)

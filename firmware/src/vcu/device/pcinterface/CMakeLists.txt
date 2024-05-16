@@ -1,0 +1,5 @@
+target_sources(${PROJECT_NAME} PRIVATE pcinterface.c)
+target_sources(${PROJECT_NAME} PRIVATE periodicupdates.c)
+target_sources(${PROJECT_NAME} PRIVATE requests.c)
+target_sources(${PROJECT_NAME} PRIVATE debugterm.c)
+target_sources(${PROJECT_NAME} PRIVATE debugtermcommands.c)

@@ -1,0 +1,8 @@
+target_sources(${PROJECT_NAME} PRIVATE main.c)
+target_sources(${PROJECT_NAME} PRIVATE freertos.c)
+target_sources(${PROJECT_NAME} PRIVATE stm32f7xx_hal_msp.c)
+target_sources(${PROJECT_NAME} PRIVATE stm32f7xx_hal_timebase_tim.c)
+target_sources(${PROJECT_NAME} PRIVATE stm32f7xx_it.c)
+target_sources(${PROJECT_NAME} PRIVATE syscalls.c)
+target_sources(${PROJECT_NAME} PRIVATE sysmem.c)
+target_sources(${PROJECT_NAME} PRIVATE system_stm32f7xx.c)

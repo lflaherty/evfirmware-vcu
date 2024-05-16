@@ -1,0 +1,5 @@
+target_sources(${PROJECT_NAME} PRIVATE uart.c)
+target_sources(${PROJECT_NAME} PRIVATE msgframedecode.c)
+target_sources(${PROJECT_NAME} PRIVATE msgframeencode.c)
+target_sources(${PROJECT_NAME} PRIVATE nmeadecode.c)
+target_sources(${PROJECT_NAME} PRIVATE nmeatypes.c)

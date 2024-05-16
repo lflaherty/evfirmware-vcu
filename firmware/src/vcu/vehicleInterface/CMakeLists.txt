@@ -1,0 +1,3 @@
+add_subdirectory(config)
+add_subdirectory(vehicleState)
+add_subdirectory(vehicleControl)

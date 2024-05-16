@@ -62,7 +62,9 @@ static void cmd_help(
       DebugPrint(pcinterface, defaultString);
 
       // Print normal help command
-      char simpleHelpArgv[1][PCINTERFACE_DEBUGTERM_BUFLEN+1] = {{"help"}};
+      char simpleHelpArgv[DEBUGTERM_NUM_ARGS][PCINTERFACE_DEBUGTERM_BUFLEN+1];
+      memset(simpleHelpArgv, 0, sizeof(simpleHelpArgv));
+      snprintf(simpleHelpArgv[0], PCINTERFACE_DEBUGTERM_BUFLEN, "help");
       cmd_help(pcinterface, 1, simpleHelpArgv);
     }
   }
