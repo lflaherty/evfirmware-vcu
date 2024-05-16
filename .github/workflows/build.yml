@@ -15,6 +15,6 @@ jobs:
     - uses: actions/checkout@v4
     
     - name: Build
-      run: ./firwmare/build.sh
+      run: ./firmware/build.sh
     - name: Test
       run: ./firmware/test/run_tests.sh
