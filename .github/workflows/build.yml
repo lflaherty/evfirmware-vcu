@@ -17,7 +17,9 @@ jobs:
       with:
         release: '13.2.Rel1'
     - uses: actions/checkout@v4
-    
+      with:
+        submodules: recursive
+
     - name: Build
       run: ./firmware/build.sh
     - name: Test
