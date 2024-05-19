@@ -39,10 +39,10 @@ static bool verifyCrc(MsgFrameDecode_T* mf)
     &calcCrc);
 
   // restore original message
-  msg[crcOffset + 0U] = (msgCrc >> 24U) & 0xFF;
-  msg[crcOffset + 1U] = (msgCrc >> 16U) & 0xFF;
-  msg[crcOffset + 2U] = (msgCrc >> 8U) & 0xFF;
-  msg[crcOffset + 3U] = (msgCrc >> 0U) & 0xFF;
+  msg[crcOffset + 0U] = (uint8_t)((msgCrc >> 24U) & 0xFF);
+  msg[crcOffset + 1U] = (uint8_t)((msgCrc >> 16U) & 0xFF);
+  msg[crcOffset + 2U] = (uint8_t)((msgCrc >> 8U) & 0xFF);
+  msg[crcOffset + 3U] = (uint8_t)((msgCrc >> 0U) & 0xFF);
 
   return calcCrc == msgCrc;
 }

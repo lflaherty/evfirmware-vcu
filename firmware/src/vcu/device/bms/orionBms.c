@@ -35,11 +35,11 @@ static void HandleMsg_MaxCellState(const CAN_DataFrame_T* data, VehicleState_T* 
 
   int16_t maxCellTempMsg = 0;
   maxCellTempMsg |= msg[0];
-  maxCellTempMsg |= msg[1] << 8;
+  maxCellTempMsg |= (int16_t)(msg[1] << 8);
 
   int16_t maxCellVoltageMsg = 0;
-  maxCellVoltageMsg |= msg[3];
-  maxCellVoltageMsg |= msg[4] << 8;
+  maxCellVoltageMsg |= (int16_t)msg[3];
+  maxCellVoltageMsg |= (int16_t)(msg[4] << 8);
 
   uint8_t maxCellTempID = data->data[2];
   uint8_t maxCellVoltageID = data->data[5];
@@ -65,12 +65,12 @@ static void HandleMsg_MinCellState(const CAN_DataFrame_T* data, VehicleState_T* 
   const uint8_t* msg = data->data;
 
   int16_t minCellTempMsg = 0;
-  minCellTempMsg |= msg[0];
-  minCellTempMsg |= msg[1] << 8;
+  minCellTempMsg |= (int16_t)msg[0];
+  minCellTempMsg |= (int16_t)(msg[1] << 8);
 
   int16_t minCellVoltageMsg = 0;
-  minCellVoltageMsg |= msg[3];
-  minCellVoltageMsg |= msg[4] << 8;
+  minCellVoltageMsg |= (int16_t)msg[3];
+  minCellVoltageMsg |= (int16_t)(msg[4] << 8);
 
   uint8_t minCellTempID = data->data[2];
   uint8_t minCellVoltageID = data->data[5];
@@ -96,16 +96,16 @@ static void HandleMsg_PackState(const CAN_DataFrame_T* data, VehicleState_T* sta
   const uint8_t* msg = data->data;
 
   int16_t dcCurrentMsg = 0;
-  dcCurrentMsg |= msg[0];
-  dcCurrentMsg |= msg[1] << 8;
+  dcCurrentMsg |= (int16_t)msg[0];
+  dcCurrentMsg |= (int16_t)(msg[1] << 8);
 
   int16_t dcVoltageMsg = 0;
-  dcVoltageMsg |= msg[2];
-  dcVoltageMsg |= msg[3] << 8;
+  dcVoltageMsg |= (int16_t)msg[2];
+  dcVoltageMsg |= (int16_t)(msg[3] << 8);
 
   uint16_t socMsg = 0;
-  socMsg |= msg[4];
-  socMsg |= msg[5] << 8;
+  socMsg |= (uint16_t)msg[4];
+  socMsg |= (uint16_t)(msg[5] << 8);
 
   float dcCurrent = msgToCurrent(dcCurrentMsg);
   float dcVoltage = msgToVoltageHigh(dcVoltageMsg);
@@ -130,8 +130,8 @@ static void HandleMsg_Status(const CAN_DataFrame_T* data, VehicleState_T* state)
   uint8_t counter = msg[0];
   uint8_t popualtedCells = msg[1];
   uint16_t failsafeStatus = 0;
-  failsafeStatus |= msg[2];
-  failsafeStatus |= msg[3] << 8;
+  failsafeStatus |= (uint16_t)msg[2];
+  failsafeStatus |= (uint16_t)(msg[3] << 8);
 
   // send to vehicle state
   if (VehicleState_AccessAcquire(state)) {

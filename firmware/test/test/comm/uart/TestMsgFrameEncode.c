@@ -15,8 +15,8 @@
 // source code under test
 #include "uart/msgframeencode.c"
 
-static const uint16_t MSG_LEN = 15U;
-static const uint16_t DATA_LEN = 4U;
+#define MSG_LEN 15U
+#define DATA_LEN 4U
 
 static Logging_T testLog;
 static CRC_T mCrc;

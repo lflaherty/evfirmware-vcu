@@ -71,9 +71,9 @@ HAL_StatusTypeDef stubHAL_I2C_Mem_Write_DMA(
     uint8_t txArray[txArrayLen];
 
     // Fill in memory address in the correct order
-    uint16_t shift = 8 * (MemAddSize - 1);
+    int shift = 8 * (MemAddSize - 1);
     for (uint16_t i = 0; i < MemAddSize; ++i) {
-        uint8_t addrByte = (MemAddress >> shift) & 0xFF;
+        uint8_t addrByte = (uint8_t)((MemAddress >> shift) & 0xFF);
         shift -= 8;
         txArray[i] = addrByte;
     }
@@ -98,9 +98,9 @@ HAL_StatusTypeDef stubHAL_I2C_Mem_Read_DMA(
     // Select the address via a dedicated I2C call
     uint8_t addressCmd[MemAddSize];
     // Fill in memory address in the correct order
-    uint16_t shift = 8 * (MemAddSize - 1);
+    int shift = 8 * (MemAddSize - 1);
     for (uint16_t i = 0; i < MemAddSize; ++i) {
-        uint8_t addrByte = (MemAddress >> shift) & 0xFF;
+        uint8_t addrByte = (uint8_t)((MemAddress >> shift) & 0xFF);
         shift -= 8;
         addressCmd[i] = addrByte;
     }

@@ -85,18 +85,18 @@ static void handleMessage(
   }
 
   uint16_t targetAddr = 0U;
-  targetAddr |= (bytes[1] & 0xff) << 8;
-  targetAddr |= bytes[2] & 0xff;
+  targetAddr |= (uint16_t)((bytes[1] & 0xff) << 8);
+  targetAddr |= (uint16_t)(bytes[2] & 0xff);
   if (targetAddr != PCINTERFACE_MSG_DESTADDR_VCU) {
     return;
   }
 
   uint16_t function = 0U;
-  function |= (bytes[3] & 0xff) << 8;
-  function |= bytes[4] & 0xff;
+  function |= (uint16_t)((bytes[3] & 0xff) << 8);
+  function |= (uint16_t)(bytes[4] & 0xff);
 
   uint8_t* payload = bytes + PAYLOAD_OFFSET;
-  uint16_t payloadLen = nBytes - HEADER_PADDING;
+  uint16_t payloadLen = nBytes - (uint16_t)HEADER_PADDING;
 
   switch (function) {
     case PCINTERFACE_MSG_DEBUG_TERMINAL:
@@ -109,6 +109,10 @@ static void handleMessage(
 
     case PCINTERFACE_MSG_TESTCMD_PDM_FUNCTION:
       handleMsgTestPdm(pcinterface, payload, payloadLen);
+      break;
+    
+    default:
+      // do nothing
       break;
   }
 }

@@ -203,17 +203,17 @@ void FaultManager_Init(Logging_T* logger, FaultManager_T* faultMgr)
 
   // Re-calculate fault timer/counter limits
   faultMgr->internal.accelPedalRangeTimerLimit =
-      faultMgr->vehicleConfig->inputs.invalidDataTimeout / faultMgr->tickRateMs;
+      (uint16_t)(faultMgr->vehicleConfig->inputs.invalidDataTimeout / faultMgr->tickRateMs);
   faultMgr->internal.accelPedalConsistencyTimerLimit =
-      faultMgr->vehicleConfig->inputs.invalidDataTimeout / faultMgr->tickRateMs;
+      (uint16_t)(faultMgr->vehicleConfig->inputs.invalidDataTimeout / faultMgr->tickRateMs);
   faultMgr->internal.brakePressureRangeTimerLimit =
-      faultMgr->vehicleConfig->inputs.invalidDataTimeout / faultMgr->tickRateMs;
+      (uint16_t)(faultMgr->vehicleConfig->inputs.invalidDataTimeout / faultMgr->tickRateMs);
   faultMgr->internal.brakePressureConsistencyTimerLimit =
-      faultMgr->vehicleConfig->inputs.invalidDataTimeout / faultMgr->tickRateMs;
+      (uint16_t)(faultMgr->vehicleConfig->inputs.invalidDataTimeout / faultMgr->tickRateMs);
   faultMgr->internal.pedalAbuseTimerLimit =
-      faultMgr->vehicleConfig->inputs.invalidDataTimeout / faultMgr->tickRateMs;
+      (uint16_t)(faultMgr->vehicleConfig->inputs.invalidDataTimeout / faultMgr->tickRateMs);
   faultMgr->internal.bmsFaultTimerLimit =
-      faultMgr->vehicleConfig->bms.invalidDataTimeout / faultMgr->tickRateMs;
+      (uint16_t)(faultMgr->vehicleConfig->bms.invalidDataTimeout / faultMgr->tickRateMs);
 
   Log_Print(mLog, "FaultManager_Init complete\n");
 }

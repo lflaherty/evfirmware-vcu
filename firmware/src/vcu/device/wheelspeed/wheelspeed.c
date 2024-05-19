@@ -221,7 +221,7 @@ BaseType_t Wheelspeed_TIM_IRQHandler(const TIM_HandleTypeDef* htim)
     uint8_t sampleRear = GPIO_ReadPin(mConfig.rearWsPin);
 
     sample |= sampleRear & 0x1;
-    sample |= (sampleFront & 0x1) << 1;
+    sample |= (uint8_t)((sampleFront & 0x1) << 1);
 
     xStreamBufferSendFromISR(mSampleStream.sampleStreamHandle, &sample, 1U,
                              &higherPriorityTaskWoken);
