@@ -86,6 +86,8 @@ TEST(LIB_DEPENDS, TestOk)
 {
     App1_T app1;
     App2_T app2;
+    memset(&app1, 0, sizeof(app1));
+    memset(&app2, 0, sizeof(app2));
     app2.app1 = &app1;
 
     TEST_ASSERT_EQUAL(LIBA_STATUS_OK, LIBA_Init());
@@ -97,6 +99,8 @@ TEST(LIB_DEPENDS, TestDependFail)
 {
     App1_T app1;
     App2_T app2;
+    memset(&app1, 0, sizeof(app1));
+    memset(&app2, 0, sizeof(app2));
     app2.app1 = &app1;
 
     TEST_ASSERT_EQUAL(LIBA_STATUS_OK, LIBA_Init());
@@ -107,6 +111,8 @@ TEST(LIB_DEPENDS, TestNullDepend)
 {
     App1_T app1 = {0};
     App2_T app2 = {0};
+    memset(&app1, 0, sizeof(app1));
+    memset(&app2, 0, sizeof(app2));
     // Not setting app2.app1 to leave it null
 
     TEST_ASSERT_EQUAL(LIBA_STATUS_OK, LIBA_Init());
@@ -117,6 +123,7 @@ TEST(LIB_DEPENDS, TestNullDepend)
 TEST(LIB_DEPENDS, TestStaticDependFail)
 {
     App1_T app1;
+    memset(&app1, 0, sizeof(app1));
     TEST_ASSERT_EQUAL(APP1_STATUS_ERROR_DEPEND, App1_Init(&app1));
 }
 
