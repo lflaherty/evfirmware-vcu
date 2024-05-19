@@ -84,6 +84,10 @@ static void GPS_TaskMethod(GPS_T* gps)
       case NMEA_MSGTYPE_GPVTG:
         // TODO
         break;
+
+      default:
+        // no nothing
+        break;
     }
   }
 }

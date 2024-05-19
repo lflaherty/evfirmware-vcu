@@ -183,7 +183,7 @@ I2C_Status_T I2C_Write(
 
   // Start DMA transfer
   uint16_t writeAddr = address;
-  writeAddr &= ~0x01; // Set R/W bit to write (0)
+  writeAddr &= (uint16_t)~0x01; // Set R/W bit to write (0)
   HAL_StatusTypeDef status = HAL_I2C_Master_Transmit_DMA(
       i2cDev->handle,
       writeAddr,

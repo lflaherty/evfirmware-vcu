@@ -51,11 +51,11 @@ static void periodicCanDebug(PCInterface_T* pcinterface)
     uint32_t dlc = 8;
 
     // populate data with counter
-    data[7] = 0x69;
-    data[3] = (pcinterface->counter >> 24U) & 0xFF;
-    data[2] = (pcinterface->counter >> 16U) & 0xFF;
-    data[1] = (pcinterface->counter >>  8U) & 0xFF;
-    data[0] = (pcinterface->counter >>  0U) & 0xFF;
+    data[7] = (uint8_t)(0x69);
+    data[3] = (uint8_t)((pcinterface->counter >> 24U) & 0xFF);
+    data[2] = (uint8_t)((pcinterface->counter >> 16U) & 0xFF);
+    data[1] = (uint8_t)((pcinterface->counter >>  8U) & 0xFF);
+    data[0] = (uint8_t)((pcinterface->counter >>  0U) & 0xFF);
 
     CAN_Status_T status = CAN_SendMessage(CAN_DEV1, msgId, data, dlc);
     if (status != CAN_STATUS_OK) {

@@ -103,7 +103,7 @@ static size_t expectStateMsg(void)
 
     size_t remainingBytes = 0;
     if (STATEUPDATE_NUMMSGS > 1) {
-        uint16_t remainingMsgs = STATEUPDATE_NUMMSGS - 1;
+        uint16_t remainingMsgs = (uint16_t)STATEUPDATE_NUMMSGS - 1;
         remainingBytes = remainingMsgs * PCINTERFACE_MSG_STATEUPDATE_MSGLEN;
 
         TEST_ASSERT_GREATER_OR_EQUAL(remainingBytes, mockGet_HAL_UART_Len());
