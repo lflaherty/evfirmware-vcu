@@ -12,13 +12,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
     - name: Install Arm GNU Toolchain (arm-none-eabi-gcc)
       uses: carlosperate/arm-none-eabi-gcc-action@v1
       with:
         release: '13.2.Rel1'
-    - uses: actions/checkout@v4
-      with:
-        submodules: recursive
+    - name: Install lcov
+      run: sudo apt-get -y install lcov
 
     - name: Build
       run: ./firmware/build.sh
