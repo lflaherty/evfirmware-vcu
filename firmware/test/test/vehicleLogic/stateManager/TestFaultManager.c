@@ -45,9 +45,9 @@ static const Temperature_T maxCellTemperature = 900U; // 90 degrees
 static const Percent_T minStateOfCharge = 500; // 5%
 static const uint16_t bmsInvalidTimeout = 100u; // 100ms
 
-static void stepAndAssert(FaultStatus_T status, uint16_t steps)
+static void stepAndAssert(FaultStatus_T status, uint32_t steps)
 {
-    for (uint16_t i = 0; i < steps; ++i) {
+    for (uint32_t i = 0; i < steps; ++i) {
         FaultStatus_T faultStatus = FaultManager_Step(&mFaultMgr);
         TEST_ASSERT_EQUAL(status, faultStatus);
         TEST_ASSERT_FALSE(mockSempahoreGetLocked(mVehicleState.mutex));
@@ -149,7 +149,7 @@ TEST(VEHICLELOGIC_FAULTMANAGER, InitOk)
 
 TEST(VEHICLELOGIC_FAULTMANAGER, FaultAccelPedalRange)
 {
-    uint16_t timeoutCount = pedalInvalidTimeout / tickRateMs;
+    uint32_t timeoutCount = pedalInvalidTimeout / tickRateMs;
 
     mVehicleState.data.inputs.accelRawA = 1500U;
     mVehicleState.data.inputs.accelRawB = 3500U;
@@ -179,7 +179,7 @@ TEST(VEHICLELOGIC_FAULTMANAGER, FaultAccelPedalRange)
 
 TEST(VEHICLELOGIC_FAULTMANAGER, FaultAccelPedalConsistency)
 {
-    uint16_t timeoutCount = pedalInvalidTimeout / tickRateMs;
+    uint32_t timeoutCount = pedalInvalidTimeout / tickRateMs;
 
     mVehicleState.data.inputs.accelA = 0.0f;
     mVehicleState.data.inputs.accelB = 0.0f;
@@ -213,7 +213,7 @@ TEST(VEHICLELOGIC_FAULTMANAGER, FaultAccelPedalConsistency)
 
 TEST(VEHICLELOGIC_FAULTMANAGER, FaultBrakePedalRange)
 {
-    uint16_t timeoutCount = pedalInvalidTimeout / tickRateMs;
+    uint32_t timeoutCount = pedalInvalidTimeout / tickRateMs;
 
     mVehicleState.data.inputs.brakeRawFront = 1500U;
     mVehicleState.data.inputs.brakeRawRear = 3500U;
@@ -243,7 +243,7 @@ TEST(VEHICLELOGIC_FAULTMANAGER, FaultBrakePedalRange)
 
 TEST(VEHICLELOGIC_FAULTMANAGER, FaultPedalAbuse)
 {
-    uint16_t timeoutCount = pedalInvalidTimeout / tickRateMs;
+    uint32_t timeoutCount = pedalInvalidTimeout / tickRateMs;
 
     mVehicleState.data.inputs.accel = 0.0f;
     mVehicleState.data.inputs.brakePresFront = 0.0f;
@@ -272,7 +272,7 @@ TEST(VEHICLELOGIC_FAULTMANAGER, FaultPedalAbuse)
 
 TEST(VEHICLELOGIC_FAULTMANAGER, FaultBMSCellTemperature)
 {
-    uint16_t timeoutCount = bmsInvalidTimeout / tickRateMs;
+    uint32_t timeoutCount = bmsInvalidTimeout / tickRateMs;
 
     // valid voltage
     mVehicleState.data.battery.maxCellTemperature = 500; // 50 deg
@@ -290,7 +290,7 @@ TEST(VEHICLELOGIC_FAULTMANAGER, FaultBMSCellTemperature)
 
 TEST(VEHICLELOGIC_FAULTMANAGER, FaultBMSCurrent)
 {
-    uint16_t timeoutCount = bmsInvalidTimeout / tickRateMs;
+    uint32_t timeoutCount = bmsInvalidTimeout / tickRateMs;
 
     // valid current
     mVehicleState.data.battery.dcCurrent = 2000; // 200 Amps
@@ -308,7 +308,7 @@ TEST(VEHICLELOGIC_FAULTMANAGER, FaultBMSCurrent)
 
 TEST(VEHICLELOGIC_FAULTMANAGER, FaultBMSCellVoltage)
 {
-    uint16_t timeoutCount = bmsInvalidTimeout / tickRateMs;
+    uint32_t timeoutCount = bmsInvalidTimeout / tickRateMs;
 
     // valid voltage
     mVehicleState.data.battery.maxCellVoltage = 360; // 3.6v

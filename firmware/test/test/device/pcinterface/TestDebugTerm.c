@@ -127,8 +127,8 @@ static size_t expectDebugLogMsg(const char* msg, const uint8_t* buf, const size_
         TEST_ASSERT_EQUAL(PCINTERFACE_MSG_DEBUG_TERMINAL, buf[bufOffset+4]);
 
         uint16_t payloadLen = 0;
-        payloadLen |= buf[bufOffset+5];
-        payloadLen |= buf[bufOffset+6] << 8;
+        payloadLen |= (uint16_t)buf[bufOffset+5];
+        payloadLen |= (uint16_t)(buf[bufOffset+6] << 8);
         
         TEST_ASSERT_EQUAL('\r', buf[bufOffset+7+payloadLen+4]);
         TEST_ASSERT_EQUAL('\n', buf[bufOffset+7+payloadLen+5]);

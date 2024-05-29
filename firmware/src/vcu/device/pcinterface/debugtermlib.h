@@ -39,16 +39,16 @@ static void DebugPrint(PCInterface_T* pcinterface, const char* msg)
     pcinterface->mfDebugEncode.msgLen = payloadLen + PCINTERFACE_MSG_PACKET_BYTES;
     uint8_t* msgPayload = MsgFrameEncode_InitFrame(&pcinterface->mfDebugEncode);
 
-    msgPayload[0] = textLen & 0xFF;
-    msgPayload[1] = (textLen >> 8) & 0xFF;
+    msgPayload[0] = (uint8_t)(textLen & 0xFF);
+    msgPayload[1] = (uint8_t)((textLen >> 8) & 0xFF);
     snprintf((char*)(msgPayload + 2), textLen, DEBUGTERM_MSG_TRUNCATED);
   } else {
     pcinterface->mfDebugEncode.dataLen = payloadLen;
     pcinterface->mfDebugEncode.msgLen = payloadLen + PCINTERFACE_MSG_PACKET_BYTES;
     uint8_t* msgPayload = MsgFrameEncode_InitFrame(&pcinterface->mfDebugEncode);
 
-    msgPayload[0] = textLen & 0xFF;
-    msgPayload[1] = (textLen >> 8) & 0xFF;
+    msgPayload[0] = (uint8_t)(textLen & 0xFF);
+    msgPayload[1] = (uint8_t)((textLen >> 8) & 0xFF);
     memcpy(msgPayload + 2, msg, textLen);
   }
   MsgFrameEncode_UpdateCRC(&pcinterface->mfDebugEncode);

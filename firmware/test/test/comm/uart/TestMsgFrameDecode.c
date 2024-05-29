@@ -92,8 +92,8 @@ TEST(COMM_MSGFRAMEDECODE, TestMsgRecvBytes)
     succ = MsgFrameDecode_RecvBytes(&mMsgFrame, msg2, (uint16_t)msg2Len);
 
     expectedStart += 0U;
-    expectedEnd += msg2Len;
-    expectedBufferRemaining -= msg2Len;
+    expectedEnd += (uint16_t)msg2Len;
+    expectedBufferRemaining -= (uint16_t)msg2Len;
     uint8_t expectedBuffer2[] = {':', 0x01, 0x02, 0x03, 0x04, 0x4F, 0xCD, 0x55, 0x6F, '\r', '\n',
                                  0x55, ':', '\r'};
     size_t expectedBuffer2Len = sizeof(expectedBuffer2) / sizeof(uint8_t);
@@ -111,8 +111,8 @@ TEST(COMM_MSGFRAMEDECODE, TestMsgRecvBytes)
     succ = MsgFrameDecode_RecvBytes(&mMsgFrame, msg3, (uint16_t)msg3Len);
 
     expectedStart += 0U;
-    expectedEnd += msg3Len;
-    expectedBufferRemaining -= msg3Len;
+    expectedEnd += (uint16_t)msg3Len;
+    expectedBufferRemaining -= (uint16_t)msg3Len;
     uint8_t expectedBuffer3[] = {':', 0x01, 0x02, 0x03, 0x04, 0x4F, 0xCD, 0x55, 0x6F, '\r', '\n',
                                  0x55, ':', '\r',
                                  ':', 0x01, 0x02, 0x03, 0x04, 0x4F, 0xCD, 0x55, 0x6F, '\r', '\n'};

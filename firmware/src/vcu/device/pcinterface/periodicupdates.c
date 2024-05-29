@@ -38,13 +38,13 @@ static void sendStateField(
 
   // Update message buffer contents
   uint8_t* payload = MsgFrameEncode_InitFrame(&pcinterface->mfStateUpdate);
-  payload[0] = (fieldId >> 8) & 0xFF;
-  payload[1] = fieldId & 0xFF;
-  payload[2] = fieldSize & 0xFF;
-  payload[3] = (field >> 24) & 0xFF;
-  payload[4] = (field >> 16) & 0xFF;
-  payload[5] = (field >> 8) & 0xFF;
-  payload[6] = field & 0xFF;
+  payload[0] = (uint8_t)((fieldId >> 8) & 0xFF);
+  payload[1] = (uint8_t)(fieldId & 0xFF);
+  payload[2] = (uint8_t)(fieldSize & 0xFF);
+  payload[3] = (uint8_t)((field >> 24) & 0xFF);
+  payload[4] = (uint8_t)((field >> 16) & 0xFF);
+  payload[5] = (uint8_t)((field >> 8) & 0xFF);
+  payload[6] = (uint8_t)(field & 0xFF);
 
   MsgFrameEncode_UpdateCRC(&pcinterface->mfStateUpdate);
 
@@ -84,10 +84,10 @@ static void sendStateSdc(
     VehicleState_SDC_T* data)
 {
   uint8_t tmpSdc = 0;
-  tmpSdc |= (data->bms & 0x1) << 0;
-  tmpSdc |= (data->bspd & 0x1) << 1;
-  tmpSdc |= (data->imd & 0x1) << 2;
-  tmpSdc |= (data->out & 0x1) << 3;
+  tmpSdc |= (uint8_t)((data->bms & 0x1) << 0);
+  tmpSdc |= (uint8_t)((data->bspd & 0x1) << 1);
+  tmpSdc |= (uint8_t)((data->imd & 0x1) << 2);
+  tmpSdc |= (uint8_t)((data->out & 0x1) << 3);
   sendStateField(
       pcinterface,
       PCCONTROLLER_FIELDID_SDC,
@@ -109,7 +109,7 @@ static void sendStatePdm(
 
   uint8_t tmpPdm = 0;
   for (uint8_t i = 0; i < 6; ++i) {
-    tmpPdm |= (data->pdmChState[i] & 0x1) << i;
+    tmpPdm |= (uint8_t)((data->pdmChState[i] & 0x1) << i);
   }
 
   sendStateField(

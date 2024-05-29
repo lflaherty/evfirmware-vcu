@@ -23,10 +23,10 @@
  
 static Logging_T testLog;
 
-static const size_t recvQueueLen = 128;
+#define RECV_QUEUE_LEN 128
 static QueueHandle_t recvQueue;
 static StaticQueue_t recvQueueBuffer;
-static uint8_t recvQueueStorageArea[recvQueueLen];
+static uint8_t recvQueueStorageArea[RECV_QUEUE_LEN];
 
 // ISR
 extern void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef* hcan);
@@ -36,7 +36,7 @@ TEST_GROUP(COMM_CAN);
 TEST_SETUP(COMM_CAN)
 {
     recvQueue = xQueueCreateStatic(
-        recvQueueLen,
+        RECV_QUEUE_LEN,
         sizeof(CAN_DataFrame_T),
         recvQueueStorageArea,
         &recvQueueBuffer);

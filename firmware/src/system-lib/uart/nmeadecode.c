@@ -238,7 +238,7 @@ static inline bool verifyChecksum(struct decodeInfo* dec)
   if (!charToUInt16Hex(dec->checksum[1], &c0)) {
     return false;
   }
-  uint16_t checksumMsg = 16*c1 + c0;
+  uint16_t checksumMsg = (uint16_t)(c1 << 4) + c0;
 
   // Checksum is the XOR of all bytes between $ and * (not including)
   uint16_t checksumCalc = 0U;

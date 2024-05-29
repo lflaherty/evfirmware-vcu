@@ -8,7 +8,11 @@ BUILD_DIR=${SCRIPT_DIR}/build
 mkdir -p ${BUILD_DIR}
 cd ${BUILD_DIR}
 
-cmake ${TEST_DIR}
+# The report generation in it's current form supports clang coverage
+# reporting, and not gcov...
+# Compiling and running tests still works with gcc
+
+cmake  -DCMAKE_C_COMPILER=clang ${TEST_DIR}
 make -j$(nproc)
 
 ${TEST_DIR}/generate_report.sh ${SRC_DIR}

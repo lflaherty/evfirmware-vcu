@@ -26,12 +26,12 @@ uint8_t* MsgFrameEncode_InitFrame(MsgFrameEncode_T* mf)
   mf->buffer[mf->msgLen - 1U] = '\n';
 
   // Address[1:0]
-  mf->buffer[1] = (mf->address >> 8) & 0xFF;
-  mf->buffer[2] = (mf->address >> 0) & 0xFF;
+  mf->buffer[1] = (uint8_t)((mf->address >> 8) & 0xFF);
+  mf->buffer[2] = (uint8_t)((mf->address >> 0) & 0xFF);
 
   // Function[1:0]
-  mf->buffer[3] = (mf->function >> 8) & 0xFF;
-  mf->buffer[4] = (mf->function >> 0) & 0xFF;
+  mf->buffer[3] = (uint8_t)((mf->function >> 8) & 0xFF);
+  mf->buffer[4] = (uint8_t)((mf->function >> 0) & 0xFF);
 
   return mf->buffer + 5U;
 }
@@ -57,8 +57,8 @@ void MsgFrameEncode_UpdateCRC(MsgFrameEncode_T* mf)
     mBlockTime,
     &calcCrc);
 
-  mf->buffer[crcOffset + 0U] = (calcCrc >> 24U) & 0xFF;
-  mf->buffer[crcOffset + 1U] = (calcCrc >> 16U) & 0xFF;
-  mf->buffer[crcOffset + 2U] = (calcCrc >> 8U) & 0xFF;
-  mf->buffer[crcOffset + 3U] = (calcCrc >> 0U) & 0xFF;
+  mf->buffer[crcOffset + 0U] = (uint8_t)((calcCrc >> 24U) & 0xFF);
+  mf->buffer[crcOffset + 1U] = (uint8_t)((calcCrc >> 16U) & 0xFF);
+  mf->buffer[crcOffset + 2U] = (uint8_t)((calcCrc >> 8U) & 0xFF);
+  mf->buffer[crcOffset + 3U] = (uint8_t)((calcCrc >> 0U) & 0xFF);
 }

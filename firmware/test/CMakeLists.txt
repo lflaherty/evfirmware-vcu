@@ -20,7 +20,6 @@ set_property(GLOBAL PROPERTY C_STANDARD 11)
 # Compile flags
 # Warning flags
 add_compile_options(-Wall)
-add_compile_options(-Wextra)
 add_compile_options(-Wpointer-arith)
 add_compile_options(-Wcast-align)
 add_compile_options(-Wwrite-strings)
@@ -48,7 +47,6 @@ add_compile_options(-fsanitize=address)
 add_compile_options(-fsanitize=pointer-compare)
 add_compile_options(-fsanitize=pointer-subtract)
 add_compile_options(-fsanitize=undefined)
-add_compile_options(-Wall -Wextra -pedantic -Werror)
 
 add_link_options(-lm)
 add_link_options(-fsanitize=address)

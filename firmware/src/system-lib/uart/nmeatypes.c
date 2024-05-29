@@ -30,15 +30,15 @@ bool charToUInt16Dec(char c, uint16_t* out)
 bool charToUInt16Hex(char c, uint16_t* out)
 {
     if (c >= '0' && c <= '9') {
-      *out = (unsigned char)c - '0';
+      *out = (uint16_t)((unsigned char)c - '0');
       return true;
     }
     if (c >= 'A' && c <= 'F') {
-      *out = (unsigned char)c - 'A' + 10;
+      *out = (uint16_t)((unsigned char)c - 'A' + 10);
       return true;
     }
     if (c >= 'a' && c <= 'f') {
-      *out = (unsigned char)c - 'a' + 10;
+      *out = (uint16_t)((unsigned char)c - 'a' + 10);
       return true;
     }
 
@@ -50,13 +50,13 @@ bool strToUInt8Dec(char* str, uint16_t len, uint8_t* out)
   uint16_t mul = 1;
   *out = 0U;
   for (uint16_t i = 0; i < len; ++i) {
-    uint16_t idx = len - i - 1;
+    int idx = len - i - 1;
     uint16_t digit;
     if (!charToUInt16Dec(str[idx], &digit)) {
       return false;
     }
 
-    *out += mul * digit;
+    *out += (uint8_t)(mul * digit);
     mul *= 10U;
   }
 
@@ -92,10 +92,10 @@ bool NmeaCharToUTCTime(char in[11], NmeaUTCTime_T* out)
     return false;
   }
 
-  out->hour = 10*h1 + h0;
-  out->min = 10*m1 + m0;
-  out->sec = 10*s1 + s0;
-  out->millisec = 100*ms2 + 10*ms1 + ms0;
+  out->hour = (uint8_t)(10 * h1 + h0);
+  out->min = (uint8_t)(10 * m1 + m0);
+  out->sec = (uint8_t)(10 * s1 + s0);
+  out->millisec = (uint16_t)(100 * ms2 + 10 * ms1 + ms0);
 
   return true;
 }
