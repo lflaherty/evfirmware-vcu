@@ -21,6 +21,11 @@ jobs:
         release: '13.2.Rel1'
     - name: Install lcov
       run: sudo apt-get -y install lcov
+    - name: Set up Clang
+      uses: egor-tensin/setup-clang@v1
+      with:
+        version: latest
+        platform: x64
 
     - name: Build
       run: ./firmware/build.sh
