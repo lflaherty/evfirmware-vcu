@@ -1,5 +1,7 @@
 # Custom ECU for Bespoke Electric Vehicles (EVs)
 
+![build status](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/lflaherty/726f8b4794888a707c32f7d8ed585224/raw/ev-ecu-badge-build.json) ![test status](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/lflaherty/28b16aeeb7b1799dae4080af603c9bcd/raw/ev-ecu-badge-test.json) ![code coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/lflaherty/716b4527bfa5c501cd59c979dd8f359f/raw/ev-ecu-badge-coverage.json)
+
 An open source reference hardware and software for building a custom ECU, designed with bespoke EVs in mind.
 
 The ECU design is particularly tailored to FSAE/Formula Student, custom go-karts, and custom hill-climb vehicles.

@@ -8,9 +8,7 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v4
       with:
@@ -23,6 +21,72 @@ jobs:
       run: sudo apt-get -y install lcov
 
     - name: Build
-      run: ./firmware/build.sh
-    - name: Test
-      run: ./firmware/test/run_tests.sh
+      run: |
+        ./firmware/build.sh
+        echo "BUILD_PASS=$?" >> $GITHUB_ENV
+    - name: Test and Coverage
+      run: |
+        ./firmware/test/run_tests.sh
+        echo "TEST_PASS=$?" >> $GITHUB_ENV
+        lcov --summary ./firmware/test/build/main_coverage.info
+        line_cov="$(lcov --summary firmware/test/build/main_coverage.info | grep lines | cut -d " " -f 4)"
+        echo "LCOV_LINES=${line_cov}" >> $GITHUB_ENV
+
+    - name: Generate Labels - Build Passing
+      if: always()
+      run: |
+        if [ "${{ env.BUILD_PASS }}" -eq 0 ]; then
+          echo "BUILD_PASS_LABEL=PASSING" >> $GITHUB_ENV
+          echo "BUILD_PASS_COLOR=green" >> $GITHUB_ENV
+        else
+          echo "BUILD_PASS_LABEL=FAILING" >> $GITHUB_ENV
+          echo "BUILD_PASS_COLOR=red" >> $GITHUB_ENV
+        fi
+    - name: Generate Labels - Tests Passing
+      if: always()
+      run: |
+        if [ "${{ env.TEST_PASS }}" -eq 0 ]; then
+          echo "TEST_PASS_LABEL=PASSING" >> $GITHUB_ENV
+          echo "TEST_PASS_COLOR=green" >> $GITHUB_ENV
+        else
+          echo "TEST_PASS_LABEL=FAILING" >> $GITHUB_ENV
+          echo "TEST_PASS_COLOR=red" >> $GITHUB_ENV
+        fi
+    - name: Generate Labels - Coverage
+      if: always()
+      run: |
+        line_cov_int=$(echo "${{ env.LCOV_LINES }}" | cut -d "." -f 1)
+        echo "LCOV_LINES_INT=${line_cov_int}" >> $GITHUB_ENV
+
+    - name: Create Build Badge
+      if: always()
+      uses: schneegans/dynamic-badges-action@v1.7.0
+      with:
+        auth: ${{ secrets.GIST_SECRET }}
+        gistID: 726f8b4794888a707c32f7d8ed585224
+        filename: ev-ecu-badge-build.json
+        label: build
+        message: ${{ env.BUILD_PASS_LABEL }}
+        color:  ${{ env.BUILD_PASS_COLOR }}
+    - name: Create Test Badge
+      if: always()
+      uses: schneegans/dynamic-badges-action@v1.7.0
+      with:
+        auth: ${{ secrets.GIST_SECRET }}
+        gistID: 28b16aeeb7b1799dae4080af603c9bcd
+        filename: ev-ecu-badge-test.json
+        label: tests
+        message: ${{ env.TEST_PASS_LABEL }}
+        color:  ${{ env.TEST_PASS_COLOR }}
+    - name: Create Coverage Badge
+      if: always()
+      uses: schneegans/dynamic-badges-action@v1.7.0
+      with:
+        auth: ${{ secrets.GIST_SECRET }}
+        gistID: 716b4527bfa5c501cd59c979dd8f359f
+        filename: ev-ecu-badge-coverage.json
+        label: coverage
+        message: ${{ env.LCOV_LINES }}
+        valColorRange: ${{ env.LCOV_LINES_INT }}
+        maxColorRange: 90
+        minColorRange: 50
