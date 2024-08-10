@@ -1,6 +1,8 @@
 ECU Firmware
 ============
 
+![build status](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/lflaherty/726f8b4794888a707c32f7d8ed585224/raw/ev-ecu-badge-build.json) ![test status](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/lflaherty/28b16aeeb7b1799dae4080af603c9bcd/raw/ev-ecu-badge-test.json) ![code coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/lflaherty/716b4527bfa5c501cd59c979dd8f359f/raw/ev-ecu-badge-coverage.json)
+
 <h1 id="Description">Description</h1>
 
 The ECU is responsible for overseeing the vehicle state and controlling the vehicle's operation from driver input and operating all devices associated with this process.
