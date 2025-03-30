@@ -120,9 +120,9 @@ Visualized:
 
  * `doc` Supporting assets for docs
  * `src`
-   * `cube-proj` Main entrypoint, STM32 HAL, firmware build, and STM32CubeIDE project
    * `vcu` Firmware specific to vehicle control unit.
    * `system-lib` Symlink to common MCU firmware.
+   * `hal` STM32 HAL.
  * `test` VCU tests (overlayed on top of system-lib tests)
 
 <h1 id="Tests">Tests</h1>
